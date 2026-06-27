@@ -1,0 +1,3023 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <link rel="manifest" href="/manifest.json" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/icons/Assets.xcassets/AppIcon.appiconset/_/32.png" />
+        <link rel="apple-touch-icon" href="/icons/Assets.xcassets/AppIcon.appiconset/_/180.png" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="theme-color" content="#1B5E20" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Admin Panel – AgriConnect</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+            rel="stylesheet"
+        />
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+        <style>
+            :root {
+                --primary: #1b5e20;
+                --primary-light: #2e7d32;
+                --secondary: #43a047;
+                --accent: #ffb300;
+                --accent-dark: #ff8f00;
+                --dark: #1a1a2e;
+                --dark-2: #16213e;
+                --light: #f8f9fa;
+                --gray: #6c757d;
+                --gray-light: #e9ecef;
+                --white: #ffffff;
+                --danger: #e74c3c;
+                --warning: #f39c12;
+                --sidebar-w: 250px;
+                --radius-sm: 8px;
+                --radius-md: 12px;
+                --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+                --shadow-md: 0 8px 30px rgba(0, 0, 0, 0.1);
+                --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+            body {
+                font-family:
+                    "Inter",
+                    -apple-system,
+                    BlinkMacSystemFont,
+                    sans-serif;
+                background: var(--light);
+                color: var(--dark);
+                line-height: 1.6;
+                overflow-x: hidden;
+            }
+
+            .sidebar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                bottom: 0;
+                width: var(--sidebar-w);
+                background: linear-gradient(
+                    180deg,
+                    var(--dark) 0%,
+                    var(--dark-2) 100%
+                );
+                z-index: 1000;
+                display: flex;
+                flex-direction: column;
+                transition: transform 0.3s ease;
+            }
+            .sidebar-brand {
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+                padding: 1.25rem 1.25rem;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            }
+            .sidebar-brand svg {
+                flex-shrink: 0;
+            }
+            .sidebar-brand span {
+                font-weight: 800;
+                font-size: 1.1rem;
+                color: var(--white);
+            }
+            .sidebar-brand .badge {
+                font-size: 0.6rem;
+                font-weight: 700;
+                text-transform: uppercase;
+                background: var(--accent);
+                color: var(--dark);
+                padding: 0.15rem 0.5rem;
+                border-radius: 50px;
+                letter-spacing: 1px;
+            }
+            .sidebar-nav {
+                flex: 1;
+                overflow-y: auto;
+                padding: 0.75rem 0;
+            }
+            .sidebar-nav a {
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+                padding: 0.7rem 1.25rem;
+                color: rgba(255, 255, 255, 0.55);
+                text-decoration: none;
+                font-size: 0.88rem;
+                font-weight: 500;
+                transition: var(--transition);
+                border-left: 3px solid transparent;
+            }
+            .sidebar-nav a:hover {
+                color: var(--white);
+                background: rgba(255, 255, 255, 0.05);
+            }
+            .sidebar-nav a.active {
+                color: var(--accent);
+                background: rgba(255, 179, 0, 0.08);
+                border-left-color: var(--accent);
+            }
+            .sidebar-nav a svg {
+                flex-shrink: 0;
+                opacity: 0.7;
+            }
+            .sidebar-nav a.active svg {
+                opacity: 1;
+            }
+            .sidebar-nav .nav-label {
+                padding: 1rem 1.25rem 0.25rem;
+                font-size: 0.65rem;
+                font-weight: 700;
+                text-transform: uppercase;
+                color: rgba(255, 255, 255, 0.25);
+                letter-spacing: 1.5px;
+            }
+            .sidebar-footer {
+                padding: 1rem 1.25rem;
+                border-top: 1px solid rgba(255, 255, 255, 0.08);
+            }
+            .sidebar-footer a {
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+                color: rgba(255, 255, 255, 0.5);
+                text-decoration: none;
+                font-size: 0.85rem;
+                font-weight: 500;
+                transition: var(--transition);
+            }
+            .sidebar-footer a:hover {
+                color: var(--white);
+            }
+
+            .main {
+                margin-left: var(--sidebar-w);
+                min-height: 100vh;
+            }
+            .topbar {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 1rem 2rem;
+                background: var(--white);
+                border-bottom: 1px solid var(--gray-light);
+                position: sticky;
+                top: 0;
+                z-index: 100;
+            }
+            .topbar-left {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+            }
+            .topbar h2 {
+                font-size: 1.2rem;
+                font-weight: 700;
+            }
+            .topbar h2 span {
+                color: var(--gray);
+                font-weight: 400;
+            }
+            .topbar-right {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+            }
+            .topbar-user {
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+                font-size: 0.85rem;
+                font-weight: 500;
+            }
+            .topbar-user .avatar {
+                width: 34px;
+                height: 34px;
+                border-radius: 50%;
+                background: linear-gradient(
+                    135deg,
+                    var(--primary),
+                    var(--secondary)
+                );
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: var(--white);
+                font-weight: 700;
+                font-size: 0.85rem;
+            }
+            .topbar-user .role-badge {
+                font-size: 0.65rem;
+                font-weight: 600;
+                text-transform: uppercase;
+                background: rgba(255, 179, 0, 0.15);
+                color: var(--accent-dark);
+                padding: 0.15rem 0.5rem;
+                border-radius: 50px;
+            }
+            .btn-logout {
+                padding: 0.4rem 1rem;
+                background: none;
+                border: 1px solid var(--gray-light);
+                border-radius: 50px;
+                cursor: pointer;
+                font-size: 0.8rem;
+                font-weight: 500;
+                font-family: inherit;
+                color: var(--gray);
+                transition: var(--transition);
+            }
+            .btn-logout:hover {
+                color: var(--danger);
+                border-color: var(--danger);
+            }
+
+            .content {
+                padding: 1.5rem 2rem;
+            }
+
+            .section {
+                display: none;
+            }
+            .section.active {
+                display: block;
+            }
+
+            .stats-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+                gap: 1.25rem;
+                margin-bottom: 2rem;
+            }
+            .stat-card {
+                background: var(--white);
+                border-radius: var(--radius-md);
+                padding: 1.5rem;
+                border: 1px solid var(--gray-light);
+                transition: var(--transition);
+                position: relative;
+                overflow: hidden;
+            }
+            .stat-card:hover {
+                transform: translateY(-3px);
+                box-shadow: var(--shadow-md);
+            }
+            .stat-card::before {
+                content: "";
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 3px;
+            }
+            .stat-card.green::before {
+                background: var(--secondary);
+            }
+            .stat-card.amber::before {
+                background: var(--accent);
+            }
+            .stat-card.blue::before {
+                background: #3498db;
+            }
+            .stat-card.purple::before {
+                background: #9b59b6;
+            }
+            .stat-card.red::before {
+                background: var(--danger);
+            }
+            .stat-card.teal::before {
+                background: #1abc9c;
+            }
+
+            .stat-card-top {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                margin-bottom: 0.75rem;
+            }
+            .stat-card-icon {
+                width: 44px;
+                height: 44px;
+                border-radius: var(--radius-sm);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .stat-card-icon.green {
+                background: rgba(46, 125, 50, 0.1);
+                color: var(--primary);
+            }
+            .stat-card-icon.amber {
+                background: rgba(255, 179, 0, 0.12);
+                color: var(--accent-dark);
+            }
+            .stat-card-icon.blue {
+                background: rgba(52, 152, 219, 0.1);
+                color: #2980b9;
+            }
+            .stat-card-icon.purple {
+                background: rgba(155, 89, 182, 0.1);
+                color: #8e44ad;
+            }
+            .stat-card-icon.red {
+                background: rgba(231, 76, 60, 0.1);
+                color: #c0392b;
+            }
+            .stat-card-icon.teal {
+                background: rgba(26, 188, 156, 0.1);
+                color: #16a085;
+            }
+            .stat-trend {
+                font-size: 0.75rem;
+                font-weight: 600;
+                display: flex;
+                align-items: center;
+                gap: 0.2rem;
+            }
+            .stat-trend.up {
+                color: var(--secondary);
+            }
+            .stat-trend.down {
+                color: var(--danger);
+            }
+
+            .stat-card h4 {
+                font-size: 1.8rem;
+                font-weight: 800;
+                margin-bottom: 0.15rem;
+            }
+            .stat-card p {
+                font-size: 0.8rem;
+                color: var(--gray);
+            }
+
+            .charts-row {
+                display: grid;
+                grid-template-columns: 2fr 1fr;
+                gap: 1.25rem;
+                margin-bottom: 2rem;
+            }
+            .chart-card {
+                background: var(--white);
+                border-radius: var(--radius-md);
+                border: 1px solid var(--gray-light);
+                padding: 1.5rem;
+            }
+            .chart-card h3 {
+                font-size: 1rem;
+                font-weight: 700;
+                margin-bottom: 1rem;
+            }
+            .chart-card canvas {
+                max-height: 280px;
+            }
+
+            .table-card {
+                background: var(--white);
+                border-radius: var(--radius-md);
+                border: 1px solid var(--gray-light);
+                padding: 1.5rem;
+                margin-bottom: 1.5rem;
+            }
+            .table-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                margin-bottom: 1rem;
+                flex-wrap: wrap;
+                gap: 0.75rem;
+            }
+            .table-header h3 {
+                font-size: 1rem;
+                font-weight: 700;
+            }
+            .table-header input,
+            .table-header select {
+                padding: 0.5rem 0.85rem;
+                border: 1.5px solid var(--gray-light);
+                border-radius: var(--radius-sm);
+                font-size: 0.85rem;
+                font-family: inherit;
+                outline: none;
+                transition: var(--transition);
+            }
+            .table-header input:focus,
+            .table-header select:focus {
+                border-color: var(--secondary);
+            }
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 0.85rem;
+            }
+            table th {
+                text-align: left;
+                padding: 0.75rem 0.5rem;
+                border-bottom: 2px solid var(--gray-light);
+                font-weight: 600;
+                color: var(--gray);
+                font-size: 0.75rem;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+            table td {
+                padding: 0.7rem 0.5rem;
+                border-bottom: 1px solid var(--gray-light);
+            }
+            table tr:hover td {
+                background: rgba(0, 0, 0, 0.02);
+            }
+
+            .badge-status {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.3rem;
+                padding: 0.2rem 0.6rem;
+                border-radius: 50px;
+                font-size: 0.75rem;
+                font-weight: 600;
+            }
+            .badge-status.active,
+            .badge-status.open {
+                background: rgba(46, 125, 50, 0.1);
+                color: var(--primary);
+            }
+            .badge-status.pending {
+                background: rgba(255, 179, 0, 0.12);
+                color: var(--accent-dark);
+            }
+            .badge-status.closed,
+            .badge-status.cancelled,
+            .badge-status.rejected {
+                background: rgba(231, 76, 60, 0.1);
+                color: var(--danger);
+            }
+            .badge-status.delivered,
+            .badge-status.confirmed {
+                background: rgba(52, 152, 219, 0.1);
+                color: #2980b9;
+            }
+            .badge-status.shipped {
+                background: rgba(26, 188, 156, 0.1);
+                color: #16a085;
+            }
+            .badge-status.inactive {
+                background: rgba(231, 76, 60, 0.1);
+                color: var(--danger);
+            }
+
+            .btn-xs {
+                padding: 0.3rem 0.6rem;
+                border-radius: var(--radius-sm);
+                border: none;
+                font-size: 0.7rem;
+                font-weight: 600;
+                cursor: pointer;
+                font-family: inherit;
+                transition: var(--transition);
+            }
+            .btn-xs.green {
+                background: rgba(46, 125, 50, 0.12);
+                color: var(--primary);
+            }
+            .btn-xs.green:hover {
+                background: var(--primary);
+                color: var(--white);
+            }
+            .btn-xs.blue {
+                background: rgba(52, 152, 219, 0.12);
+                color: #2980b9;
+            }
+            .btn-xs.blue:hover {
+                background: #2980b9;
+                color: var(--white);
+            }
+            .btn-xs.red {
+                background: rgba(231, 76, 60, 0.12);
+                color: var(--danger);
+            }
+            .btn-xs.red:hover {
+                background: var(--danger);
+                color: var(--white);
+            }
+            .btn-xs.amber {
+                background: rgba(255, 179, 0, 0.15);
+                color: var(--accent-dark);
+            }
+            .btn-xs.amber:hover {
+                background: var(--accent-dark);
+                color: var(--white);
+            }
+
+            .entity-empty {
+                text-align: center;
+                padding: 3rem 2rem;
+                color: var(--gray);
+                font-size: 0.9rem;
+            }
+
+            .finance-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 1.25rem;
+                margin-bottom: 2rem;
+            }
+
+            .withdraw-box {
+                background: var(--white);
+                border-radius: var(--radius-md);
+                border: 1px solid var(--gray-light);
+                padding: 1.5rem;
+            }
+            .withdraw-box h3 {
+                font-size: 1rem;
+                font-weight: 700;
+                margin-bottom: 0.5rem;
+            }
+            .withdraw-box > p {
+                font-size: 0.85rem;
+                color: var(--gray);
+                margin-bottom: 1.25rem;
+            }
+            .withdraw-form {
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+            }
+            .withdraw-form .form-row {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 1rem;
+            }
+            .withdraw-form label {
+                font-size: 0.8rem;
+                font-weight: 600;
+                display: block;
+                margin-bottom: 0.3rem;
+            }
+            .withdraw-form input,
+            .withdraw-form select {
+                width: 100%;
+                padding: 0.7rem 0.85rem;
+                border: 1.5px solid var(--gray-light);
+                border-radius: var(--radius-sm);
+                font-size: 0.85rem;
+                font-family: inherit;
+                outline: none;
+                transition: var(--transition);
+            }
+            .withdraw-form input:focus,
+            .withdraw-form select:focus {
+                border-color: var(--secondary);
+            }
+            .btn-withdraw {
+                padding: 0.75rem;
+                background: linear-gradient(
+                    135deg,
+                    var(--primary),
+                    var(--secondary)
+                );
+                color: var(--white);
+                border: none;
+                border-radius: var(--radius-sm);
+                font-weight: 700;
+                font-size: 0.9rem;
+                cursor: pointer;
+                font-family: inherit;
+                transition: var(--transition);
+            }
+            .btn-withdraw:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 15px rgba(46, 125, 50, 0.3);
+            }
+            .btn-withdraw:disabled {
+                opacity: 0.5;
+                cursor: not-allowed;
+                transform: none !important;
+            }
+
+            .history-item {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                padding: 0.85rem 0;
+                border-bottom: 1px solid var(--gray-light);
+            }
+            .history-item:last-child {
+                border-bottom: none;
+            }
+            .history-icon {
+                width: 38px;
+                height: 38px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-shrink: 0;
+            }
+            .history-icon.green {
+                background: rgba(46, 125, 50, 0.1);
+                color: var(--primary);
+            }
+            .history-icon.red {
+                background: rgba(231, 76, 60, 0.1);
+                color: var(--danger);
+            }
+            .history-icon.amber {
+                background: rgba(255, 179, 0, 0.12);
+                color: var(--accent-dark);
+            }
+            .history-info {
+                flex: 1;
+            }
+            .history-info h4 {
+                font-size: 0.9rem;
+                font-weight: 600;
+            }
+            .history-info p {
+                font-size: 0.8rem;
+                color: var(--gray);
+            }
+            .history-amount {
+                font-weight: 700;
+                font-size: 0.9rem;
+            }
+            .history-amount.positive {
+                color: var(--secondary);
+            }
+            .history-amount.negative {
+                color: var(--danger);
+            }
+
+            /* Support section */
+            .support-toolbar {
+                display: flex;
+                gap: 1rem;
+                align-items: center;
+                margin-bottom: 1.5rem;
+                flex-wrap: wrap;
+            }
+            .support-search {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                background: var(--white);
+                border: 1.5px solid var(--gray-light);
+                border-radius: var(--radius-sm);
+                padding: 0.5rem 0.85rem;
+                flex: 1;
+                min-width: 200px;
+            }
+            .support-search input {
+                border: none;
+                outline: none;
+                font-size: 0.85rem;
+                font-family: inherit;
+                width: 100%;
+                background: transparent;
+            }
+            .support-search svg { color: var(--gray); flex-shrink: 0; }
+            .support-toolbar select {
+                padding: 0.55rem 0.85rem;
+                border: 1.5px solid var(--gray-light);
+                border-radius: var(--radius-sm);
+                font-size: 0.85rem;
+                font-family: inherit;
+                outline: none;
+                background: var(--white);
+            }
+            .support-card {
+                background: var(--white);
+                border-radius: var(--radius-md);
+                border: 1px solid var(--gray-light);
+                padding: 1.25rem;
+                margin-bottom: 1rem;
+            }
+            .support-card.unreplied {
+                border-left: 3px solid var(--accent);
+            }
+            .support-card.replied {
+                border-left: 3px solid var(--secondary);
+            }
+            .support-card-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 0.5rem;
+            }
+            .support-card-subject {
+                font-size: 1rem;
+                font-weight: 700;
+                color: #1f2937;
+                margin-bottom: 0.4rem;
+            }
+            .support-card-message {
+                font-size: 0.9rem;
+                color: #4b5563;
+                line-height: 1.5;
+                margin-bottom: 0.5rem;
+                white-space: pre-wrap;
+            }
+            .support-card-date {
+                font-size: 0.75rem;
+                color: var(--gray);
+                margin-bottom: 0.75rem;
+            }
+            .support-card-reply {
+                background: #f0fdf4;
+                border-radius: var(--radius-sm);
+                padding: 0.85rem;
+                font-size: 0.85rem;
+                color: #374151;
+                margin-top: 0.5rem;
+                border: 1px solid #bbf7d0;
+            }
+            .support-reply-form {
+                display: flex;
+                gap: 0.5rem;
+                margin-top: 0.75rem;
+            }
+            .support-reply-form textarea {
+                flex: 1;
+                padding: 0.6rem 0.85rem;
+                border: 1.5px solid var(--gray-light);
+                border-radius: var(--radius-sm);
+                font-size: 0.85rem;
+                font-family: inherit;
+                resize: vertical;
+                outline: none;
+            }
+            .support-reply-form textarea:focus {
+                border-color: var(--secondary);
+            }
+
+            .form-card {
+                background: var(--white);
+                border-radius: var(--radius-md);
+                border: 1px solid var(--gray-light);
+                padding: 1.5rem;
+            }
+            .form-card h3 {
+                font-size: 1rem;
+                font-weight: 700;
+                margin-bottom: 0.25rem;
+            }
+            .form-card > p {
+                font-size: 0.85rem;
+                color: var(--gray);
+                margin-bottom: 1.25rem;
+            }
+
+            .btn-primary {
+                padding: 0.7rem 1.5rem;
+                border: none;
+                border-radius: var(--radius-sm);
+                font-weight: 700;
+                font-size: 0.9rem;
+                font-family: inherit;
+                cursor: pointer;
+                background: linear-gradient(135deg, var(--primary), var(--secondary));
+                color: var(--white);
+                transition: var(--transition);
+            }
+            .btn-primary:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 15px rgba(46, 125, 50, 0.3);
+            }
+            .btn-primary:disabled {
+                opacity: 0.5;
+                cursor: not-allowed;
+                transform: none;
+            }
+
+            /* Admin Notifications */
+            .notif-admin-layout {
+                display: grid;
+                grid-template-columns: 1fr 380px;
+                gap: 1.5rem;
+                align-items: start;
+            }
+            .notif-admin-card {
+                background: var(--white);
+                border-radius: var(--radius-md);
+                border: 1px solid var(--gray-light);
+                padding: 1.5rem;
+            }
+            .notif-admin-card-header {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                margin-bottom: 1.5rem;
+                padding-bottom: 1rem;
+                border-bottom: 1px solid var(--gray-light);
+            }
+            .notif-admin-card-header h3 {
+                font-size: 1.05rem;
+                font-weight: 700;
+                margin-bottom: 0.15rem;
+            }
+            .notif-admin-card-header p {
+                font-size: 0.8rem;
+                color: var(--gray);
+                margin: 0;
+            }
+            .notif-admin-card-icon {
+                width: 44px;
+                height: 44px;
+                border-radius: 12px;
+                background: rgba(37, 99, 235, 0.1);
+                color: #2563eb;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-shrink: 0;
+            }
+            .notif-admin-field {
+                margin-bottom: 1.25rem;
+            }
+            .notif-admin-field label {
+                display: block;
+                font-size: 0.8rem;
+                font-weight: 600;
+                margin-bottom: 0.4rem;
+                color: #374151;
+            }
+            .notif-admin-field input,
+            .notif-admin-field textarea {
+                width: 100%;
+                padding: 0.75rem 1rem;
+                border: 1.5px solid #e5e7eb;
+                border-radius: 10px;
+                font-size: 0.9rem;
+                font-family: inherit;
+                outline: none;
+                transition: border-color 0.2s;
+                background: #f9fafb;
+                box-sizing: border-box;
+            }
+            .notif-admin-field input:focus,
+            .notif-admin-field textarea:focus {
+                border-color: var(--secondary);
+                background: var(--white);
+                box-shadow: 0 0 0 3px rgba(67, 160, 71, 0.1);
+            }
+            .notif-admin-field textarea {
+                resize: vertical;
+                min-height: 100px;
+                line-height: 1.5;
+            }
+            .notif-admin-row {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 1rem;
+            }
+            .notif-admin-select-wrap {
+                position: relative;
+            }
+            .notif-admin-select-wrap select {
+                width: 100%;
+                padding: 0.75rem 1rem;
+                border: 1.5px solid #e5e7eb;
+                border-radius: 10px;
+                font-size: 0.9rem;
+                font-family: inherit;
+                outline: none;
+                background: #f9fafb;
+                transition: border-color 0.2s;
+                appearance: none;
+                cursor: pointer;
+                box-sizing: border-box;
+            }
+            .notif-admin-select-wrap select:focus {
+                border-color: var(--secondary);
+                background: var(--white);
+                box-shadow: 0 0 0 3px rgba(67, 160, 71, 0.1);
+            }
+            .notif-admin-select-arrow {
+                position: absolute;
+                right: 12px;
+                top: 50%;
+                transform: translateY(-50%);
+                color: var(--gray);
+                pointer-events: none;
+            }
+            .notif-admin-preview {
+                background: #f0fdf4;
+                border: 1px solid #bbf7d0;
+                border-radius: 12px;
+                padding: 1rem;
+                margin-bottom: 1.25rem;
+            }
+            .notif-admin-preview-label {
+                font-size: 0.7rem;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+                color: var(--secondary);
+                margin-bottom: 0.5rem;
+            }
+            .notif-admin-preview-card {
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+            }
+            .notif-admin-preview-card strong {
+                font-size: 0.9rem;
+                display: block;
+                margin-bottom: 0.1rem;
+            }
+            .notif-admin-preview-card p {
+                font-size: 0.8rem;
+                color: var(--gray);
+                margin: 0;
+            }
+            .notif-admin-preview-icon {
+                width: 36px;
+                height: 36px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-shrink: 0;
+            }
+            .notif-admin-preview-icon.info { background: rgba(37,99,235,0.1); color: #2563eb; }
+            .notif-admin-preview-icon.success { background: rgba(46,125,50,0.1); color: var(--primary); }
+            .notif-admin-preview-icon.warning { background: rgba(255,179,0,0.12); color: var(--accent-dark); }
+            .notif-admin-preview-icon.error { background: rgba(231,76,60,0.1); color: var(--danger); }
+            .notif-admin-send-btn {
+                width: 100%;
+                padding: 0.85rem;
+                border: none;
+                border-radius: 10px;
+                font-weight: 700;
+                font-size: 1rem;
+                font-family: inherit;
+                cursor: pointer;
+                background: linear-gradient(135deg, #2563eb, #1d4ed8);
+                color: var(--white);
+                transition: all 0.25s ease;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 0.5rem;
+            }
+            .notif-admin-send-btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 20px rgba(37, 99, 235, 0.3);
+            }
+            .notif-admin-send-btn:disabled {
+                opacity: 0.5;
+                cursor: not-allowed;
+                transform: none !important;
+                box-shadow: none !important;
+            }
+            .notif-admin-history-list {
+                max-height: 400px;
+                overflow-y: auto;
+            }
+            .notif-admin-history-list .history-item {
+                padding: 0.75rem 0;
+            }
+            .notif-admin-empty {
+                text-align: center;
+                padding: 2.5rem 1rem;
+                color: var(--gray);
+                font-size: 0.85rem;
+            }
+            .notif-admin-empty::before {
+                content: '🔔';
+                display: block;
+                font-size: 2rem;
+                margin-bottom: 0.75rem;
+            }
+            @media (max-width: 900px) {
+                .notif-admin-layout { grid-template-columns: 1fr; }
+            }
+
+            .toast-container {
+                position: fixed;
+                top: 1.5rem;
+                right: 1.5rem;
+                z-index: 9999;
+                display: flex;
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            .toast {
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+                background: var(--white);
+                border-radius: var(--radius-sm);
+                padding: 0.85rem 1.25rem;
+                box-shadow: var(--shadow-md);
+                min-width: 280px;
+                max-width: 400px;
+                animation: slideIn 0.3s ease-out;
+                font-size: 0.9rem;
+                font-weight: 500;
+            }
+            .toast.removing {
+                animation: slideOut 0.3s ease-in forwards;
+            }
+            .toast.success {
+                border-left: 4px solid var(--secondary);
+            }
+            .toast.error {
+                border-left: 4px solid var(--danger);
+            }
+            .toast.warning {
+                border-left: 4px solid var(--accent);
+            }
+            .toast.info {
+                border-left: 4px solid #3498db;
+            }
+            @keyframes slideIn {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            @keyframes slideOut {
+                from {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+            }
+
+            @media (max-width: 768px) {
+                .sidebar {
+                    transform: translateX(-100%);
+                }
+                .sidebar.open {
+                    transform: translateX(0);
+                }
+                .main {
+                    margin-left: 0;
+                }
+                .charts-row {
+                    grid-template-columns: 1fr;
+                }
+                .withdraw-form .form-row {
+                    grid-template-columns: 1fr;
+                }
+                .topbar {
+                    padding: 0.75rem 1rem;
+                }
+                .content {
+                    padding: 1rem;
+                }
+                .sidebar-overlay {
+                    display: block;
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    background: rgba(0, 0, 0, 0.5);
+                    z-index: 999;
+                    opacity: 0;
+                    pointer-events: none;
+                    transition: opacity 0.3s ease;
+                }
+                .sidebar-overlay.open {
+                    opacity: 1;
+                    pointer-events: auto;
+                }
+                .hamburger {
+                    display: flex;
+                }
+            }
+            .hamburger {
+                display: none;
+                background: none;
+                border: none;
+                cursor: pointer;
+                padding: 4px;
+                color: var(--dark);
+            }
+            .hamburger svg {
+                width: 24px;
+                height: 24px;
+            }
+            .sidebar-overlay {
+                display: none;
+            }
+        </style>
+    </head>
+    <body>
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-brand">
+                <svg
+                    viewBox="0 0 24 24"
+                    width="28"
+                    height="28"
+                    fill="none"
+                    stroke="var(--accent)"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                >
+                    <path
+                        d="M12 2v4M12 6c-3.3 0-6 2.7-6 6h12c0-3.3-2.7-6-6-6z"
+                    />
+                    <path
+                        d="M4 14c0 2 1.5 3 4 4l1 2M20 14c0 2-1.5 3-4 4l-1 2"
+                    />
+                    <path d="M8 18h8" />
+                </svg>
+                <div>
+                    <span>AgriConnect</span>
+                    <div class="badge">Admin</div>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="javascript:void(0)" class="active" data-section="dashboard">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+                    Dashboard
+                </a>
+                <a href="javascript:void(0)" data-section="users">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    Users
+                </a>
+                <a href="javascript:void(0)" data-section="orders">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+                    Orders
+                </a>
+                <a href="javascript:void(0)" data-section="products">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+                    Products
+                </a>
+                <a href="javascript:void(0)" data-section="organisations">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21h16"/><path d="M6 17V7l-2-2h4l4-4 4 4h4l-2 2v10"/><path d="M14 17v-4a2 2 0 0 0-4 0v4"/></svg>
+                    Organisations
+                </a>
+                <a href="javascript:void(0)" data-section="finance">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12c0-2.2 1.8-4 4-4s4 1.8 4 4-1.8 4-4 4"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/></svg>
+                    Finance
+                </a>
+                <a href="javascript:void(0)" data-section="wallets">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                    Wallets
+                </a>
+                <a href="javascript:void(0)" data-section="payouts">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+                    Payouts
+                    <span class="sidebar-badge" id="payoutBadge" style="display:none;margin-left:auto;background:#ef4444;color:#fff;font-size:0.65rem;font-weight:700;min-width:18px;height:18px;border-radius:9px;align-items:center;justify-content:center;padding:0 5px;"></span>
+                </a>
+                <a href="javascript:void(0)" data-section="support">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    Support <span class="sidebar-badge" id="supportBadge" style="display:none;margin-left:auto;background:#ef4444;color:#fff;font-size:0.65rem;font-weight:700;min-width:18px;height:18px;border-radius:9px;align-items:center;justify-content:center;padding:0 5px;"></span>
+                </a>
+                <a href="javascript:void(0)" data-section="announce">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                    Notifications
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="landing-page" onclick="closeSidebar()">
+                    <svg
+                        viewBox="0 0 24 24"
+                        width="16"
+                        height="16"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                    >
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                        <polyline points="16 17 21 12 16 7" />
+                        <line x1="21" y1="12" x2="9" y2="12" />
+                    </svg>
+                    Back to Home
+                </a>
+            </div>
+        </aside>
+        <div
+            class="sidebar-overlay"
+            id="sidebarOverlay"
+        ></div>
+
+        <div class="main">
+            <div class="topbar">
+                <div class="topbar-left">
+                    <button class="hamburger" id="hamburgerBtn">
+                        <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                        >
+                            <line x1="3" y1="6" x2="21" y2="6" />
+                            <line x1="3" y1="12" x2="21" y2="12" />
+                            <line x1="3" y1="18" x2="21" y2="18" />
+                        </svg>
+                    </button>
+                    <h2 id="pageTitle">Dashboard <span>/ Overview</span></h2>
+                </div>
+                <div class="topbar-right">
+                    <div class="topbar-user">
+                        <div class="avatar" id="adminAvatar">A</div>
+                        <div>
+                            <div
+                                id="adminName"
+                                style="font-weight: 600; font-size: 0.9rem"
+                            >
+                                Admin
+                            </div>
+                            <div class="role-badge">Administrator</div>
+                        </div>
+                    </div>
+                    <button class="btn-logout" onclick="logout()">
+                        Log Out
+                    </button>
+                </div>
+            </div>
+
+            <div class="content">
+                <!-- Dashboard -->
+                <div class="section active" id="section-dashboard">
+                    <div class="stats-grid" id="statsGrid"></div>
+                    <div class="charts-row">
+                        <div class="chart-card">
+                            <h3>
+                                <svg
+                                    viewBox="0 0 24 24"
+                                    width="16"
+                                    height="16"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    style="
+                                        vertical-align: middle;
+                                        margin-right: 6px;
+                                    "
+                                >
+                                    <line x1="18" y1="20" x2="18" y2="10" />
+                                    <line x1="12" y1="20" x2="12" y2="4" />
+                                    <line x1="6" y1="20" x2="6" y2="16" />
+                                </svg>
+                                Revenue Overview
+                            </h3>
+                            <canvas id="revenueChart"></canvas>
+                        </div>
+                        <div class="chart-card">
+                            <h3>
+                                <svg
+                                    viewBox="0 0 24 24"
+                                    width="16"
+                                    height="16"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    style="
+                                        vertical-align: middle;
+                                        margin-right: 6px;
+                                    "
+                                >
+                                    <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                                    <path d="M2 17l10 5 10-5" />
+                                    <path d="M2 12l10 5 10-5" />
+                                </svg>
+                                User Roles
+                            </h3>
+                            <canvas id="rolesChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="charts-row">
+                        <div class="chart-card">
+                            <h3>
+                                <svg
+                                    viewBox="0 0 24 24"
+                                    width="16"
+                                    height="16"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    style="
+                                        vertical-align: middle;
+                                        margin-right: 6px;
+                                    "
+                                >
+                                    <polyline
+                                        points="22 12 18 12 15 21 9 3 6 12 2 12"
+                                    />
+                                </svg>
+                                Weekly Performance
+                            </h3>
+                            <canvas id="performanceChart"></canvas>
+                        </div>
+                        <div class="chart-card">
+                            <h3>
+                                <svg
+                                    viewBox="0 0 24 24"
+                                    width="16"
+                                    height="16"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    style="
+                                        vertical-align: middle;
+                                        margin-right: 6px;
+                                    "
+                                >
+                                    <circle cx="12" cy="12" r="10" />
+                                    <path
+                                        d="M8 12c0-2.2 1.8-4 4-4s4 1.8 4 4-1.8 4-4 4"
+                                    />
+                                    <line x1="12" y1="2" x2="12" y2="6" />
+                                    <line x1="12" y1="18" x2="12" y2="22" />
+                                </svg>
+                                Commission Breakdown
+                            </h3>
+                            <canvas id="commissionChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Users -->
+                <div class="section" id="section-users">
+                    <div class="table-card">
+                        <div class="table-header">
+                            <h3>All Users</h3>
+                            <div
+                                style="
+                                    display: flex;
+                                    gap: 0.75rem;
+                                    flex-wrap: wrap;
+                                "
+                            >
+                                <input
+                                    type="text"
+                                    placeholder="Search users..."
+                                    id="usersSearch"
+                                    oninput="renderUsers()"
+                                />
+                                <select
+                                    id="usersRoleFilter"
+                                    onchange="renderUsers()"
+                                >
+                                    <option value="">All Roles</option>
+                                    <option value="farmer">Farmers</option>
+                                    <option value="consumer">Consumers</option>
+                                    <option value="organization">
+                                        Organizations
+                                    </option>
+                                    <option value="admin">Admins</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div style="overflow-x: auto">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Role</th>
+                                        <th>Joined</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="usersBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Orders -->
+                <div class="section" id="section-orders">
+                    <div class="table-card">
+                        <div class="table-header">
+                            <h3>All Orders</h3>
+                            <select
+                                id="ordersStatusFilter"
+                                onchange="renderOrders()"
+                            >
+                                <option value="">All Status</option>
+                                <option value="pending">Pending</option>
+                                <option value="confirmed">Confirmed</option>
+                                <option value="shipped">Shipped</option>
+                                <option value="delivered">Delivered</option>
+                                <option value="cancelled">Cancelled</option>
+                            </select>
+                        </div>
+                        <div style="overflow-x: auto">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Order ID</th>
+                                        <th>Buyer</th>
+                                        <th>Seller</th>
+                                        <th>Qty</th>
+                                        <th>Total</th>
+                                        <th>Status</th>
+                                        <th>Date</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="ordersBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Products -->
+                <div class="section" id="section-products">
+                    <div class="table-card">
+                        <div class="table-header">
+                            <h3>All Products / Listings</h3>
+                            <div
+                                style="
+                                    display: flex;
+                                    gap: 0.75rem;
+                                    flex-wrap: wrap;
+                                "
+                            >
+                                <input
+                                    type="text"
+                                    placeholder="Search products..."
+                                    id="productsSearch"
+                                    oninput="renderProducts()"
+                                />
+                                <select
+                                    id="productsStatusFilter"
+                                    onchange="renderProducts()"
+                                >
+                                    <option value="">All Status</option>
+                                    <option value="active">Active</option>
+                                    <option value="inactive">Inactive</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div style="overflow-x: auto">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Title</th>
+                                        <th>Seller</th>
+                                        <th>Price</th>
+                                        <th>Category</th>
+                                        <th>Status</th>
+                                        <th>Date</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="productsBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Organisations -->
+                <div class="section" id="section-organisations">
+                    <div class="table-card">
+                        <div class="table-header">
+                            <h3>Registered Organisations</h3>
+                            <input
+                                type="text"
+                                placeholder="Search organisations..."
+                                id="orgsSearch"
+                                oninput="renderOrgs()"
+                            />
+                        </div>
+                        <div style="overflow-x: auto">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Business</th>
+                                        <th>Location</th>
+                                        <th>Joined</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="orgsBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Finance -->
+                <div class="section" id="section-finance">
+                    <div class="finance-grid" id="financeGrid"></div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.5rem;">
+                        <div class="withdraw-box" style="padding:1rem;">
+                            <h3 style="font-size:0.95rem;margin-bottom:0.75rem;">📈 Revenue Overview</h3>
+                            <canvas id="revenueChartFinance" height="180" style="max-height:200px;"></canvas>
+                        </div>
+                        <div class="withdraw-box" style="padding:1rem;">
+                            <h3 style="font-size:0.95rem;margin-bottom:0.75rem;">📊 Transaction Volume</h3>
+                            <canvas id="volumeChart" height="180" style="max-height:200px;"></canvas>
+                        </div>
+                    </div>
+                    <div
+                        style="
+                            display: grid;
+                            grid-template-columns: 1fr 1fr;
+                            gap: 1.25rem;
+                        "
+                    >
+                        <div class="withdraw-box">
+                            <h3>Withdraw Funds</h3>
+                            <p>Withdraw your commission earnings to your bank or M-Pesa. Minimum withdrawal: KES 10.00</p>
+                            <form class="withdraw-form" id="withdrawForm" onsubmit="handleWithdraw(event)">
+                                <div style="display:flex;gap:0.75rem;margin-bottom:1rem;">
+                                    <label style="flex:1;display:flex;align-items:center;gap:0.5rem;padding:0.6rem 1rem;border:2px solid var(--secondary);border-radius:10px;cursor:pointer;background:rgba(67,160,71,0.05);font-weight:600;font-size:0.85rem;" id="adminBankLabel">
+                                        <input type="radio" name="adminWMethod" value="bank" checked onchange="toggleAdminWMethod()" style="accent-color:var(--secondary);">
+                                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 21h16"/><path d="M6 17V7l-2-2h4l4-4 4 4h4l-2 2v10"/><path d="M14 17v-4a2 2 0 0 0-4 0v4"/></svg>
+                                        Bank Transfer
+                                    </label>
+                                    <label style="flex:1;display:flex;align-items:center;gap:0.5rem;padding:0.6rem 1rem;border:2px solid #e5e7eb;border-radius:10px;cursor:pointer;font-weight:600;font-size:0.85rem;transition:all 0.2s;" id="adminMpesaLabel">
+                                        <input type="radio" name="adminWMethod" value="mpesa" onchange="toggleAdminWMethod()" style="accent-color:var(--secondary);">
+                                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="4"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+                                        M-Pesa
+                                    </label>
+                                </div>
+                                <div id="adminBankFields">
+                                    <div class="form-row">
+                                        <div>
+                                            <label>Bank Name</label>
+                                            <select id="bankSelect" required>
+                                                <option value="">Select bank</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label>Account Number</label>
+                                            <input type="text" id="accountNumber" placeholder="0123456789" maxlength="10" required />
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div>
+                                            <label>Amount (KES)</label>
+                                            <input type="number" id="withdrawAmount" placeholder="10.00" min="10" step="0.01" required />
+                                        </div>
+                                        <div>
+                                            <label>Account Name</label>
+                                            <input type="text" id="accountName" placeholder="Enter account name" required />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="adminMpesaFields" style="display:none;">
+                                    <div class="form-row">
+                                        <div>
+                                            <label>M-Pesa Phone Number</label>
+                                            <input type="tel" id="adminPhone" placeholder="e.g. 0712345678" />
+                                        </div>
+                                        <div>
+                                            <label>Amount (KES)</label>
+                                            <input type="number" id="adminMpesaAmount" placeholder="10.00" min="10" step="0.01" required />
+                                        </div>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn-withdraw" id="withdrawBtn">
+                                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 6px;"><polyline points="7 17 17 7"/><polyline points="7 7 17 7 17 17"/></svg>
+                                    Withdraw
+                                </button>
+                            </form>
+                        </div>
+                        <div class="withdraw-box">
+                            <h3>Transaction History</h3>
+                            <p>Recent commission earnings and withdrawals</p>
+                            <div id="financeHistory"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Wallets (Company + Commission + Frozen) -->
+                <div class="section" id="section-wallets">
+                    <h2 style="margin:0 0 1.25rem 0;font-size:1.25rem;">💰 Wallets</h2>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.5rem;">
+                        <div class="stat-card" style="border-left:4px solid var(--primary);">
+                            <div style="font-size:0.8rem;color:var(--gray);margin-bottom:4px;">Company Main Wallet</div>
+                            <div style="font-size:1.6rem;font-weight:800;color:var(--primary);" id="companyWalletBalance">KES 0.00</div>
+                            <div style="font-size:0.8rem;color:var(--gray);">Total Deposited: <span id="companyTotalDeposited">KES 0.00</span></div>
+                        </div>
+                        <div class="stat-card" style="border-left:4px solid var(--accent-dark);">
+                            <div style="font-size:0.8rem;color:var(--gray);margin-bottom:4px;">Admin Commission Wallet</div>
+                            <div style="font-size:1.6rem;font-weight:800;color:var(--accent-dark);" id="commissionWalletBalance">KES 0.00</div>
+                            <div style="font-size:0.8rem;color:var(--gray);">Available for withdrawal</div>
+                        </div>
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;">
+                        <div class="withdraw-box" style="overflow:hidden;">
+                            <h3>Company Wallet Transactions</h3>
+                            <div id="companyWalletTxs" style="max-height:300px;overflow-y:auto;font-size:0.85rem;"></div>
+                        </div>
+                        <div class="withdraw-box" style="overflow:hidden;">
+                            <h3>Commission Wallet Transactions</h3>
+                            <div id="commissionWalletTxs" style="max-height:300px;overflow-y:auto;font-size:0.85rem;"></div>
+                        </div>
+                    </div>
+                    <div class="withdraw-box" style="margin-top:1.5rem;">
+                        <h3>❄️ Frozen Wallets</h3>
+                        <div id="frozenWalletsList" style="font-size:0.85rem;">
+                            <p style="color:var(--gray);">Loading...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payouts -->
+                <div class="section" id="section-payouts">
+                    <div class="support-toolbar">
+                        <h2 style="margin:0;font-size:1.1rem;">💸 Payout Requests</h2>
+                        <div style="display:flex;gap:8px;">
+                            <select id="payoutFilter" style="padding:8px 12px;border:1px solid #e5e7eb;border-radius:6px;font-family:inherit;font-size:0.85rem;">
+                                <option value="all">All</option>
+                                <option value="pending">Pending</option>
+                                <option value="approved">Approved</option>
+                                <option value="rejected">Rejected</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="table-container" style="margin-top:16px;">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>User</th>
+                                    <th>Amount</th>
+                                    <th>Method</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="payoutTableBody">
+                                <tr><td colspan="6" style="text-align:center;color:#999;padding:40px;">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Support -->
+                <div class="section" id="section-support">
+                    <div class="support-toolbar">
+                        <div class="support-search">
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                            <input type="text" id="supportSearch" placeholder="Search queries..." oninput="renderSupportQueries()" />
+                        </div>
+                        <select id="supportFilter" onchange="renderSupportQueries()">
+                            <option value="all">All Queries</option>
+                            <option value="unreplied">Unreplied</option>
+                            <option value="replied">Replied</option>
+                        </select>
+                    </div>
+                    <div id="supportList"></div>
+                </div>
+
+                <!-- Notifications -->
+                <div class="section" id="section-announce">
+                    <div class="notif-admin-layout">
+                        <div class="notif-admin-compose">
+                            <div class="notif-admin-card">
+                                <div class="notif-admin-card-header">
+                                    <div class="notif-admin-card-icon">
+                                        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                                    </div>
+                                    <div>
+                                        <h3>Compose Broadcast</h3>
+                                        <p>Send a push notification to platform users</p>
+                                    </div>
+                                </div>
+                                <form id="notifyForm">
+                                    <div class="notif-admin-field">
+                                        <label>Notification Title</label>
+                                        <input type="text" id="notifyTitle" placeholder="e.g. New Feature Available — Market Insights" required />
+                                    </div>
+                                    <div class="notif-admin-row">
+                                        <div class="notif-admin-field">
+                                            <label>Target Audience</label>
+                                            <div class="notif-admin-select-wrap">
+                                                <select id="notifyRole">
+                                                    <option value="">All Users</option>
+                                                    <option value="farmer">Farmers Only</option>
+                                                    <option value="organization">Organisations Only</option>
+                                                    <option value="consumer">Consumers Only</option>
+                                                </select>
+                                                <svg class="notif-admin-select-arrow" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                            </div>
+                                        </div>
+                                        <div class="notif-admin-field">
+                                            <label>Notification Type</label>
+                                            <div class="notif-admin-select-wrap">
+                                                <select id="notifyType">
+                                                    <option value="info">Info</option>
+                                                    <option value="success">Success</option>
+                                                    <option value="warning">Warning</option>
+                                                    <option value="error">Error</option>
+                                                </select>
+                                                <svg class="notif-admin-select-arrow" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="notif-admin-field">
+                                        <label>Message</label>
+                                        <textarea id="notifyBody" rows="4" placeholder="Type your notification message here..." required></textarea>
+                                    </div>
+                                    <div class="notif-admin-preview" id="notifPreview" style="display:none;">
+                                        <div class="notif-admin-preview-label">Preview</div>
+                                        <div class="notif-admin-preview-card">
+                                            <div class="notif-admin-preview-icon info" id="previewIcon">
+                                                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                                            </div>
+                                            <div>
+                                                <strong id="previewTitle">Title</strong>
+                                                <p id="previewBody">Message preview appears here</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="notif-admin-send-btn" id="notifyBtn">
+                                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                                        Send Notification
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="notif-admin-history">
+                            <div class="notif-admin-card">
+                                <div class="notif-admin-card-header">
+                                    <div class="notif-admin-card-icon" style="background:rgba(139,92,246,0.1);color:#8b5cf6;">
+                                        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                    </div>
+                                    <div>
+                                        <h3>Broadcast History</h3>
+                                        <p>Recent notifications sent to users</p>
+                                    </div>
+                                </div>
+                                <div id="broadcastHistory" class="notif-admin-history-list">
+                                    <div class="notif-admin-empty">No broadcasts sent yet.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- User Detail Modal -->
+        <div class="modal-overlay" id="userDetailModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:10000;align-items:center;justify-content:center">
+            <div style="background:#fff;border-radius:16px;padding:32px;width:90%;max-width:480px;box-shadow:0 20px 60px rgba(0,0,0,0.15);position:relative;">
+                <button id="closeUserDetailBtn" style="position:absolute;top:16px;right:16px;background:none;border:none;font-size:22px;cursor:pointer;color:#999;padding:4px;line-height:1;">&times;</button>
+                <div id="userDetailContent"></div>
+            </div>
+        </div>
+
+        <!-- Confirm Modal -->
+        <div class="modal-overlay" id="confirmModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:10000;align-items:center;justify-content:center">
+            <div style="background:#fff;border-radius:16px;padding:0;width:90%;max-width:420px;box-shadow:0 20px 60px rgba(0,0,0,0.15);overflow:hidden;">
+                <div id="confirmIconWrap" style="display:flex;align-items:center;justify-content:center;padding:24px 24px 0 24px;">
+                    <div id="confirmIcon" style="width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;"></div>
+                </div>
+                <div style="padding:16px 24px 8px 24px;text-align:center;">
+                    <h3 id="confirmTitle" style="font-size:1.15rem;font-weight:700;margin:0 0 6px 0;color:#1f2937;"></h3>
+                    <p id="confirmMessage" style="font-size:0.9rem;color:#6b7280;margin:0;line-height:1.5;"></p>
+                </div>
+                <div style="padding:16px 24px 24px 24px;display:flex;gap:10px;">
+                    <button id="confirmCancelBtn" style="flex:1;padding:12px;border:1.5px solid #e5e7eb;border-radius:10px;background:#fff;color:#374151;font-weight:600;font-size:0.9rem;font-family:inherit;cursor:pointer;transition:all 0.2s;">Cancel</button>
+                    <button id="confirmOkBtn" style="flex:1;padding:12px;border:none;border-radius:10px;color:#fff;font-weight:700;font-size:0.9rem;font-family:inherit;cursor:pointer;transition:all 0.2s;"></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="toast-container" id="toastContainer"></div>
+
+        <script>
+            // ---------- Auth Check ----------
+            const userData = JSON.parse(
+                sessionStorage.getItem("user") || "null",
+            );
+            const idToken = sessionStorage.getItem("idToken");
+            if (!userData || userData.role !== "admin") {
+                window.location.href = "login";
+            }
+            document.cookie =
+                "idToken=" + idToken + ";path=/;max-age=3600;SameSite=Strict";
+
+            document.getElementById("adminName").textContent =
+                userData.displayName || "Admin";
+            document.getElementById("adminAvatar").textContent =
+                (userData.displayName || "A")[0].toUpperCase();
+
+            // ---------- Toast ----------
+            function showToast(message, type) {
+                type = type || "info";
+                const container = document.getElementById("toastContainer");
+                const icons = {
+                    error: "✕",
+                    success: "✓",
+                    info: "ℹ",
+                    warning: "⚠",
+                };
+                const toast = document.createElement("div");
+                toast.className = "toast " + type;
+                toast.innerHTML =
+                    '<div class="toast-icon">' +
+                    (icons[type] || "ℹ") +
+                    '</div><div class="toast-msg">' +
+                    message +
+                    "</div>";
+                container.appendChild(toast);
+                setTimeout(() => {
+                    if (toast.parentElement) {
+                        toast.classList.add("removing");
+                        setTimeout(() => toast.remove(), 300);
+                    }
+                }, 4000);
+            }
+
+            // ---------- Confirm Modal ----------
+            function showConfirmModal(opts) {
+                return new Promise(function(resolve) {
+                    var modal = document.getElementById('confirmModal');
+                    var iconWrap = document.getElementById('confirmIconWrap');
+                    var iconEl = document.getElementById('confirmIcon');
+                    var titleEl = document.getElementById('confirmTitle');
+                    var msgEl = document.getElementById('confirmMessage');
+                    var okBtn = document.getElementById('confirmOkBtn');
+                    var cancelBtn = document.getElementById('confirmCancelBtn');
+
+                    titleEl.textContent = opts.title || 'Confirm';
+                    msgEl.textContent = opts.message || 'Are you sure?';
+                    okBtn.textContent = opts.confirmText || 'Confirm';
+
+                    var colorMap = { danger: '#dc2626', warning: '#d97706', primary: '#1b5e20', info: '#2563eb' };
+                    var iconMap = {
+                        danger: '<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>',
+                        warning: '<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+                        primary: '<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
+                        info: '<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>'
+                    };
+                    var type = opts.type || 'warning';
+                    var color = colorMap[type] || '#d97706';
+
+                    iconWrap.style.display = 'flex';
+                    iconEl.style.background = color + '18';
+                    iconEl.style.color = color;
+                    iconEl.innerHTML = iconMap[type] || iconMap.warning;
+                    okBtn.style.background = color;
+                    okBtn.style.color = '#fff';
+
+                    function cleanup() {
+                        modal.style.display = 'none';
+                        okBtn.onclick = null;
+                        cancelBtn.onclick = null;
+                        modal.onclick = null;
+                        document.onkeydown = null;
+                    }
+
+                    okBtn.onclick = function() { cleanup(); resolve(true); };
+                    cancelBtn.onclick = function() { cleanup(); resolve(false); };
+                    modal.onclick = function(e) { if (e.target === modal) { cleanup(); resolve(false); } };
+                    document.onkeydown = function(e) { if (e.key === 'Escape') { cleanup(); resolve(false); } };
+
+                    modal.style.display = 'flex';
+                });
+            }
+
+            // ---------- API helper ----------
+            async function api(url, opts) {
+                opts = opts || {};
+                const headers = {
+                    "Content-Type": "application/json",
+                    ...(opts.headers || {}),
+                };
+                if (idToken) headers["Authorization"] = "Bearer " + idToken;
+                const res = await fetch(url, { ...opts, headers });
+                if (res.status === 401) {
+                    sessionStorage.clear();
+                    window.location.href = "login";
+                    return;
+                }
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Request failed');
+                return data;
+            }
+
+            window.closeSidebar = function () {
+                document.getElementById("sidebar").classList.remove("open");
+                document
+                    .getElementById("sidebarOverlay")
+                    .classList.remove("open");
+            };
+
+            // ---------- Section Switching ----------
+            function switchSection(id) {
+                document
+                    .querySelectorAll(".section")
+                    .forEach((s) => s.classList.remove("active"));
+                document
+                    .querySelectorAll(".sidebar-nav a")
+                    .forEach((a) => a.classList.remove("active"));
+                document
+                    .getElementById("section-" + id)
+                    .classList.add("active");
+                document
+                    .querySelector('.sidebar-nav a[data-section="' + id + '"]')
+                    .classList.add("active");
+                const titles = {
+                    dashboard: "Dashboard / Overview",
+                    users: "Users / Management",
+                    orders: "Orders / Management",
+                    products: "Products / Listings",
+                    organisations: "Organisations / Directory",
+                    finance: "Finance / Commissions",
+                    wallets: "Wallets / Management",
+                    payouts: "Payouts / Requests",
+                    support: "Support / Queries",
+                    announce: "Notifications / Broadcast",
+                };
+                document.getElementById("pageTitle").innerHTML = titles[id]
+                    ? titles[id].split(" / ")[0] +
+                      " <span>/ " +
+                      titles[id].split(" / ")[1] +
+                      "</span>"
+                    : id;
+                if (id === "users") renderUsers();
+                if (id === "orders") renderOrders();
+                if (id === "products") renderProducts();
+                if (id === "organisations") renderOrgs();
+                if (id === "finance") { loadFinance(); }
+                if (id === "wallets") { loadWallets(); }
+                if (id === "payouts") { loadPayouts(); }
+                if (id === "support") loadSupport();
+                if (id === "announce") loadBroadcastHistory();
+            }
+            window.switchSection = switchSection;
+
+            // Sidebar nav click delegation
+            document.querySelector('.sidebar-nav').addEventListener('click', function(e) {
+                const link = e.target.closest('a[data-section]');
+                if (link) {
+                    e.preventDefault();
+                    switchSection(link.dataset.section);
+                    closeSidebar();
+                }
+            });
+
+            // Hamburger + overlay
+            document.getElementById('hamburgerBtn').addEventListener('click', function() {
+                document.getElementById('sidebar').classList.toggle('open');
+                document.getElementById('sidebarOverlay').classList.toggle('open');
+            });
+            document.getElementById('sidebarOverlay').addEventListener('click', function() {
+                this.classList.remove('open');
+                document.getElementById('sidebar').classList.remove('open');
+            });
+
+            // ---------- Logout ----------
+            function logout() {
+                sessionStorage.clear();
+                document.cookie = "idToken=;path=/;max-age=0";
+                window.location.href = "login";
+            }
+
+            // ---------- Dashboard ----------
+            let revenueChart, rolesChart, performanceChart, commissionChart;
+
+            async function loadDashboard() {
+                const stats = await api("/api/admin/stats");
+                if (!stats) return;
+                const grid = document.getElementById("statsGrid");
+                const cards = [
+                    {
+                        label: "Total Users",
+                        value: stats.totalUsers || 0,
+                        icon: "users",
+                        color: "blue",
+                        trend: "+12%",
+                        cls: "green",
+                    },
+                    {
+                        label: "Active Listings",
+                        value: stats.totalListings || 0,
+                        icon: "box",
+                        color: "amber",
+                        trend: "+8%",
+                        cls: "amber",
+                    },
+                    {
+                        label: "Total Orders",
+                        value: stats.totalOrders || 0,
+                        icon: "cart",
+                        color: "purple",
+                        trend: "+15%",
+                        cls: "purple",
+                    },
+                    {
+                        label: "Active Agreements",
+                        value: stats.activeAgreements || 0,
+                        icon: "link",
+                        color: "teal",
+                        trend: "+5%",
+                        cls: "teal",
+                    },
+                    {
+                        label: "Pending Orders",
+                        value: stats.pendingOrders || 0,
+                        icon: "clock",
+                        color: "red",
+                        trend: "-3%",
+                        cls: "red",
+                    },
+                    {
+                        label: "Open Requests",
+                        value: stats.activeRequests || 0,
+                        icon: "message",
+                        color: "blue",
+                        trend: "+22%",
+                        cls: "blue",
+                    },
+                ];
+                const icons = {
+                    users: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>',
+                    box: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>',
+                    cart: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>',
+                    link: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>',
+                    clock: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
+                    message:
+                        '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',
+                };
+                grid.innerHTML = cards
+                    .map(
+                        (c) => `
+                <div class="stat-card ${c.cls}">
+                    <div class="stat-card-top">
+                        <div class="stat-card-icon ${c.cls}">${icons[c.icon]}</div>
+                        <span class="stat-trend up">${c.trend}</span>
+                    </div>
+                    <h4>${c.value}</h4>
+                    <p>${c.label}</p>
+                </div>
+            `,
+                    )
+                    .join("");
+
+                // Fetch analytics for charts
+                var analytics = null;
+                try { analytics = await api("/api/admin/analytics"); } catch (e) {}
+
+                // Revenue line chart
+                if (revenueChart) revenueChart.destroy();
+                var revCtx = document.getElementById("revenueChart").getContext("2d");
+                var revDays = analytics ? analytics.dayLabels : ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+                var revData = analytics ? analytics.revenueByDay : [0,0,0,0,0,0,0];
+                revenueChart = new Chart(revCtx, {
+                    type: "line",
+                    data: {
+                        labels: revDays,
+                        datasets: [{
+                            label: "Revenue (KES)",
+                            data: revData,
+                            borderColor: "#43A047",
+                            backgroundColor: "rgba(67,160,71,0.08)",
+                            fill: true,
+                            tension: 0.4,
+                            pointRadius: 4,
+                            pointBackgroundColor: "#43A047",
+                        }],
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { beginAtZero: true, grid: { color: "rgba(0,0,0,0.04)" } },
+                            x: { grid: { display: false } },
+                        },
+                    },
+                });
+
+                // Roles pie chart (already using real data from stats)
+                if (rolesChart) rolesChart.destroy();
+                var roleCtx = document.getElementById("rolesChart").getContext("2d");
+                var rCounts = stats.roleCounts || {};
+                var roleLabels = Object.keys(rCounts);
+                var roleData = Object.values(rCounts);
+                var colors = { farmer: "#43A047", consumer: "#3498db", organization: "#9b59b6", admin: "#e74c3c", user: "#95a5a6" };
+                rolesChart = new Chart(roleCtx, {
+                    type: "doughnut",
+                    data: {
+                        labels: roleLabels.map(function(r) { return r.charAt(0).toUpperCase() + r.slice(1); }),
+                        datasets: [{ data: roleData, backgroundColor: roleLabels.map(function(r) { return colors[r] || "#95a5a6"; }), borderWidth: 0 }],
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { position: "bottom", labels: { padding: 12, usePointStyle: true, font: { size: 11 } } } },
+                    },
+                });
+
+                // Performance bar chart
+                if (performanceChart) performanceChart.destroy();
+                var perfCtx = document.getElementById("performanceChart").getContext("2d");
+                var perfDays = analytics ? analytics.dayLabels : ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+                var ordersData = analytics ? analytics.ordersByDay : [0,0,0,0,0,0,0];
+                var signupsData = analytics ? analytics.signupsByDay : [0,0,0,0,0,0,0];
+                performanceChart = new Chart(perfCtx, {
+                    type: "bar",
+                    data: {
+                        labels: perfDays,
+                        datasets: [
+                            { label: "Orders", data: ordersData, backgroundColor: "rgba(46,125,50,0.6)", borderRadius: 4 },
+                            { label: "Signups", data: signupsData, backgroundColor: "rgba(255,179,0,0.6)", borderRadius: 4 },
+                        ],
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { position: "top", labels: { usePointStyle: true, font: { size: 11 } } } },
+                        scales: {
+                            y: { beginAtZero: true, grid: { color: "rgba(0,0,0,0.04)" } },
+                            x: { grid: { display: false } },
+                        },
+                    },
+                });
+
+                // Commission pie chart
+                if (commissionChart) commissionChart.destroy();
+                var comCtx = document.getElementById("commissionChart").getContext("2d");
+                var cm = analytics && analytics.commissionBreakdown ? analytics.commissionBreakdown : { earned: 0, pending: 0, withdrawn: 0 };
+                commissionChart = new Chart(comCtx, {
+                    type: "doughnut",
+                    data: {
+                        labels: ["Commission Earned", "Pending", "Withdrawn"],
+                        datasets: [{ data: [cm.earned, cm.pending, cm.withdrawn], backgroundColor: ["#43A047", "#FFB300", "#3498db"], borderWidth: 0 }],
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { position: "bottom", labels: { padding: 12, usePointStyle: true, font: { size: 11 } } } },
+                    },
+                });
+            }
+
+            // ---------- Users ----------
+            let allUsers = [];
+
+            async function loadUsers() {
+                allUsers = (await api("/api/admin/users")) || [];
+                renderUsers();
+            }
+
+            function renderUsers() {
+                const q = document
+                    .getElementById("usersSearch")
+                    .value.toLowerCase();
+                const roleFilter =
+                    document.getElementById("usersRoleFilter").value;
+                const filtered = allUsers.filter((u) => {
+                    const name = (u.displayName || u.email || "").toLowerCase();
+                    const email = (u.email || "").toLowerCase();
+                    const matchSearch = name.includes(q) || email.includes(q);
+                    const matchRole = !roleFilter || u.role === roleFilter;
+                    return matchSearch && matchRole;
+                });
+                const body = document.getElementById("usersBody");
+                if (!filtered.length) {
+                    body.innerHTML =
+                        '<tr><td colspan="6" class="entity-empty">No users found</td></tr>';
+                    return;
+                }
+                body.innerHTML = filtered
+                    .map(
+                        (u) => `
+                <tr data-uid="${u.uid}" style="cursor:pointer">
+                    <td style="font-weight:600">${u.displayName || "—"}</td>
+                    <td>${u.email || "—"}</td>
+                    <td><span class="badge-status ${u.role}">${u.role || "user"}</span></td>
+                    <td style="color:var(--gray);font-size:0.8rem">${u.createdAt ? new Date(u.createdAt).toLocaleDateString() : "—"}</td>
+                    <td><span class="badge-status ${u.active !== false ? 'active' : 'inactive'}" style="font-size:0.72rem;">${u.active !== false ? 'Active' : 'Deactivated'}</span></td>
+                    <td style="display:flex;gap:4px;">
+                        <button class="btn-xs ${u.role === "admin" ? "red" : "blue"}" data-action="toggle-admin" data-uid="${u.uid}" data-current-role="${u.role}">${u.role === "admin" ? "Remove Admin" : "Make Admin"}</button>
+                        <button class="btn-xs ${u.active !== false ? 'red' : 'green'}" data-action="toggle-active" data-uid="${u.uid}" data-currently-active="${u.active !== false}">${u.active !== false ? 'Deactivate' : 'Reactivate'}</button>
+                    </td>
+                </tr>
+            `,
+                    )
+                    .join("");
+            }
+            // User row click delegation — buttons + row detail
+            document.getElementById('usersBody').addEventListener('click', async function(e) {
+                var btn = e.target.closest('button');
+                if (btn) {
+                    var uid = btn.dataset.uid;
+                    if (btn.dataset.action === 'toggle-admin') {
+                        var newRole = btn.dataset.currentRole === 'admin' ? 'user' : 'admin';
+                        var isPromote = newRole === 'admin';
+                        var confirmed = await showConfirmModal({
+                            title: isPromote ? 'Make Admin' : 'Remove Admin',
+                            message: isPromote ? 'Are you sure you want to make this user an admin? They will gain full access to the admin panel.' : 'Are you sure you want to remove admin privileges from this user?',
+                            confirmText: isPromote ? 'Make Admin' : 'Remove Admin',
+                            type: isPromote ? 'warning' : 'danger'
+                        });
+                        if (!confirmed) return;
+                        try {
+                            await api("/api/admin/users/" + uid, { method: "PATCH", body: JSON.stringify({ role: newRole }) });
+                            showToast('User role updated to ' + newRole, 'success');
+                            loadUsers();
+                        } catch (e) { showToast('Failed to update role', 'error'); }
+                    } else if (btn.dataset.action === 'toggle-active') {
+                        var currentlyActive = btn.dataset.currentlyActive;
+                        var action = currentlyActive === 'true' ? 'deactivate' : 'reactivate';
+                        var confirmed = await showConfirmModal({
+                            title: (action === 'deactivate' ? 'Deactivate' : 'Reactivate') + ' User',
+                            message: 'Are you sure you want to ' + action + ' this user?',
+                            confirmText: action === 'deactivate' ? 'Deactivate' : 'Reactivate',
+                            type: action === 'deactivate' ? 'danger' : 'warning'
+                        });
+                        if (!confirmed) return;
+                        try {
+                            await api("/api/admin/users/" + uid, { method: "PATCH", body: JSON.stringify({ active: currentlyActive === 'true' ? false : true }) });
+                            showToast('User ' + action + 'd successfully', 'success');
+                            loadUsers();
+                        } catch (e) { showToast('Failed to ' + action + ' user', 'error'); }
+                    }
+                    return;
+                }
+                var row = e.target.closest('tr[data-uid]');
+                if (!row) return;
+                showUserDetail(row.dataset.uid);
+            });
+
+            function showUserDetail(uid) {
+                const u = allUsers.find(x => x.uid === uid);
+                if (!u) return;
+                const joined = u.createdAt ? new Date(u.createdAt).toLocaleDateString() : '—';
+                const lastLogin = u.lastLogin ? new Date(u.lastLogin).toLocaleString() : '—';
+                const roleColor = { farmer: '#16a34a', consumer: '#2563eb', organization: '#d97706', admin: '#dc2626' };
+                document.getElementById('userDetailContent').innerHTML = `
+                    <div style="text-align:center;margin-bottom:20px;">
+                        <div style="width:64px;height:64px;border-radius:50%;background:${roleColor[u.role] || '#6b7280'};color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:700;margin:0 auto 12px;">${(u.displayName || u.email || '?')[0].toUpperCase()}</div>
+                        <h2 style="margin:0;font-size:1.2rem;">${u.displayName || '—'}</h2>
+                        <span class="badge-status ${u.role}" style="margin-top:6px;display:inline-block">${u.role || 'user'}</span>
+                    </div>
+                    <div style="display:grid;gap:12px;">
+                        <div style="padding:10px 14px;background:#f9fafb;border-radius:8px;"><span style="color:#6b7280;font-size:0.78rem;display:block;">Email</span><span style="font-weight:600;font-size:0.9rem;">${u.email || '—'}</span></div>
+                        <div style="padding:10px 14px;background:#f9fafb;border-radius:8px;"><span style="color:#6b7280;font-size:0.78rem;display:block;">Phone</span><span style="font-weight:600;font-size:0.9rem;">${u.phoneNumber || '—'}</span></div>
+                        <div style="padding:10px 14px;background:#f9fafb;border-radius:8px;"><span style="color:#6b7280;font-size:0.78rem;display:block;">User ID</span><span style="font-weight:600;font-size:0.8rem;font-family:monospace;word-break:break-all;">${u.uid}</span></div>
+                        <div style="padding:10px 14px;background:#f9fafb;border-radius:8px;"><span style="color:#6b7280;font-size:0.78rem;display:block;">Joined</span><span style="font-weight:600;font-size:0.9rem;">${joined}</span></div>
+                        <div style="padding:10px 14px;background:#f9fafb;border-radius:8px;"><span style="color:#6b7280;font-size:0.78rem;display:block;">Last Login</span><span style="font-weight:600;font-size:0.9rem;">${lastLogin}</span></div>
+                    </div>
+                `;
+                document.getElementById('userDetailModal').style.display = 'flex';
+            }
+
+            function closeUserDetail() {
+                document.getElementById('userDetailModal').style.display = 'none';
+            }
+            // Modal close via button + backdrop click
+            document.getElementById('closeUserDetailBtn').addEventListener('click', closeUserDetail);
+            document.getElementById('userDetailModal').addEventListener('click', function(e) {
+                if (e.target === this) closeUserDetail();
+            });
+
+            // ---------- Orders ----------
+            let allOrders = [];
+
+            async function loadOrders() {
+                allOrders = (await api("/api/admin/orders")) || [];
+                renderOrders();
+            }
+
+            function renderOrders() {
+                const statusFilter =
+                    document.getElementById("ordersStatusFilter").value;
+                const filtered = statusFilter
+                    ? allOrders.filter((o) => o.status === statusFilter)
+                    : allOrders;
+                const body = document.getElementById("ordersBody");
+                if (!filtered.length) {
+                    body.innerHTML =
+                        '<tr><td colspan="8" class="entity-empty">No orders found</td></tr>';
+                    return;
+                }
+                body.innerHTML = filtered
+                    .map(
+                        (o) => `
+                <tr>
+                    <td style="font-family:monospace;font-size:0.8rem;color:var(--gray)">#${(o.id || "").slice(-8)}</td>
+                    <td style="font-size:0.8rem">${(o.orgUid || "").slice(0, 10)}...</td>
+                    <td style="font-size:0.8rem">${(o.farmerUid || "").slice(0, 10)}...</td>
+                    <td>${o.quantity || 0}</td>
+                    <td style="font-weight:600">KES ${(o.totalPrice || 0).toFixed(2)}</td>
+                    <td><span class="badge-status ${o.status}">${o.status || "pending"}</span></td>
+                    <td style="color:var(--gray);font-size:0.8rem">${o.createdAt ? new Date(o.createdAt).toLocaleDateString() : "—"}</td>
+                    <td>
+                        <select class="btn-xs" onchange="updateOrderStatus('${o.id}',this.value)" style="border:1px solid var(--gray-light);font-size:0.7rem">
+                            <option value="">Change</option>
+                            <option value="confirmed">Confirm</option>
+                            <option value="shipped">Ship</option>
+                            <option value="delivered">Deliver</option>
+                            <option value="cancelled">Cancel</option>
+                        </select>
+                    </td>
+                </tr>
+            `,
+                    )
+                    .join("");
+            }
+
+            async function updateOrderStatus(orderId, status) {
+                if (!status) return;
+                try {
+                    await api("/api/admin/orders/" + orderId, {
+                        method: "PATCH",
+                        body: JSON.stringify({ status }),
+                    });
+                    showToast("Order updated to " + status, "success");
+                    loadOrders();
+                    loadDashboard();
+                } catch (e) {
+                    showToast("Failed to update order", "error");
+                }
+            }
+
+            // ---------- Products ----------
+            let allProducts = [];
+
+            async function loadProducts() {
+                allProducts = (await api("/api/admin/listings")) || [];
+                renderProducts();
+            }
+
+            function renderProducts() {
+                const q = document
+                    .getElementById("productsSearch")
+                    .value.toLowerCase();
+                const statusFilter = document.getElementById(
+                    "productsStatusFilter",
+                ).value;
+                const filtered = allProducts.filter((p) => {
+                    const matchSearch = (p.title || "")
+                        .toLowerCase()
+                        .includes(q);
+                    const matchStatus =
+                        !statusFilter || p.status === statusFilter;
+                    return matchSearch && matchStatus;
+                });
+                const body = document.getElementById("productsBody");
+                if (!filtered.length) {
+                    body.innerHTML =
+                        '<tr><td colspan="7" class="entity-empty">No products found</td></tr>';
+                    return;
+                }
+                body.innerHTML = filtered
+                    .map(
+                        (p) => `
+                <tr>
+                    <td style="font-weight:600">${p.title || "Untitled"}</td>
+                    <td style="font-size:0.8rem;color:var(--gray)">${(p.uid || "").slice(0, 10)}...</td>
+                    <td style="font-weight:600">KES ${(p.price || 0).toFixed(2)}</td>
+                    <td>${p.category || "—"}</td>
+                    <td><span class="badge-status ${p.status}">${p.status || "active"}</span></td>
+                    <td style="color:var(--gray);font-size:0.8rem">${p.createdAt ? new Date(p.createdAt).toLocaleDateString() : "—"}</td>
+                    <td>
+                        <select class="btn-xs" onchange="updateProductStatus('${p.id}',this.value)" style="border:1px solid var(--gray-light);font-size:0.7rem">
+                            <option value="">Change</option>
+                            <option value="active">Activate</option>
+                            <option value="inactive">Deactivate</option>
+                        </select>
+                    </td>
+                </tr>
+            `,
+                    )
+                    .join("");
+            }
+
+            async function updateProductStatus(id, status) {
+                if (!status) return;
+                try {
+                    await api("/api/admin/listings/" + id, {
+                        method: "PATCH",
+                        body: JSON.stringify({ status }),
+                    });
+                    showToast("Listing updated to " + status, "success");
+                    loadProducts();
+                    loadDashboard();
+                } catch (e) {
+                    showToast("Failed to update listing", "error");
+                }
+            }
+
+            // ---------- Organisations ----------
+            function renderOrgs() {
+                const q = document
+                    .getElementById("orgsSearch")
+                    .value.toLowerCase();
+                const orgs = allUsers.filter((u) => u.role === "organization");
+                const filtered = orgs.filter((u) => {
+                    const name = (u.displayName || u.email || "").toLowerCase();
+                    const email = (u.email || "").toLowerCase();
+                    const biz = (u.profile?.businessName || "").toLowerCase();
+                    return (
+                        name.includes(q) || email.includes(q) || biz.includes(q)
+                    );
+                });
+                const body = document.getElementById("orgsBody");
+                if (!filtered.length) {
+                    body.innerHTML =
+                        '<tr><td colspan="6" class="entity-empty">No organisations found</td></tr>';
+                    return;
+                }
+                body.innerHTML = filtered
+                    .map(
+                        (u) => `
+                <tr>
+                    <td style="font-weight:600">${u.displayName || u.profile?.businessName || "—"}</td>
+                    <td>${u.email || "—"}</td>
+                    <td>${u.profile?.businessName || "—"}</td>
+                    <td>${u.profile?.location || "—"}</td>
+                    <td style="color:var(--gray);font-size:0.8rem">${u.createdAt ? new Date(u.createdAt).toLocaleDateString() : "—"}</td>
+                    <td><button class="btn-xs red" data-action="remove-org" data-uid="${u.uid}">Remove</button></td>
+                </tr>
+            `,
+                    )
+                    .join("");
+            }
+
+            // Orgs remove button via delegation
+            document.getElementById('orgsBody').addEventListener('click', async function(e) {
+                var btn = e.target.closest('[data-action="remove-org"]');
+                if (!btn) return;
+                var uid = btn.dataset.uid;
+                var confirmed = await showConfirmModal({
+                    title: 'Remove Organisation',
+                    message: 'Are you sure you want to remove this organisation? This cannot be undone.',
+                    confirmText: 'Remove',
+                    type: 'danger'
+                });
+                if (!confirmed) return;
+                try {
+                    await api("/api/admin/users/" + uid, { method: "DELETE" });
+                    showToast("Organisation removed", "success");
+                    loadUsers();
+                } catch (e) {
+                    showToast("Failed to remove", "error");
+                }
+            });
+
+            // ---------- Finance ----------
+            let financeData = null;
+            async function loadFinance() {
+                const grid = document.getElementById("financeGrid");
+                grid.innerHTML = `
+                <div class="stat-card blue"><div class="stat-card-top"><div class="stat-card-icon blue"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div></div><h4 id="totalCommission">KES 0.00</h4><p>Total Commission Earned</p></div>
+                <div class="stat-card green"><div class="stat-card-top"><div class="stat-card-icon green"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div></div><h4 id="withdrawnCommission">KES 0.00</h4><p>Withdrawn</p></div>
+                <div class="stat-card amber"><div class="stat-card-top"><div class="stat-card-icon amber"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div></div><h4 id="pendingCommission">KES 0.00</h4><p>Pending Clearance</p></div>
+                <div class="stat-card purple"><div class="stat-card-top"><div class="stat-card-icon purple"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div></div><h4 id="commissionBalance">KES 0.00</h4><p>Commission Available</p></div>
+            `;
+                const history = document.getElementById("financeHistory");
+                history.innerHTML = '<p style="color:var(--gray);font-size:14px;text-align:center;padding:20px;">Loading...</p>';
+                let financeApiData = null;
+                try {
+                    financeApiData = await api("/api/admin/finance");
+                    if (!financeApiData) return;
+                    financeData = financeApiData;
+                    document.getElementById("totalCommission").textContent = "KES " + parseFloat(financeApiData.totalCommission || 0).toFixed(2);
+                    document.getElementById("withdrawnCommission").textContent = "KES " + parseFloat(financeApiData.totalWithdrawn || 0).toFixed(2);
+                    document.getElementById("pendingCommission").textContent = "KES " + parseFloat(financeApiData.pendingClearance || 0).toFixed(2);
+                    document.getElementById("commissionBalance").textContent = "KES " + parseFloat(financeApiData.commissionBalance || 0).toFixed(2);
+                    const entries = [];
+                    if (financeApiData.depositCount > 0) entries.push({ type: "credit", label: financeApiData.depositCount + " deposits received", date: "Total: KES " + (financeApiData.totalDeposited || 0).toFixed(2), amount: "" });
+                    if (financeApiData.withdrawalCount > 0) entries.push({ type: "debit", label: financeApiData.withdrawalCount + " withdrawals processed", date: "Total: KES " + (financeApiData.totalWithdrawn || 0).toFixed(2), amount: "" });
+                    entries.push({ type: "credit", label: financeApiData.activeUsers + " active wallet users", date: "Platform growth", amount: "" });
+                    history.innerHTML = entries.map(e => {
+                        const iconCls = e.type === "credit" ? "green" : "red";
+                        const iconSvg = e.type === "credit"
+                            ? '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>'
+                            : '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>';
+                        return '<div class="history-item"><div class="history-icon ' + iconCls + '">' + iconSvg + '</div><div class="history-info"><h4>' + e.label + '</h4><p>' + e.date + '</p></div><div class="history-amount">' + e.amount + '</div></div>';
+                    }).join("");
+                } catch (e) {
+                    history.innerHTML = '<p style="color:var(--error);font-size:14px;text-align:center;padding:20px;">Failed to load finance data</p>';
+                }
+                loadBanks();
+                if (financeApiData) renderCharts(financeApiData);
+            }
+
+            let volumeChart = null;
+
+            function renderCharts(data) {
+                // Destroy existing charts
+                if (revenueChart) { revenueChart.destroy(); revenueChart = null; }
+                if (volumeChart) { volumeChart.destroy(); volumeChart = null; }
+
+                const revCtx = document.getElementById('revenueChartFinance');
+                const volCtx = document.getElementById('volumeChart');
+                if (!revCtx || !volCtx) return;
+
+                const labels = ['Total Deposited', 'Total Withdrawn', 'Commission', 'Company Wallet'];
+                const revData = [
+                    data.totalDeposited || 0,
+                    data.totalWithdrawn || 0,
+                    data.totalCommission || 0,
+                    parseFloat(data.companyWalletBalance || 0)
+                ];
+                const volData = [
+                    data.depositCount || 0,
+                    data.withdrawalCount || 0,
+                    data.activeUsers || 0,
+                    data.frozenWallets || 0
+                ];
+
+                revenueChart = new Chart(revCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels.slice(0, 3),
+                        datasets: [{
+                            label: 'Amount (KES)',
+                            data: revData.slice(0, 3),
+                            backgroundColor: ['#16a34a', '#ef4444', '#f59e0b'],
+                            borderRadius: 6,
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { beginAtZero: true, ticks: { callback: v => 'KES ' + v.toFixed(0) } }
+                        }
+                    }
+                });
+
+                volumeChart = new Chart(volCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Deposits', 'Withdrawals', 'Active Users', 'Frozen Wallets'],
+                        datasets: [{
+                            data: volData,
+                            backgroundColor: ['#16a34a', '#ef4444', '#3b82f6', '#6b7280'],
+                            borderWidth: 0,
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 10 } } }
+                        }
+                    }
+                });
+            }
+
+            // ---------- Wallet Management (Company + Commission + Frozen) ----------
+            async function loadWallets() {
+                try {
+                    // Company wallet
+                    const companyRes = await fetch('/api/admin/company-wallet', { headers: { 'Authorization': 'Bearer ' + idToken } });
+                    const companyData = await companyRes.json();
+                    if (companyData) {
+                        document.getElementById('companyWalletBalance').textContent = 'KES ' + (parseFloat(companyData.balance) || 0).toFixed(2);
+                        document.getElementById('companyTotalDeposited').textContent = 'KES ' + (parseFloat(companyData.totalDeposited) || 0).toFixed(2);
+                        const txsEl = document.getElementById('companyWalletTxs');
+                        const txs = companyData.transactions || [];
+                        txsEl.innerHTML = txs.length ? txs.map(t => `
+                            <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f0f0f0;">
+                                <div><span style="color:var(--gray);font-size:0.75rem;">${t.createdAt ? new Date(t.createdAt).toLocaleDateString() : ''}</span>
+                                <div style="font-size:0.8rem;">${t.description || ''}</div></div>
+                                <div style="font-weight:600;color:${t.amount > 0 ? 'var(--secondary)' : 'var(--danger)'}">${t.amount > 0 ? '+' : ''}KES ${(Math.abs(t.amount) || 0).toFixed(2)}</div>
+                            </div>
+                        `).join('') : '<p style="color:var(--gray);text-align:center;padding:20px;">No transactions yet</p>';
+                    }
+
+                    // Commission wallet
+                    const commRes = await fetch('/api/admin/commission-wallet', { headers: { 'Authorization': 'Bearer ' + idToken } });
+                    const commData = await commRes.json();
+                    if (commData) {
+                        document.getElementById('commissionWalletBalance').textContent = 'KES ' + (parseFloat(commData.balance) || 0).toFixed(2);
+                        const commTxsEl = document.getElementById('commissionWalletTxs');
+                        const txs = commData.transactions || [];
+                        commTxsEl.innerHTML = txs.length ? txs.map(t => `
+                            <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f0f0f0;">
+                                <div><span style="color:var(--gray);font-size:0.75rem;">${t.createdAt ? new Date(t.createdAt).toLocaleDateString() : ''}</span>
+                                <div style="font-size:0.8rem;">${t.description || ''}</div></div>
+                                <div style="font-weight:600;color:${t.amount > 0 ? 'var(--secondary)' : 'var(--danger)'}">${t.amount > 0 ? '+' : ''}KES ${(Math.abs(t.amount) || 0).toFixed(2)}</div>
+                            </div>
+                        `).join('') : '<p style="color:var(--gray);text-align:center;padding:20px;">No transactions yet</p>';
+                    }
+
+                    // Frozen wallets
+                    const frozenRes = await fetch('/api/admin/frozen-wallets', { headers: { 'Authorization': 'Bearer ' + idToken } });
+                    const frozenData = await frozenRes.json();
+                    const frozenEl = document.getElementById('frozenWalletsList');
+                    if (frozenData && frozenData.length) {
+                        frozenEl.innerHTML = frozenData.map(f => `
+                            <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;margin-bottom:8px;">
+                                <div>
+                                    <div style="font-weight:600;font-size:0.9rem;">${f.displayName || f.email || f.uid}</div>
+                                    <div style="font-size:0.78rem;color:var(--gray);">UID: ${f.uid}</div>
+                                    <div style="font-size:0.78rem;color:var(--gray);">Balance: KES ${(f.balance || 0).toFixed(2)}</div>
+                                    <div style="font-size:0.78rem;color:var(--gray);">Frozen: ${f.frozenAt ? new Date(f.frozenAt).toLocaleDateString() : 'Unknown'}</div>
+                                </div>
+                                <button class="btn-xs green" data-action="unfreeze" data-uid="${f.uid}">Unfreeze</button>
+                            </div>
+                        `).join('');
+                    } else {
+                        frozenEl.innerHTML = '<p style="color:var(--gray);text-align:center;padding:20px;">No frozen wallets</p>';
+                    }
+                } catch (e) {
+                    console.error('Wallet load error:', e);
+                }
+            }
+
+            // Frozen wallets click delegation
+            document.getElementById('frozenWalletsList').addEventListener('click', async function(e) {
+                const btn = e.target.closest('[data-action="unfreeze"]');
+                if (!btn) return;
+                const uid = btn.dataset.uid;
+                const confirmed = await showConfirmModal({
+                    title: 'Unfreeze Wallet',
+                    message: 'Unfreeze wallet and reactivate user ' + uid + '?',
+                    confirmText: 'Unfreeze',
+                    type: 'warning'
+                });
+                if (!confirmed) return;
+                api('/api/admin/wallet/unfreeze/' + uid, { method: 'POST' })
+                    .then(function() {
+                        showToast('Wallet unfrozen and user reactivated', 'success');
+                        loadWallets();
+                    })
+                    .catch(function() {
+                        showToast('Failed to unfreeze', 'error');
+                    });
+            });
+
+            // ---------- Paystack Withdrawal ----------
+            async function loadBanks() {
+                try {
+                    const res = await fetch("https://api.paystack.co/bank?country=kenya");
+                    const data = await res.json();
+                    if (data.status) {
+                        const select = document.getElementById("bankSelect");
+                        select.innerHTML = '<option value="">Select bank</option>' + data.data.map(b => '<option value="' + b.code + '">' + b.name + '</option>').join("");
+                    }
+                } catch (e) { console.log("Paystack bank list unavailable"); }
+            }
+
+            function toggleAdminWMethod() {
+                const method = document.querySelector('input[name="adminWMethod"]:checked').value;
+                document.getElementById('adminBankFields').style.display = method === 'bank' ? 'block' : 'none';
+                document.getElementById('adminMpesaFields').style.display = method === 'mpesa' ? 'block' : 'none';
+                document.getElementById('adminBankLabel').style.borderColor = method === 'bank' ? 'var(--secondary)' : '#e5e7eb';
+                document.getElementById('adminBankLabel').style.background = method === 'bank' ? 'rgba(67,160,71,0.05)' : 'transparent';
+                document.getElementById('adminMpesaLabel').style.borderColor = method === 'mpesa' ? 'var(--secondary)' : '#e5e7eb';
+                document.getElementById('adminMpesaLabel').style.background = method === 'mpesa' ? 'rgba(67,160,71,0.05)' : 'transparent';
+            }
+
+            async function handleWithdraw(e) {
+                e.preventDefault();
+                const btn = document.getElementById("withdrawBtn");
+                btn.disabled = true;
+                btn.textContent = "Processing...";
+                const method = document.querySelector('input[name="adminWMethod"]:checked').value;
+                let amount, body;
+                if (method === 'bank') {
+                    amount = parseFloat(document.getElementById("withdrawAmount").value);
+                    const bank = document.getElementById("bankSelect").value;
+                    const acctNum = document.getElementById("accountNumber").value;
+                    const acctName = document.getElementById("accountName").value;
+                    if (!bank || !acctNum || !acctName) { showToast("Fill all bank fields", "error"); btn.disabled = false; btn.textContent = "Withdraw"; return; }
+                    body = { amount, method: 'bank', bankCode: bank, accountNumber: acctNum, accountName: acctName };
+                } else {
+                    amount = parseFloat(document.getElementById("adminMpesaAmount").value);
+                    const phone = document.getElementById("adminPhone").value.trim();
+                    if (!phone) { showToast("Enter M-Pesa phone number", "error"); btn.disabled = false; btn.textContent = "Withdraw"; return; }
+                    body = { amount, method: 'mpesa', phoneNumber: phone };
+                }
+                const available = financeData ? parseFloat(financeData.commissionBalance || 0) : 0;
+                if (amount > available) {
+                    showToast("Insufficient commission balance. Available: KES " + available.toFixed(2), "error");
+                    btn.disabled = false;
+                    btn.textContent = "Withdraw";
+                    return;
+                }
+                try {
+                    const result = await api("/api/wallet/withdraw", {
+                        method: "POST",
+                        body: JSON.stringify(body),
+                    });
+                    if (result) {
+                        showToast("Withdrawal request submitted!", "success");
+                        document.getElementById("withdrawForm").reset();
+                        loadFinance();
+                    }
+                } catch (e) {
+                    showToast("Withdrawal failed", "error");
+                }
+                btn.disabled = false;
+                btn.textContent = "Withdraw";
+            }
+
+            // ---------- Support ----------
+            let supportQueries = [];
+            async function loadSupport() {
+                const list = document.getElementById("supportList");
+                list.innerHTML = '<p style="color:var(--gray);font-size:14px;text-align:center;padding:40px;">Loading queries...</p>';
+                try {
+                    const data = await api("/api/admin/support");
+                    supportQueries = data || [];
+                    renderSupportQueries();
+                    const unread = supportQueries.filter(s => !s.replied).length;
+                    const badge = document.getElementById("supportBadge");
+                    if (unread > 0) { badge.textContent = unread; badge.style.display = 'flex'; }
+                    else { badge.style.display = 'none'; }
+                } catch (e) {
+                    list.innerHTML = '<p style="color:var(--error);font-size:14px;text-align:center;padding:40px;">Failed to load queries</p>';
+                }
+            }
+
+            function renderSupportQueries() {
+                const list = document.getElementById("supportList");
+                const q = (document.getElementById("supportSearch").value || "").toLowerCase();
+                const filter = document.getElementById("supportFilter").value;
+                let filtered = supportQueries.filter(s => {
+                    const matchesSearch = (s.name || "").toLowerCase().includes(q) || (s.email || "").toLowerCase().includes(q) || (s.subject || "").toLowerCase().includes(q) || (s.message || "").toLowerCase().includes(q);
+                    if (!matchesSearch) return false;
+                    if (filter === "unreplied") return !s.replied;
+                    if (filter === "replied") return s.replied;
+                    return true;
+                });
+                if (!filtered.length) {
+                    list.innerHTML = '<div class="entity-empty">No queries found</div>';
+                    return;
+                }
+                list.innerHTML = filtered.map(s => {
+                    const replied = s.replied ? 'replied' : 'unreplied';
+                    const date = s.createdAt ? new Date(s.createdAt).toLocaleDateString() : '—';
+                    return '<div class="support-card ' + replied + '">' +
+                        '<div class="support-card-header">' +
+                            '<div><strong>' + escHtml(s.name) + '</strong> <span style="color:var(--gray);font-size:0.8rem;">&lt;' + escHtml(s.email) + '&gt;</span></div>' +
+                            '<span class="badge-status ' + replied + '">' + (s.replied ? 'Replied' : 'Unreplied') + '</span>' +
+                        '</div>' +
+                        '<div class="support-card-subject">' + escHtml(s.subject) + '</div>' +
+                        '<div class="support-card-message">' + escHtml(s.message) + '</div>' +
+                        '<div class="support-card-date">' + date + '</div>' +
+                        (s.replied
+                            ? '<div class="support-card-reply"><strong>Your reply:</strong> ' + escHtml(s.reply) + '</div>'
+                            : '<form class="support-reply-form" data-query-id="' + s.id + '">' +
+                                '<textarea rows="2" placeholder="Type your reply..." required></textarea>' +
+                                '<button type="submit" class="btn-xs">Send Reply</button>' +
+                              '</form>'
+                        ) +
+                    '</div>';
+                }).join("");
+            }
+
+            // Support reply via event delegation
+            document.getElementById('supportList').addEventListener('submit', function(e) {
+                const form = e.target.closest('.support-reply-form');
+                if (!form) return;
+                e.preventDefault();
+                const id = form.dataset.queryId;
+                const textarea = form.querySelector('textarea');
+                const reply = textarea.value.trim();
+                if (!reply) return;
+                const btn = form.querySelector('button');
+                btn.disabled = true;
+                btn.textContent = 'Sending...';
+                api('/api/admin/support/' + id + '/reply', { method: 'POST', body: JSON.stringify({ reply }) })
+                    .then(function(result) {
+                        if (result) { showToast('Reply sent successfully', 'success'); loadSupport(); }
+                    })
+                    .catch(function() {
+                        showToast('Failed to send reply', 'error');
+                        btn.disabled = false;
+                        btn.textContent = 'Send Reply';
+                    });
+            });
+            // ---------- Notifications ----------
+            // Live preview for notification
+            document.getElementById('notifyTitle').addEventListener('input', updatePreview);
+            document.getElementById('notifyBody').addEventListener('input', updatePreview);
+            document.getElementById('notifyType').addEventListener('change', updatePreview);
+            document.getElementById('notifyForm').addEventListener('submit', sendBroadcast);
+            function updatePreview() {
+                const title = document.getElementById('notifyTitle').value.trim();
+                const body = document.getElementById('notifyBody').value.trim();
+                const type = document.getElementById('notifyType').value;
+                const preview = document.getElementById('notifPreview');
+                if (!title && !body) { preview.style.display = 'none'; return; }
+                preview.style.display = 'block';
+                document.getElementById('previewTitle').textContent = title || 'Notification Title';
+                document.getElementById('previewBody').textContent = body || 'Your message will appear here';
+                const icon = document.getElementById('previewIcon');
+                icon.className = 'notif-admin-preview-icon ' + type;
+                const svgs = {
+                    info: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>',
+                    success: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
+                    warning: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+                    error: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>',
+                };
+                icon.innerHTML = svgs[type] || svgs.info;
+            }
+
+            async function sendBroadcast(e) {
+                e.preventDefault();
+                const title = document.getElementById("notifyTitle").value.trim();
+                const body = document.getElementById("notifyBody").value.trim();
+                const role = document.getElementById("notifyRole").value;
+                const type = document.getElementById("notifyType").value;
+                if (!title || !body) return;
+                const btn = document.getElementById("notifyBtn");
+                btn.disabled = true;
+                btn.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" style="animation:spin 1s linear infinite"><circle cx="12" cy="12" r="10" stroke-dasharray="31.4 31.4" stroke-linecap="round"/></svg> Sending...';
+                try {
+                    const result = await api("/api/admin/notifications", {
+                        method: "POST",
+                        body: JSON.stringify({ title, body, type, targetRole: role || undefined }),
+                    });
+                    showToast(result.message || "Notification sent", "success");
+                    document.getElementById("notifyForm").reset();
+                    document.getElementById("notifPreview").style.display = 'none';
+                    loadBroadcastHistory();
+                } catch (e) {
+                    showToast("Failed to send notification", "error");
+                }
+                btn.disabled = false;
+                btn.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Send Notification';
+            }
+
+            async function loadBroadcastHistory() {
+                const el = document.getElementById("broadcastHistory");
+                try {
+                    const notifs = await api("/api/notifications");
+                    const adminNotifs = (notifs || []).filter(n => n.title && n.body);
+                    if (!adminNotifs.length) {
+                        el.innerHTML = '<div class="notif-admin-empty">No broadcasts sent yet.</div>';
+                        return;
+                    }
+                    el.innerHTML = adminNotifs.slice(0, 20).map(n => {
+                        const date = n.createdAt ? new Date(n.createdAt).toLocaleString() : '—';
+                        const type = n.type || 'info';
+                        const colors = { info: '#2563eb', success: '#16a34a', warning: '#d97706', error: '#dc2626' };
+                        const dot = '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:' + (colors[type] || colors.info) + ';margin-right:8px;flex-shrink:0;"></span>';
+                        return '<div class="history-item">' +
+                            '<div style="flex:1;min-width:0;">' +
+                            '<div style="display:flex;align-items:center;gap:0.5rem;">' +
+                            dot +
+                            '<h4 style="font-size:0.85rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin:0;">' + escHtml(n.title) + '</h4>' +
+                            '</div>' +
+                            '<p style="font-size:0.78rem;color:var(--gray);margin:0.15rem 0 0 1rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + escHtml(n.body) + '</p>' +
+                            '<p style="font-size:0.7rem;color:#9ca3af;margin:0.1rem 0 0 1rem;">' + date + '</p>' +
+                            '</div>' +
+                        '</div>';
+                    }).join("");
+                } catch (e) {
+                    el.innerHTML = '<div class="notif-admin-empty">Could not load history.</div>';
+                }
+            }
+
+            // ---------- Payouts ----------
+            let payoutData = [];
+            async function loadPayouts() {
+                const tbody = document.getElementById("payoutTableBody");
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#999;padding:40px;">Loading...</td></tr>';
+                try {
+                    const data = await api("/api/admin/payouts");
+                    payoutData = data || [];
+                    renderPayouts();
+                    updatePayoutBadge();
+                } catch (e) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--error);padding:40px;">Failed to load payouts</td></tr>';
+                }
+            }
+
+            function renderPayouts() {
+                const tbody = document.getElementById("payoutTableBody");
+                const filter = document.getElementById("payoutFilter").value;
+                let filtered = payoutData;
+                if (filter !== "all") filtered = payoutData.filter(p => p.status === filter);
+                if (!filtered.length) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#999;padding:40px;">No payouts found</td></tr>';
+                    return;
+                }
+                tbody.innerHTML = filtered.map(p => {
+                    const statusColor = p.status === 'approved' ? '#10b981' : p.status === 'rejected' ? '#ef4444' : '#f59e0b';
+                    const date = p.createdAt ? new Date(p.createdAt).toLocaleString() : '—';
+                    let actions = '';
+                    if (p.status === 'pending') {
+                        actions = '<button data-action="approve-payout" data-payout-id="' + p.id + '" style="background:#10b981;color:#fff;border:none;padding:6px 14px;border-radius:6px;cursor:pointer;font-size:0.75rem;font-weight:600;margin-right:6px;">Approve</button>' +
+                            '<button data-action="reject-payout" data-payout-id="' + p.id + '" style="background:#ef4444;color:#fff;border:none;padding:6px 14px;border-radius:6px;cursor:pointer;font-size:0.75rem;font-weight:600;">Reject</button>';
+                    } else {
+                        actions = '<span style="color:#999;font-size:0.8rem;">—</span>';
+                    }
+                    return '<tr>' +
+                        '<td><strong>' + escHtml(p.displayName || p.uid) + '</strong><br><span style="font-size:0.75rem;color:#999;">' + escHtml(p.email || '') + '</span></td>' +
+                        '<td><strong>KES ' + parseFloat(p.amount).toFixed(2) + '</strong></td>' +
+                        '<td>' + (p.method || 'bank') + '</td>' +
+                        '<td>' + date + '</td>' +
+                        '<td><span style="background:' + statusColor + ';color:white;padding:3px 10px;border-radius:20px;font-size:0.7rem;font-weight:600;">' + p.status + '</span></td>' +
+                        '<td>' + actions + '</td>' +
+                        '</tr>';
+                }).join('');
+            }
+
+            function updatePayoutBadge() {
+                const pending = payoutData.filter(p => p.status === 'pending').length;
+                const badge = document.getElementById("payoutBadge");
+                if (pending > 0) { badge.textContent = pending; badge.style.display = 'flex'; }
+                else { badge.style.display = 'none'; }
+            }
+
+            // Payout buttons click delegation
+            document.getElementById('payoutTableBody').addEventListener('click', async function(e) {
+                const btn = e.target.closest('[data-action]');
+                if (!btn) return;
+                const id = btn.dataset.payoutId;
+                if (btn.dataset.action === 'approve-payout') {
+                    const confirmed = await showConfirmModal({
+                        title: 'Approve Payout',
+                        message: 'Approve this payout of KES ' + (btn.closest('tr') ? btn.closest('tr').querySelector('td:nth-child(2)')?.textContent?.trim() || '' : '') + '?',
+                        confirmText: 'Approve',
+                        type: 'primary'
+                    });
+                    if (!confirmed) return;
+                    api('/api/admin/payouts/' + id + '/approve', { method: 'POST' })
+                        .then(function() {
+                            showToast('Payout approved', 'success');
+                            loadPayouts();
+                            loadFinance();
+                        })
+                        .catch(function() { showToast('Failed to approve payout', 'error'); });
+                } else if (btn.dataset.action === 'reject-payout') {
+                    const confirmed = await showConfirmModal({
+                        title: 'Reject Payout',
+                        message: 'Reject this payout? Funds will be returned to user wallet.',
+                        confirmText: 'Reject',
+                        type: 'danger'
+                    });
+                    if (!confirmed) return;
+                    api('/api/admin/payouts/' + id + '/reject', { method: 'POST' })
+                        .then(function() {
+                            showToast('Payout rejected, funds returned', 'success');
+                            loadPayouts();
+                            loadFinance();
+                        })
+                        .catch(function() { showToast('Failed to reject payout', 'error'); });
+                }
+            });
+
+            document.getElementById('payoutFilter')?.addEventListener('change', renderPayouts);
+
+            // Socket.IO: update payout badge in real-time
+            try {
+                const payoutSocket = io('/', { query: { uid: userData.uid } });
+                payoutSocket.on('payoutUpdate', function() {
+                    if (document.getElementById('section-payouts').classList.contains('active')) {
+                        loadPayouts();
+                    } else {
+                        // Just update the badge without full reload
+                        api('/api/admin/payouts').then(function(data) {
+                            payoutData = data || [];
+                            updatePayoutBadge();
+                        }).catch(function() {});
+                    }
+                });
+            } catch(e) {}
+
+            function escHtml(str) {
+                const div = document.createElement("div");
+                div.textContent = str || "";
+                return div.innerHTML;
+            }
+
+            // ---------- Init ----------
+            loadDashboard();
+            loadUsers();
+            loadOrders();
+            loadProducts();
+
+            // ---------- Register Service Worker ----------
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('/sw.js');
+            }
+        </script>
+    </body>
+</html>

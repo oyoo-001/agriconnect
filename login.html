@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/Assets.xcassets/AppIcon.appiconset/_/32.png">
+    <link rel="apple-touch-icon" href="/icons/Assets.xcassets/AppIcon.appiconset/_/180.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#1B5E20">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - AgriConnect</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1B5E20;
+            --primary-light: #2E7D32;
+            --secondary: #43A047;
+            --accent: #FFB300;
+            --accent-dark: #FF8F00;
+            --dark: #1a1a2e;
+            --dark-2: #16213e;
+            --light: #f8f9fa;
+            --gray: #6c757d;
+            --gray-light: #e9ecef;
+            --white: #ffffff;
+            --radius-sm: 8px;
+            --radius-md: 16px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --shadow-sm: 0 2px 8px rgba(0,0,0,0.06);
+            --shadow-md: 0 8px 30px rgba(0,0,0,0.12);
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #1a3a1a 0%, var(--dark-2) 50%, var(--dark) 100%);
+            color: var(--dark);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 2rem;
+            position: relative;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: url('images/farm-pic.jpg') center/cover no-repeat;
+            opacity: 0.08;
+            z-index: 0;
+        }
+        .auth-container {
+            background: rgba(255,255,255,0.97);
+            backdrop-filter: blur(20px);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+            width: 100%;
+            max-width: 420px;
+            padding: 2.5rem;
+            position: relative;
+            z-index: 1;
+        }
+        .auth-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+            font-weight: 800;
+            font-size: 1.4rem;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            text-decoration: none;
+        }
+        .auth-logo-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+        }
+        h2 {
+            text-align: center;
+            color: var(--dark);
+            margin-bottom: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        .auth-subtitle {
+            text-align: center;
+            color: var(--gray);
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+        }
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.4rem;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--dark);
+        }
+        input {
+            width: 100%;
+            padding: 0.85rem 1rem;
+            border: 1.5px solid var(--gray-light);
+            border-radius: var(--radius-sm);
+            font-size: 0.95rem;
+            font-family: inherit;
+            transition: var(--transition);
+            background: var(--white);
+        }
+        input:focus {
+            outline: none;
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 3px rgba(67, 160, 71, 0.15);
+        }
+        .btn {
+            width: 100%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: var(--white);
+            border: none;
+            padding: 0.9rem;
+            border-radius: var(--radius-sm);
+            font-size: 1rem;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(46,125,50,0.3);
+        }
+        .btn:active {
+            transform: translateY(0);
+        }
+        .links {
+            text-align: center;
+            margin-top: 1.5rem;
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+        .links a {
+            color: var(--primary);
+            font-weight: 600;
+            text-decoration: none;
+        }
+        .links a:hover {
+            text-decoration: underline;
+        }
+        .back-link {
+            text-align: center;
+            margin-top: 1rem;
+        }
+        .back-link a {
+            color: var(--gray);
+            font-size: 0.85rem;
+            text-decoration: none;
+        }
+        .back-link a:hover {
+            color: var(--primary);
+        }
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 1.5rem 0;
+            color: var(--gray);
+            font-size: 0.8rem;
+        }
+        .divider::before, .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--gray-light);
+        }
+        .google-btn {
+            width: 100%;
+            background: var(--white);
+            color: var(--dark);
+            border: 1.5px solid var(--gray-light);
+            padding: 0.85rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.95rem;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+        }
+        .google-btn:hover {
+            background: #f8f9fa;
+            border-color: #d0d0d0;
+        }
+        .forgot-password {
+            text-align: right;
+            margin-top: 0.5rem;
+        }
+        .forgot-password a {
+            color: var(--gray);
+            font-size: 0.85rem;
+            text-decoration: none;
+        }
+        .forgot-password a:hover {
+            color: var(--primary);
+        }
+        /* ---- Toast ---- */
+        .toast-container {
+            position: fixed;
+            top: 1.5rem;
+            right: 1.5rem;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            pointer-events: none;
+        }
+        .toast {
+            pointer-events: auto;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 1.25rem;
+            border-radius: var(--radius-sm);
+            background: var(--white);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            min-width: 320px;
+            max-width: 420px;
+            animation: toastIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            border-left: 4px solid;
+        }
+        .toast.removing {
+            animation: toastOut 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        @keyframes toastIn {
+            from { opacity: 0; transform: translateX(100%) scale(0.9); }
+            to { opacity: 1; transform: translateX(0) scale(1); }
+        }
+        @keyframes toastOut {
+            from { opacity: 1; transform: translateX(0) scale(1); }
+            to { opacity: 0; transform: translateX(100%) scale(0.9); }
+        }
+        .toast-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+        .toast-msg {
+            flex: 1;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--dark);
+        }
+        .toast-close {
+            background: none;
+            border: none;
+            font-size: 1.1rem;
+            cursor: pointer;
+            color: var(--gray);
+            padding: 0;
+            line-height: 1;
+            transition: var(--transition);
+        }
+        .toast-close:hover { color: var(--dark); }
+        .toast.error { border-left-color: #dc2626; }
+        .toast.error .toast-icon { background: #fef2f2; color: #dc2626; }
+        .toast.success { border-left-color: #16a34a; }
+        .toast.success .toast-icon { background: #f0fdf4; color: #16a34a; }
+        .toast.info { border-left-color: #2563eb; }
+        .toast.info .toast-icon { background: #eff6ff; color: #2563eb; }
+        .toast.warning { border-left-color: var(--accent-dark); }
+        .toast.warning .toast-icon { background: #fffbeb; color: var(--accent-dark); }
+        @media (max-width: 480px) {
+            .auth-container { padding: 2rem 1.5rem; }
+            .toast-container { top: 1rem; right: 1rem; left: 1rem; }
+            .toast { min-width: auto; max-width: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <a href="landing-page" class="auth-logo">
+            <div class="auth-logo-icon">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 6c-3.3 0-6 2.7-6 6h12c0-3.3-2.7-6-6-6z"/><path d="M4 14c0 2 1.5 3 4 4l1 2M20 14c0 2-1.5 3-4 4l-1 2"/><path d="M8 18h8"/></svg>
+            </div>
+            AgriConnect
+        </a>
+        <h2>Welcome Back</h2>
+        <p class="auth-subtitle">Log in to your AgriConnect account</p>
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" required placeholder="Enter your email">
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" required placeholder="Enter your password">
+                <div class="forgot-password">
+                    <a href="forgot-password">Forgot password?</a>
+                </div>
+            </div>
+            <button type="submit" class="btn" id="loginBtn">Log In</button>
+        </form>
+        <div class="divider">or continue with</div>
+        <button class="google-btn" id="googleLogin">
+            <svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+            Log in with Google
+        </button>
+        <div class="links">
+            <p>Don't have an account? <a href="signup">Sign up</a></p>
+        </div>
+        <div class="back-link">
+            <a href="landing-page">← Back to home</a>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script>
+        function showToast(message, type) {
+            type = type || 'info';
+            const container = document.getElementById('toastContainer');
+            const icons = { error: '✕', success: '✓', info: 'ℹ', warning: '⚠' };
+            const toast = document.createElement('div');
+            toast.className = 'toast ' + type;
+            toast.innerHTML =
+                '<div class="toast-icon">' + (icons[type] || 'ℹ') + '</div>' +
+                '<div class="toast-msg">' + message + '</div>' +
+                '<button class="toast-close" onclick="this.parentElement.classList.add(\'removing\');setTimeout(()=>this.parentElement.remove(),300)">×</button>';
+            container.appendChild(toast);
+            setTimeout(() => {
+                if (toast.parentElement) {
+                    toast.classList.add('removing');
+                    setTimeout(() => toast.remove(), 300);
+                }
+            }, 4000);
+        }
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDsY-TO3ellL4_tb3j4qZDXLJLkf0MJe2I",
+            authDomain: "agri-bab5b.firebaseapp.com",
+            databaseURL: "https://agri-bab5b-default-rtdb.firebaseio.com",
+            projectId: "agri-bab5b",
+            storageBucket: "agri-bab5b.firebasestorage.app",
+            messagingSenderId: "107510119947",
+            appId: "1:107510119947:web:26e76e26f2117f2bd5110e",
+            measurementId: "G-GG3JXH6RPG",
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const loginBtn = document.getElementById('loginBtn');
+            loginBtn.disabled = true;
+            loginBtn.innerHTML = 'Logging in...';
+
+            try {
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                const idToken = await userCredential.user.getIdToken();
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ idToken })
+                });
+                const data = await response.json();
+                    if (response.ok) {
+                        sessionStorage.setItem('user', JSON.stringify(data));
+                        sessionStorage.setItem('idToken', idToken);
+                        document.cookie = 'idToken=' + idToken + ';path=/;max-age=3600;SameSite=Strict';
+                        showToast('Login successful! Redirecting...', 'success');
+                        const redirect = data.role === 'admin' ? 'admin' : data.role === 'farmer' ? 'farmer' : data.role === 'organization' ? 'organisation' : 'consumer';
+                        setTimeout(() => { window.location.href = redirect; }, 1000);
+                } else {
+                    showToast(data.error || 'Login failed', 'error');
+                    loginBtn.disabled = false;
+                    loginBtn.textContent = 'Log In';
+                }
+            } catch (error) {
+                showToast(getAuthErrorMessage(error), 'error');
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Log In';
+            }
+        });
+
+        document.getElementById('googleLogin').addEventListener('click', async () => {
+            const googleBtn = document.getElementById('googleLogin');
+            googleBtn.disabled = true;
+            googleBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" style="animation:spin 1s linear infinite"><circle cx="12" cy="12" r="10" stroke="#4285F4" stroke-width="2" fill="none" stroke-dasharray="31.4 31.4" stroke-linecap="round"/></svg> Logging in...';
+            const provider = new firebase.auth.GoogleAuthProvider();
+            try {
+                const result = await auth.signInWithPopup(provider);
+                const idToken = await result.user.getIdToken();
+                const response = await fetch('/api/auth/google', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ idToken })
+                });
+                const data = await response.json();
+                    if (response.ok) {
+                        sessionStorage.setItem('user', JSON.stringify(data));
+                        sessionStorage.setItem('idToken', idToken);
+                        document.cookie = 'idToken=' + idToken + ';path=/;max-age=3600;SameSite=Strict';
+                        showToast('Welcome back! Redirecting...', 'success');
+                        const redirect2 = data.role === 'admin' ? 'admin' : data.role === 'farmer' ? 'farmer' : data.role === 'organization' ? 'organisation' : 'consumer';
+                        setTimeout(() => { window.location.href = redirect2; }, 1000);
+                    } else if (response.status === 404) {
+                        showToast('Account not found. Redirecting to sign up...', 'info');
+                        googleBtn.disabled = false;
+                        googleBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg> Log in with Google';
+                        setTimeout(() => { window.location.href = 'signup'; }, 1500);
+                        return;
+                }
+            } catch (error) {
+                if (error.code === 'auth/popup-closed-by-user') { googleBtn.disabled = false; googleBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg> Log in with Google'; return; }
+                if (error.code === 'auth/popup-blocked') {
+                    showToast('Pop-up was blocked. Please allow pop-ups and try again.', 'warning');
+                    googleBtn.disabled = false;
+                    googleBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg> Log in with Google';
+                    return;
+                }
+                showToast(getAuthErrorMessage(error), 'error');
+            }
+            googleBtn.disabled = false;
+            googleBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg> Log in with Google';
+            return;
+        });
+
+        // Firebase Auth error message mapper
+        function getAuthErrorMessage(error) {
+            const code = error.code || '';
+            const msg = error.message || '';
+            switch (code) {
+                case 'auth/invalid-credential':
+                case 'auth/wrong-password':
+                case 'auth/user-not-found':
+                    return 'Invalid email or password';
+                case 'auth/too-many-requests':
+                    return 'Too many attempts. Please try again later';
+                case 'auth/user-disabled':
+                    return 'This account has been disabled. Contact support.';
+                case 'auth/invalid-email':
+                    return 'Invalid email address';
+                case 'auth/network-request-failed':
+                    return 'Network error. Check your connection and try again.';
+                case 'auth/popup-blocked':
+                    return 'Pop-up was blocked. Please allow pop-ups and try again.';
+                case 'auth/popup-closed-by-user':
+                    return '';
+                case 'auth/cancelled-popup-request':
+                    return '';
+                case 'auth/account-exists-with-different-credential':
+                    return 'An account already exists with this email. Try signing in with your original method.';
+                default:
+                    // Fallback: extract clean message from verbose Firebase errors
+                    const match = msg.match(/\(auth\/[\w-]+\)/);
+                    if (match) return match[0].replace(/[()]/g, '').replace('auth/', '').replace(/-/g, ' ');
+                    return 'An error occurred. Please try again.';
+            }
+        }
+    </script>
+
+    <script>
+        // ---------- Register Service Worker ----------
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js');
+        }
+    </script>
+</body>
+</html>

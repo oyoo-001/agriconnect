@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Payment Successful – AgriConnect</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', -apple-system, sans-serif; background: #f0fdf4; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
+        .card { background: #fff; border-radius: 20px; padding: 48px 40px; text-align: center; box-shadow: 0 8px 40px rgba(0,0,0,0.08); max-width: 440px; width: 100%; animation: fadeUp 0.5s ease-out; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+        .checkmark { width: 72px; height: 72px; border-radius: 50%; background: #dcfce7; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.1s both; }
+        @keyframes pop { from { transform: scale(0); } to { transform: scale(1); } }
+        .checkmark svg { width: 36px; height: 36px; stroke: #16a34a; stroke-width: 3; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+        .checkmark svg polyline { animation: draw 0.4s ease-out 0.4s both; }
+        @keyframes draw { from { stroke-dashoffset: 30; stroke-dasharray: 30; } to { stroke-dashoffset: 0; } }
+        h1 { font-size: 24px; font-weight: 800; color: #15803d; margin-bottom: 6px; }
+        .subtitle { font-size: 14px; color: #6b7280; margin-bottom: 28px; }
+        .details { background: #f9fafb; border-radius: 12px; padding: 20px; text-align: left; margin-bottom: 28px; }
+        .details .row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 14px; }
+        .details .row:not(:last-child) { border-bottom: 1px solid #f3f4f6; }
+        .details .label { color: #6b7280; }
+        .details .value { font-weight: 600; color: #1a1a2e; }
+        .details .value.highlight { color: #15803d; font-size: 16px; }
+        .btn { display: inline-block; padding: 14px 32px; background: #15803d; color: #fff; border: none; border-radius: 12px; font-size: 15px; font-weight: 600; font-family: inherit; cursor: pointer; text-decoration: none; transition: background 0.2s; }
+        .btn:hover { background: #166534; }
+        .auto-redirect { margin-top: 16px; font-size: 13px; color: #9ca3af; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="checkmark">
+            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12" /></svg>
+        </div>
+        <h1 id="title">Payment Successful!</h1>
+        <p class="subtitle" id="subtitle">Your transaction has been processed securely.</p>
+        <div class="details">
+            <div class="row"><span class="label">Type</span><span class="value" id="detailType">---</span></div>
+            <div class="row"><span class="label">Amount</span><span class="value highlight" id="detailAmount">---</span></div>
+            <div class="row" id="detailToRow"><span class="label">Recipient</span><span class="value" id="detailTo">---</span></div>
+            <div class="row"><span class="label">Reference</span><span class="value" id="detailRef">---</span></div>
+            <div class="row"><span class="label">Date &amp; Time</span><span class="value" id="detailDate">---</span></div>
+            <div class="row" id="detailFeeRow"><span class="label">Fee</span><span class="value" id="detailFee">---</span></div>
+        </div>
+        <a class="btn" id="dashboardBtn" href="/dashboard.html">Back to Dashboard</a>
+        <p class="auto-redirect">Redirecting to dashboard in <span id="countdown">8</span>s...</p>
+    </div>
+    <script>
+        (function () {
+            const params = new URLSearchParams(window.location.search);
+            const type = params.get('type') || 'payment';
+            const amount = params.get('amount') || '0';
+            const ref = params.get('reference') || 'N/A';
+            const toName = params.get('toName') || '';
+            const toWallet = params.get('toWalletId') || '';
+            const fee = params.get('fee') || '';
+            const message = params.get('message') || '';
+
+            const role = sessionStorage.getItem('role') || '';
+            const dashboards = { consumer: 'consumer.html', farmer: 'farmer.html', organisation: 'organisation.html' };
+            const dashboardLink = dashboards[role] || 'consumer.html';
+
+            document.getElementById('dashboardBtn').href = dashboardLink;
+            document.getElementById('detailType').textContent = type.charAt(0).toUpperCase() + type.slice(1);
+            document.getElementById('detailAmount').textContent = 'KES ' + parseFloat(amount).toFixed(2);
+            document.getElementById('detailRef').textContent = ref;
+            document.getElementById('detailDate').textContent = new Date().toLocaleString();
+
+            if (type === 'transfer' && toName) {
+                document.getElementById('detailTo').textContent = toName + (toWallet ? ' (ID: ' + toWallet + ')' : '');
+            } else if (type === 'withdrawal') {
+                document.getElementById('detailToRow').querySelector('.label').textContent = 'Sent To';
+                document.getElementById('detailTo').textContent = 'M-Pesa ' + (params.get('phone') || '');
+            } else {
+                document.getElementById('detailToRow').style.display = 'none';
+            }
+
+            if (fee && parseFloat(fee) > 0) {
+                document.getElementById('detailFee').textContent = 'KES ' + parseFloat(fee).toFixed(2);
+            } else {
+                document.getElementById('detailFeeRow').style.display = 'none';
+            }
+
+            if (message) {
+                document.getElementById('subtitle').textContent = message;
+            }
+
+            let seconds = 8;
+            const countdownEl = document.getElementById('countdown');
+            const timer = setInterval(function () {
+                seconds--;
+                countdownEl.textContent = seconds;
+                if (seconds <= 0) {
+                    clearInterval(timer);
+                    window.location.href = dashboardLink + '?section=wallet';
+                }
+            }, 1000);
+        })();
+    </script>
+</body>
+</html>

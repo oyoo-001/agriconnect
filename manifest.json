@@ -1,0 +1,27 @@
+{
+  "name": "AgriConnect",
+  "short_name": "AgriConnect",
+  "description": "Connecting farmers, organizations, and consumers in a sustainable agricultural ecosystem.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f8f9fa",
+  "theme_color": "#1B5E20",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icons/Assets.xcassets/AppIcon.appiconset/_/196.png",
+      "type": "image/png",
+      "sizes": "196x196",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/Assets.xcassets/AppIcon.appiconset/_/512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["agriculture", "business", "social"],
+  "lang": "en"
+}

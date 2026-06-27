@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terms of Service – AgriConnect</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1B5E20;
+            --primary-light: #2E7D32;
+            --secondary: #43A047;
+            --accent: #FFB300;
+            --accent-dark: #FF8F00;
+            --dark: #1a1a2e;
+            --dark-2: #16213e;
+            --light: #f8f9fa;
+            --gray: #6c757d;
+            --gray-light: #e9ecef;
+            --white: #ffffff;
+            --shadow-sm: 0 2px 8px rgba(0,0,0,0.06);
+            --shadow-md: 0 8px 30px rgba(0,0,0,0.12);
+            --shadow-lg: 0 20px 60px rgba(0,0,0,0.15);
+            --radius-sm: 8px;
+            --radius-md: 16px;
+            --radius-lg: 24px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        a { text-decoration: none; color: inherit; }
+        img { max-width: 100%; display: block; }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.75rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+            color: var(--dark);
+            box-shadow: 0 4px 20px rgba(255, 179, 0, 0.35);
+        }
+        .btn-primary:hover { transform: translateY(-2px); }
+
+        nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 1000;
+            padding: 0 2rem;
+            transition: var(--transition);
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 2px 20px rgba(0,0,0,0.08);
+        }
+        .nav-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 72px;
+        }
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 800;
+            font-size: 1.4rem;
+            color: var(--dark);
+            transition: var(--transition);
+        }
+        .nav-logo-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            list-style: none;
+        }
+        .nav-links a {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--gray);
+            transition: var(--transition);
+            position: relative;
+        }
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary);
+            transition: var(--transition);
+        }
+        .nav-links a:hover::after { width: 100%; }
+        .nav-links a:hover { color: var(--primary); }
+
+        .page-header {
+            padding: 140px 2rem 4rem;
+            background: linear-gradient(135deg, var(--primary), var(--dark-2));
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .page-header::before {
+            content: '';
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: rgba(255,179,0,0.06);
+            border-radius: 50%;
+            top: -150px;
+            right: -100px;
+        }
+        .page-header h1 {
+            font-size: 3rem;
+            font-weight: 900;
+            color: var(--white);
+            margin-bottom: 0.75rem;
+            position: relative;
+            z-index: 1;
+        }
+        .page-header p {
+            font-size: 1.15rem;
+            color: rgba(255,255,255,0.75);
+            max-width: 600px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .content-section {
+            padding: 4rem 2rem 6rem;
+        }
+        .content-container {
+            max-width: 860px;
+            margin: 0 auto;
+        }
+
+        .policy-section {
+            margin-bottom: 3rem;
+        }
+        .policy-section h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--gray-light);
+        }
+        .policy-section h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--dark);
+            margin: 1.5rem 0 0.5rem;
+        }
+        .policy-section p {
+            color: var(--gray);
+            font-size: 0.95rem;
+            line-height: 1.8;
+            margin-bottom: 1rem;
+        }
+        .policy-section ul {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 1rem;
+        }
+        .policy-section ul li {
+            color: var(--gray);
+            font-size: 0.95rem;
+            line-height: 1.8;
+            padding-left: 1.5rem;
+            position: relative;
+            margin-bottom: 0.25rem;
+        }
+        .policy-section ul li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 10px;
+            width: 6px;
+            height: 6px;
+            background: var(--secondary);
+            border-radius: 50%;
+        }
+
+        .last-updated {
+            display: inline-block;
+            background: rgba(46,125,50,0.1);
+            color: var(--primary);
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 0.4rem 1rem;
+            border-radius: 50px;
+            margin-bottom: 2rem;
+        }
+
+        footer {
+            background: var(--dark);
+            color: rgba(255,255,255,0.7);
+            padding: 3rem 2rem 2rem;
+        }
+        .footer-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 3rem;
+        }
+        .footer-brand h3 { font-size: 1.3rem; font-weight: 800; color: var(--white); margin-bottom: 0.75rem; }
+        .footer-brand p { font-size: 0.9rem; line-height: 1.7; max-width: 300px; }
+        .footer-col h4 { font-size: 0.9rem; font-weight: 700; color: var(--white); margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 1px; }
+        .footer-col a { display: block; font-size: 0.9rem; color: rgba(255,255,255,0.6); margin-bottom: 0.6rem; transition: var(--transition); }
+        .footer-col a:hover { color: var(--accent); }
+        .footer-bottom {
+            max-width: 1200px;
+            margin: 2rem auto 0;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+        }
+
+        @media (max-width: 768px) {
+            nav { padding: 0 1rem; }
+            .nav-links {
+                position: fixed;
+                top: 0; right: -100%;
+                width: 280px;
+                height: 100vh;
+                background: var(--white);
+                flex-direction: column;
+                padding: 5rem 2rem 2rem;
+                gap: 1.5rem;
+                box-shadow: -10px 0 40px rgba(0,0,0,0.1);
+                transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                z-index: 1000;
+            }
+            .nav-links.open { right: 0; }
+            .nav-links a { color: var(--dark) !important; font-size: 1.1rem; }
+            .nav-links a::after { background: var(--primary); }
+            .page-header h1 { font-size: 2rem; }
+            .footer-inner { grid-template-columns: 1fr; gap: 2rem; }
+            .footer-bottom { flex-direction: column; gap: 0.5rem; text-align: center; }
+        }
+
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+            z-index: 1001;
+        }
+        .hamburger span {
+            width: 24px;
+            height: 2px;
+            background: var(--dark);
+            border-radius: 2px;
+            transition: var(--transition);
+        }
+        .hamburger.active span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+        .hamburger.active span:nth-child(2) { opacity: 0; }
+        .hamburger.active span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="nav-inner">
+            <a href="landing-page" class="nav-logo">
+                <div class="nav-logo-icon">
+                    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 6c-3.3 0-6 2.7-6 6h12c0-3.3-2.7-6-6-6z"/><path d="M4 14c0 2 1.5 3 4 4l1 2M20 14c0 2-1.5 3-4 4l-1 2"/><path d="M8 18h8"/></svg>
+                </div>
+                AgriConnect
+            </a>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="landing-page">Home</a></li>
+                <li><a href="help-center">Help Center</a></li>
+                <li><a href="contact-us">Contact</a></li>
+                <li><a href="login" class="btn btn-primary" style="padding:0.6rem 1.5rem;font-size:0.85rem;box-shadow:none">Log In</a></li>
+            </ul>
+            <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <section class="page-header">
+        <h1>
+            <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:8px"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+            Terms of Service
+        </h1>
+        <p>Please read these terms carefully before using the AgriConnect platform.</p>
+    </section>
+
+    <section class="content-section">
+        <div class="content-container">
+            <div class="last-updated">Last Updated: June 22, 2026</div>
+
+            <div class="policy-section">
+                <p>By accessing or using AgriConnect ("the Platform"), you agree to be bound by these Terms of Service. If you do not agree, please do not use our services.</p>
+            </div>
+
+            <div class="policy-section">
+                <h2>1. Account Registration</h2>
+                <p>You must provide accurate, current, and complete information during registration. You are responsible for maintaining the confidentiality of your account credentials and for all activities under your account.</p>
+                <ul>
+                    <li>You must be at least 18 years old to use the Platform</li>
+                    <li>One person may not hold multiple accounts without authorization</li>
+                    <li>You must notify us immediately of any unauthorized account use</li>
+                </ul>
+            </div>
+
+            <div class="policy-section">
+                <h2>2. Platform Rules</h2>
+                <ul>
+                    <li>Do not list prohibited items (illegal goods, hazardous materials, etc.)</li>
+                    <li>Do not engage in fraudulent, misleading, or deceptive practices</li>
+                    <li>Do not manipulate prices, bids, or transaction data</li>
+                    <li>Do not harass, abuse, or harm other users</li>
+                    <li>Do not attempt to breach platform security or access other users' data</li>
+                </ul>
+            </div>
+
+            <div class="policy-section">
+                <h2>3. Transactions & Fees</h2>
+                <p>All transactions are conducted between users. AgriConnect facilitates the connection and processes payments but is not a party to the sale agreement between buyer and seller.</p>
+                <ul>
+                    <li>AgriConnect charges a commission on each successful transaction</li>
+                    <li>Commission rates are displayed before transaction confirmation</li>
+                    <li>Users agree to pay all applicable fees in a timely manner</li>
+                    <li>Disputed transactions are subject to our dispute resolution process</li>
+                </ul>
+            </div>
+
+            <div class="policy-section">
+                <h2>4. Intellectual Property</h2>
+                <p>The Platform, including its design, logo, content, and software, is owned by AgriConnect and protected by intellectual property laws. You may not copy, modify, distribute, or create derivative works without our written consent.</p>
+            </div>
+
+            <div class="policy-section">
+                <h2>5. Limitation of Liability</h2>
+                <p>AgriConnect is provided "as is" without warranties of any kind. We are not liable for any indirect, incidental, or consequential damages arising from your use of the Platform, including but not limited to loss of profits, data, or business opportunities.</p>
+            </div>
+
+            <div class="policy-section">
+                <h2>6. Termination</h2>
+                <p>We reserve the right to suspend or terminate your account at our discretion, including for violation of these terms. Upon termination, your right to use the Platform immediately ceases. Outstanding transactions must be resolved before account closure.</p>
+            </div>
+
+            <div class="policy-section">
+                <h2>7. Dispute Resolution</h2>
+                <p>Disputes between users should first be attempted to be resolved amicably. If unresolved, AgriConnect may mediate. Legal disputes shall be governed by the laws of the jurisdiction in which AgriConnect operates, and users consent to the exclusive jurisdiction of its courts.</p>
+            </div>
+
+            <div class="policy-section">
+                <h2>8. Changes to Terms</h2>
+                <p>We may modify these terms at any time. Continued use of the Platform after changes constitutes acceptance of the new terms. We will notify you of material changes via email or platform notification.</p>
+            </div>
+
+            <div class="policy-section">
+                <h2>9. Contact</h2>
+                <p>For questions about these Terms of Service, please contact us at <strong>legal@agriconnect.com</strong> or visit our <a href="contact-us" style="color:var(--primary);font-weight:600">Contact Us</a> page.</p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-inner">
+            <div class="footer-brand">
+                <h3>
+                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px"><path d="M12 2v4M12 6c-3.3 0-6 2.7-6 6h12c0-3.3-2.7-6-6-6z"/><path d="M4 14c0 2 1.5 3 4 4l1 2M20 14c0 2-1.5 3-4 4l-1 2"/><path d="M8 18h8"/></svg> AgriConnect
+                </h3>
+                <p>Connecting Farmers, Consumers, Agro-Vets & Industries – Earn Commission on Every Transaction.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Platform</h4>
+                <a href="landing-page#how-it-works">How It Works</a>
+                <a href="landing-page#why-choose">Benefits</a>
+                <a href="login">Login</a>
+                <a href="signup">Sign Up</a>
+            </div>
+            <div class="footer-col">
+                <h4>Support</h4>
+                <a href="help-center">Help Center</a>
+                <a href="privacy-policy">Privacy Policy</a>
+                <a href="terms-of-service">Terms of Service</a>
+                <a href="contact-us">Contact Us</a>
+            </div>
+            <div class="footer-col">
+                <h4>Connect</h4>
+                <a href="#">Twitter</a>
+                <a href="#">Facebook</a>
+                <a href="#">Instagram</a>
+                <a href="#">LinkedIn</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <span>&copy; 2026 AgriConnect. All rights reserved.</span>
+            <span>Built with 
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle"><path d="M12 2v4M12 6c-3.3 0-6 2.7-6 6h12c0-3.3-2.7-6-6-6z"/><path d="M4 14c0 2 1.5 3 4 4l1 2M20 14c0 2-1.5 3-4 4l-1 2"/><path d="M8 18h8"/></svg> for a sustainable future
+            </span>
+        </div>
+    </footer>
+
+    <script>
+        const hamburger = document.getElementById('hamburger');
+        const navLinks = document.getElementById('navLinks');
+        hamburger.addEventListener('click', () => {
+            hamburger.classList.toggle('active');
+            navLinks.classList.toggle('open');
+        });
+        navLinks.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                hamburger.classList.remove('active');
+                navLinks.classList.remove('open');
+            });
+        });
+    </script>
+</body>
+</html>
