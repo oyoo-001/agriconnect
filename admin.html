@@ -17,6 +17,9 @@
             rel="stylesheet"
         />
         <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+        <!-- SECURITY: Role guard script to prevent unauthorized access -->
+        <script src="/js/role-guard.js"></script>
+        <script>if (typeof Chart === 'undefined') { document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"><\/script>'); }</script>
         <style>
             :root {
                 --primary: #1b5e20;
@@ -221,6 +224,16 @@
                 padding: 0.15rem 0.5rem;
                 border-radius: 50px;
             }
+            .refresh-btn {
+                width: 36px; height: 36px; border-radius: 50%;
+                background: var(--white); border: 1.5px solid var(--gray-light);
+                display: flex; align-items: center; justify-content: center;
+                cursor: pointer; color: var(--gray);
+                transition: all 0.2s ease; flex-shrink: 0;
+            }
+            .refresh-btn:hover { color: var(--primary); border-color: var(--primary); }
+            .refresh-btn.spinning svg { animation: spin 0.6s linear; }
+            @keyframes spin { to { transform: rotate(360deg); } }
             .btn-logout {
                 padding: 0.4rem 1rem;
                 background: none;
@@ -247,6 +260,10 @@
             }
             .section.active {
                 display: block;
+            }
+            /* Temporary fix for orders section visibility */
+            #section-orders {
+                display: block !important;
             }
 
             .stats-grid {
@@ -375,6 +392,8 @@
                 margin-bottom: 1rem;
             }
             .chart-card canvas {
+                width: 100% !important;
+                height: 260px !important;
                 max-height: 280px;
             }
 
@@ -384,6 +403,17 @@
                 border: 1px solid var(--gray-light);
                 padding: 1.5rem;
                 margin-bottom: 1.5rem;
+            }
+            .table-scroll {
+                overflow-x: auto;
+                overflow-y: auto;
+                max-height: 520px;
+            }
+            .table-scroll thead {
+                position: sticky;
+                top: 0;
+                background: var(--white);
+                z-index: 1;
             }
             .table-header {
                 display: flex;
@@ -1233,6 +1263,9 @@
                     <h2 id="pageTitle">Dashboard <span>/ Overview</span></h2>
                 </div>
                 <div class="topbar-right">
+                    <button class="refresh-btn" id="refreshBtn" onclick="refreshData()" title="Refresh data">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                    </button>
                     <div class="topbar-user">
                         <div class="avatar" id="adminAvatar">A</div>
                         <div>
@@ -1427,7 +1460,7 @@
                                 <option value="cancelled">Cancelled</option>
                             </select>
                         </div>
-                        <div style="overflow-x: auto">
+                        <div class="table-scroll">
                             <table>
                                 <thead>
                                     <tr>
@@ -1908,7 +1941,7 @@
                     ...(opts.headers || {}),
                 };
                 if (idToken) headers["Authorization"] = "Bearer " + idToken;
-                const res = await fetch(url, { ...opts, headers });
+                const res = await fetch(url, { cache: "no-store", ...opts, headers });
                 if (res.status === 401) {
                     sessionStorage.clear();
                     window.location.href = "login";
@@ -1962,6 +1995,7 @@
                 if (id === "orders") renderOrders();
                 if (id === "products") renderProducts();
                 if (id === "organisations") renderOrgs();
+                if (id === "dashboard") loadDashboard();
                 if (id === "finance") { loadFinance(); }
                 if (id === "wallets") { loadWallets(); }
                 if (id === "payouts") { loadPayouts(); }
@@ -1969,6 +2003,24 @@
                 if (id === "announce") loadBroadcastHistory();
             }
             window.switchSection = switchSection;
+
+            async function refreshData() {
+                const btn = document.getElementById("refreshBtn");
+                btn.classList.add("spinning");
+                const active = document.querySelector(".section.active");
+                const id = active ? active.id.replace("section-", "") : "dashboard";
+                if (id === "dashboard") { loadDashboard(); }
+                if (id === "orders") renderOrders();
+                if (id === "products") renderProducts();
+                if (id === "users") renderUsers();
+                if (id === "wallets") loadWallets();
+                if (id === "finance") loadFinance();
+                if (id === "payouts") loadPayouts();
+                if (id === "support") loadSupport();
+                if (id === "announce") loadBroadcastHistory();
+                if (id === "organisations") renderOrgs();
+                setTimeout(() => btn.classList.remove("spinning"), 600);
+            }
 
             // Sidebar nav click delegation
             document.querySelector('.sidebar-nav').addEventListener('click', function(e) {
@@ -2053,7 +2105,18 @@
                         trend: "+22%",
                         cls: "blue",
                     },
+                    {
+                        label: "System Balance (KES)",
+                        value: (stats.systemBalance || 0).toLocaleString("en-KE", {minimumFractionDigits:2,maximumFractionDigits:2}),
+                        icon: "wallet",
+                        color: "green",
+                        trend: "",
+                        cls: "green",
+                    },
                 ];
+                const tooltips = {
+                    wallet: stats ? `Total Deposits: KES ${(stats.totalDeposits||0).toLocaleString("en-KE",{minimumFractionDigits:2})} | Total Payouts: KES ${(stats.totalPayouts||0).toLocaleString("en-KE",{minimumFractionDigits:2})}` : '',
+                };
                 const icons = {
                     users: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>',
                     box: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>',
@@ -2062,11 +2125,13 @@
                     clock: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
                     message:
                         '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',
+                    wallet:
+                        '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>',
                 };
                 grid.innerHTML = cards
                     .map(
                         (c) => `
-                <div class="stat-card ${c.cls}">
+                <div class="stat-card ${c.cls}"${c.icon === 'wallet' && tooltips.wallet ? ` title="${tooltips.wallet}"` : ''}>
                     <div class="stat-card-top">
                         <div class="stat-card-icon ${c.cls}">${icons[c.icon]}</div>
                         <span class="stat-trend up">${c.trend}</span>
@@ -2082,12 +2147,19 @@
                 var analytics = null;
                 try { analytics = await api("/api/admin/analytics"); } catch (e) {}
 
-                // Revenue line chart
-                if (revenueChart) revenueChart.destroy();
-                var revCtx = document.getElementById("revenueChart").getContext("2d");
-                var revDays = analytics ? analytics.dayLabels : ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
-                var revData = analytics ? analytics.revenueByDay : [0,0,0,0,0,0,0];
-                revenueChart = new Chart(revCtx, {
+                // Charts
+                if (typeof Chart === 'undefined') {
+                    document.querySelectorAll('#section-dashboard canvas').forEach(function(c) {
+                        c.style.display = 'none';
+                        c.insertAdjacentHTML('afterend', '<div style="text-align:center;padding:20px;color:var(--gray);font-size:0.85rem">Chart library not loaded. Check internet connection.</div>');
+                    });
+                } else {
+                    // Revenue line chart
+                    if (revenueChart) revenueChart.destroy();
+                    var revCtx = document.getElementById("revenueChart").getContext("2d");
+                    var revDays = analytics ? analytics.dayLabels : ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+                    var revData = analytics ? analytics.revenueByDay : [0,0,0,0,0,0,0];
+                    revenueChart = new Chart(revCtx, {
                     type: "line",
                     data: {
                         labels: revDays,
@@ -2111,70 +2183,71 @@
                             x: { grid: { display: false } },
                         },
                     },
-                });
+                    });
 
-                // Roles pie chart (already using real data from stats)
-                if (rolesChart) rolesChart.destroy();
-                var roleCtx = document.getElementById("rolesChart").getContext("2d");
-                var rCounts = stats.roleCounts || {};
-                var roleLabels = Object.keys(rCounts);
-                var roleData = Object.values(rCounts);
-                var colors = { farmer: "#43A047", consumer: "#3498db", organization: "#9b59b6", admin: "#e74c3c", user: "#95a5a6" };
-                rolesChart = new Chart(roleCtx, {
-                    type: "doughnut",
-                    data: {
-                        labels: roleLabels.map(function(r) { return r.charAt(0).toUpperCase() + r.slice(1); }),
-                        datasets: [{ data: roleData, backgroundColor: roleLabels.map(function(r) { return colors[r] || "#95a5a6"; }), borderWidth: 0 }],
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: { legend: { position: "bottom", labels: { padding: 12, usePointStyle: true, font: { size: 11 } } } },
-                    },
-                });
-
-                // Performance bar chart
-                if (performanceChart) performanceChart.destroy();
-                var perfCtx = document.getElementById("performanceChart").getContext("2d");
-                var perfDays = analytics ? analytics.dayLabels : ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
-                var ordersData = analytics ? analytics.ordersByDay : [0,0,0,0,0,0,0];
-                var signupsData = analytics ? analytics.signupsByDay : [0,0,0,0,0,0,0];
-                performanceChart = new Chart(perfCtx, {
-                    type: "bar",
-                    data: {
-                        labels: perfDays,
-                        datasets: [
-                            { label: "Orders", data: ordersData, backgroundColor: "rgba(46,125,50,0.6)", borderRadius: 4 },
-                            { label: "Signups", data: signupsData, backgroundColor: "rgba(255,179,0,0.6)", borderRadius: 4 },
-                        ],
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: { legend: { position: "top", labels: { usePointStyle: true, font: { size: 11 } } } },
-                        scales: {
-                            y: { beginAtZero: true, grid: { color: "rgba(0,0,0,0.04)" } },
-                            x: { grid: { display: false } },
+                    // Roles pie chart (already using real data from stats)
+                    if (rolesChart) rolesChart.destroy();
+                    var roleCtx = document.getElementById("rolesChart").getContext("2d");
+                    var rCounts = stats.roleCounts || {};
+                    var roleLabels = Object.keys(rCounts);
+                    var roleData = Object.values(rCounts);
+                    var colors = { farmer: "#43A047", consumer: "#3498db", organization: "#9b59b6", admin: "#e74c3c", user: "#95a5a6" };
+                    rolesChart = new Chart(roleCtx, {
+                        type: "doughnut",
+                        data: {
+                            labels: roleLabels.map(function(r) { return r.charAt(0).toUpperCase() + r.slice(1); }),
+                            datasets: [{ data: roleData, backgroundColor: roleLabels.map(function(r) { return colors[r] || "#95a5a6"; }), borderWidth: 0 }],
                         },
-                    },
-                });
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: { legend: { position: "bottom", labels: { padding: 12, usePointStyle: true, font: { size: 11 } } } },
+                        },
+                    });
 
-                // Commission pie chart
-                if (commissionChart) commissionChart.destroy();
-                var comCtx = document.getElementById("commissionChart").getContext("2d");
-                var cm = analytics && analytics.commissionBreakdown ? analytics.commissionBreakdown : { earned: 0, pending: 0, withdrawn: 0 };
-                commissionChart = new Chart(comCtx, {
-                    type: "doughnut",
-                    data: {
-                        labels: ["Commission Earned", "Pending", "Withdrawn"],
-                        datasets: [{ data: [cm.earned, cm.pending, cm.withdrawn], backgroundColor: ["#43A047", "#FFB300", "#3498db"], borderWidth: 0 }],
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: { legend: { position: "bottom", labels: { padding: 12, usePointStyle: true, font: { size: 11 } } } },
-                    },
-                });
+                    // Performance bar chart
+                    if (performanceChart) performanceChart.destroy();
+                    var perfCtx = document.getElementById("performanceChart").getContext("2d");
+                    var perfDays = analytics ? analytics.dayLabels : ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+                    var ordersData = analytics ? analytics.ordersByDay : [0,0,0,0,0,0,0];
+                    var signupsData = analytics ? analytics.signupsByDay : [0,0,0,0,0,0,0];
+                    performanceChart = new Chart(perfCtx, {
+                        type: "bar",
+                        data: {
+                            labels: perfDays,
+                            datasets: [
+                                { label: "Orders", data: ordersData, backgroundColor: "rgba(46,125,50,0.6)", borderRadius: 4 },
+                                { label: "Signups", data: signupsData, backgroundColor: "rgba(255,179,0,0.6)", borderRadius: 4 },
+                            ],
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: { legend: { position: "top", labels: { usePointStyle: true, font: { size: 11 } } } },
+                            scales: {
+                                y: { beginAtZero: true, grid: { color: "rgba(0,0,0,0.04)" } },
+                                x: { grid: { display: false } },
+                            },
+                        },
+                    });
+
+                    // Commission pie chart
+                    if (commissionChart) commissionChart.destroy();
+                    var comCtx = document.getElementById("commissionChart").getContext("2d");
+                    var cm = analytics && analytics.commissionBreakdown ? analytics.commissionBreakdown : { earned: 0, pending: 0, withdrawn: 0 };
+                    commissionChart = new Chart(comCtx, {
+                        type: "doughnut",
+                        data: {
+                            labels: ["Commission Earned", "Pending", "Withdrawn"],
+                            datasets: [{ data: [cm.earned, cm.pending, cm.withdrawn], backgroundColor: ["#43A047", "#FFB300", "#3498db"], borderWidth: 0 }],
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: { legend: { position: "bottom", labels: { padding: 12, usePointStyle: true, font: { size: 11 } } } },
+                        },
+                    });
+                }
             }
 
             // ---------- Users ----------
@@ -2208,10 +2281,10 @@
                     .map(
                         (u) => `
                 <tr data-uid="${u.uid}" style="cursor:pointer">
-                    <td style="font-weight:600">${u.displayName || "—"}</td>
+                    <td style="font-weight:600">${u.displayName || u.display_name || "—"}</td>
                     <td>${u.email || "—"}</td>
                     <td><span class="badge-status ${u.role}">${u.role || "user"}</span></td>
-                    <td style="color:var(--gray);font-size:0.8rem">${u.createdAt ? new Date(u.createdAt).toLocaleDateString() : "—"}</td>
+                    <td style="color:var(--gray);font-size:0.8rem">${new Date(Number(u.createdAt || u.created_at)).toLocaleDateString() || "—"}</td>
                     <td><span class="badge-status ${u.active !== false ? 'active' : 'inactive'}" style="font-size:0.72rem;">${u.active !== false ? 'Active' : 'Deactivated'}</span></td>
                     <td style="display:flex;gap:4px;">
                         <button class="btn-xs ${u.role === "admin" ? "red" : "blue"}" data-action="toggle-admin" data-uid="${u.uid}" data-current-role="${u.role}">${u.role === "admin" ? "Remove Admin" : "Make Admin"}</button>
@@ -2268,18 +2341,18 @@
             function showUserDetail(uid) {
                 const u = allUsers.find(x => x.uid === uid);
                 if (!u) return;
-                const joined = u.createdAt ? new Date(u.createdAt).toLocaleDateString() : '—';
-                const lastLogin = u.lastLogin ? new Date(u.lastLogin).toLocaleString() : '—';
+                const joined = (u.createdAt || u.created_at) ? new Date(Number(u.createdAt || u.created_at)).toLocaleDateString() : '—';
+                const lastLogin = (u.lastLogin || u.last_login_at) ? new Date(Number(u.lastLogin || u.last_login_at)).toLocaleString() : '—';
                 const roleColor = { farmer: '#16a34a', consumer: '#2563eb', organization: '#d97706', admin: '#dc2626' };
                 document.getElementById('userDetailContent').innerHTML = `
                     <div style="text-align:center;margin-bottom:20px;">
-                        <div style="width:64px;height:64px;border-radius:50%;background:${roleColor[u.role] || '#6b7280'};color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:700;margin:0 auto 12px;">${(u.displayName || u.email || '?')[0].toUpperCase()}</div>
+                        <div style="width:64px;height:64px;border-radius:50%;background:${roleColor[u.role] || '#6b7280'};color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:700;margin:0 auto 12px;">${(u.displayName || u.display_name || u.email || '?')[0].toUpperCase()}</div>
                         <h2 style="margin:0;font-size:1.2rem;">${u.displayName || '—'}</h2>
                         <span class="badge-status ${u.role}" style="margin-top:6px;display:inline-block">${u.role || 'user'}</span>
                     </div>
                     <div style="display:grid;gap:12px;">
                         <div style="padding:10px 14px;background:#f9fafb;border-radius:8px;"><span style="color:#6b7280;font-size:0.78rem;display:block;">Email</span><span style="font-weight:600;font-size:0.9rem;">${u.email || '—'}</span></div>
-                        <div style="padding:10px 14px;background:#f9fafb;border-radius:8px;"><span style="color:#6b7280;font-size:0.78rem;display:block;">Phone</span><span style="font-weight:600;font-size:0.9rem;">${u.phoneNumber || '—'}</span></div>
+                        <div style="padding:10px 14px;background:#f9fafb;border-radius:8px;"><span style="color:#6b7280;font-size:0.78rem;display:block;">Phone</span><span style="font-weight:600;font-size:0.9rem;">${u.phoneNumber || u.phone_number || '—'}</span></div>
                         <div style="padding:10px 14px;background:#f9fafb;border-radius:8px;"><span style="color:#6b7280;font-size:0.78rem;display:block;">User ID</span><span style="font-weight:600;font-size:0.8rem;font-family:monospace;word-break:break-all;">${u.uid}</span></div>
                         <div style="padding:10px 14px;background:#f9fafb;border-radius:8px;"><span style="color:#6b7280;font-size:0.78rem;display:block;">Joined</span><span style="font-weight:600;font-size:0.9rem;">${joined}</span></div>
                         <div style="padding:10px 14px;background:#f9fafb;border-radius:8px;"><span style="color:#6b7280;font-size:0.78rem;display:block;">Last Login</span><span style="font-weight:600;font-size:0.9rem;">${lastLogin}</span></div>
@@ -2322,12 +2395,12 @@
                         (o) => `
                 <tr>
                     <td style="font-family:monospace;font-size:0.8rem;color:var(--gray)">#${(o.id || "").slice(-8)}</td>
-                    <td style="font-size:0.8rem">${(o.orgUid || "").slice(0, 10)}...</td>
-                    <td style="font-size:0.8rem">${(o.farmerUid || "").slice(0, 10)}...</td>
+                    <td style="font-size:0.8rem">${o.org_name || (o.orgUid || o.org_uid || "").slice(0, 10)}</td>
+                    <td style="font-size:0.8rem">${o.farmer_name || (o.farmerUid || o.farmer_uid || "").slice(0, 10)}</td>
                     <td>${o.quantity || 0}</td>
-                    <td style="font-weight:600">KES ${(o.totalPrice || 0).toFixed(2)}</td>
+                    <td style="font-weight:600">KES ${(o.totalPrice || o.total_price || 0).toFixed(2)}</td>
                     <td><span class="badge-status ${o.status}">${o.status || "pending"}</span></td>
-                    <td style="color:var(--gray);font-size:0.8rem">${o.createdAt ? new Date(o.createdAt).toLocaleDateString() : "—"}</td>
+                    <td style="color:var(--gray);font-size:0.8rem">${o.created_at ? new Date(Number(o.created_at)).toLocaleDateString() : "—"}</td>
                     <td>
                         <select class="btn-xs" onchange="updateOrderStatus('${o.id}',this.value)" style="border:1px solid var(--gray-light);font-size:0.7rem">
                             <option value="">Change</option>
@@ -2393,10 +2466,10 @@
                 <tr>
                     <td style="font-weight:600">${p.title || "Untitled"}</td>
                     <td style="font-size:0.8rem;color:var(--gray)">${(p.uid || "").slice(0, 10)}...</td>
-                    <td style="font-weight:600">KES ${(p.price || 0).toFixed(2)}</td>
+                    <td style="font-weight:600">KES ${Number(p.price || 0).toFixed(2)}</td>
                     <td>${p.category || "—"}</td>
                     <td><span class="badge-status ${p.status}">${p.status || "active"}</span></td>
-                    <td style="color:var(--gray);font-size:0.8rem">${p.createdAt ? new Date(p.createdAt).toLocaleDateString() : "—"}</td>
+                    <td style="color:var(--gray);font-size:0.8rem">${(p.createdAt || p.created_at) ? new Date(Number(p.createdAt || p.created_at)).toLocaleDateString() : "—"}</td>
                     <td>
                         <select class="btn-xs" onchange="updateProductStatus('${p.id}',this.value)" style="border:1px solid var(--gray-light);font-size:0.7rem">
                             <option value="">Change</option>
@@ -2591,7 +2664,7 @@
             async function loadWallets() {
                 try {
                     // Company wallet
-                    const companyRes = await fetch('/api/admin/company-wallet', { headers: { 'Authorization': 'Bearer ' + idToken } });
+                    const companyRes = await fetch('/api/admin/company-wallet', { cache: 'no-store', headers: { 'Authorization': 'Bearer ' + idToken } });
                     const companyData = await companyRes.json();
                     if (companyData) {
                         document.getElementById('companyWalletBalance').textContent = 'KES ' + (parseFloat(companyData.balance) || 0).toFixed(2);
@@ -2601,22 +2674,23 @@
                         txsEl.innerHTML = txs.length ? txs.map(t => `
                             <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f0f0f0;">
                                 <div><span style="color:var(--gray);font-size:0.75rem;">${t.createdAt ? new Date(t.createdAt).toLocaleDateString() : ''}</span>
-                                <div style="font-size:0.8rem;">${t.description || ''}</div></div>
-                                <div style="font-weight:600;color:${t.amount > 0 ? 'var(--secondary)' : 'var(--danger)'}">${t.amount > 0 ? '+' : ''}KES ${(Math.abs(t.amount) || 0).toFixed(2)}</div>
-                            </div>
-                        `).join('') : '<p style="color:var(--gray);text-align:center;padding:20px;">No transactions yet</p>';
-                    }
+            <div style="font-size:0.8rem;">${escHtml(t.description || '')}</div></div>
+                    <div style="font-weight:600;color:${t.amount > 0 ? 'var(--secondary)' : 'var(--danger)'}">${t.amount > 0 ? '+' : ''}KES ${(Math.abs(t.amount) || 0).toFixed(2)}</div>
+                </div>
+            `).join('') : '<p style="color:var(--gray);text-align:center;padding:20px;">No transactions yet</p>';
+        }
 
-                    // Commission wallet
-                    const commRes = await fetch('/api/admin/commission-wallet', { headers: { 'Authorization': 'Bearer ' + idToken } });
-                    const commData = await commRes.json();
-                    if (commData) {
-                        document.getElementById('commissionWalletBalance').textContent = 'KES ' + (parseFloat(commData.balance) || 0).toFixed(2);
-                        const commTxsEl = document.getElementById('commissionWalletTxs');
-                        const txs = commData.transactions || [];
-                        commTxsEl.innerHTML = txs.length ? txs.map(t => `
-                            <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f0f0f0;">
-                                <div><span style="color:var(--gray);font-size:0.75rem;">${t.createdAt ? new Date(t.createdAt).toLocaleDateString() : ''}</span>
+        // Commission wallet
+        const commRes = await fetch('/api/admin/commission-wallet', { cache: 'no-store', headers: { 'Authorization': 'Bearer ' + idToken } });
+        const commData = await commRes.json();
+        commissionWalletData = commData; // Store globally for withdrawal validation
+        if (commData) {
+            document.getElementById('commissionWalletBalance').textContent = 'KES ' + (parseFloat(commData.balance) || 0).toFixed(2);
+            const commTxsEl = document.getElementById('commissionWalletTxs');
+            const txs = commData.transactions || [];
+            commTxsEl.innerHTML = txs.length ? txs.map(t => `
+                <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f0f0f0;">
+                    <div><span style="color:var(--gray);font-size:0.75rem;">${t.createdAt ? new Date(t.createdAt).toLocaleDateString() : ''}</span>
                                 <div style="font-size:0.8rem;">${t.description || ''}</div></div>
                                 <div style="font-weight:600;color:${t.amount > 0 ? 'var(--secondary)' : 'var(--danger)'}">${t.amount > 0 ? '+' : ''}KES ${(Math.abs(t.amount) || 0).toFixed(2)}</div>
                             </div>
@@ -2624,7 +2698,7 @@
                     }
 
                     // Frozen wallets
-                    const frozenRes = await fetch('/api/admin/frozen-wallets', { headers: { 'Authorization': 'Bearer ' + idToken } });
+                    const frozenRes = await fetch('/api/admin/frozen-wallets', { cache: 'no-store', headers: { 'Authorization': 'Bearer ' + idToken } });
                     const frozenData = await frozenRes.json();
                     const frozenEl = document.getElementById('frozenWalletsList');
                     if (frozenData && frozenData.length) {
@@ -2681,6 +2755,9 @@
                 } catch (e) { console.log("Paystack bank list unavailable"); }
             }
 
+            // Global variable to store commission wallet data
+            let commissionWalletData = null;
+
             function toggleAdminWMethod() {
                 const method = document.querySelector('input[name="adminWMethod"]:checked').value;
                 document.getElementById('adminBankFields').style.display = method === 'bank' ? 'block' : 'none';
@@ -2711,7 +2788,7 @@
                     if (!phone) { showToast("Enter M-Pesa phone number", "error"); btn.disabled = false; btn.textContent = "Withdraw"; return; }
                     body = { amount, method: 'mpesa', phoneNumber: phone };
                 }
-                const available = financeData ? parseFloat(financeData.commissionBalance || 0) : 0;
+                const available = commissionWalletData ? parseFloat(commissionWalletData.balance || 0) : 0;
                 if (amount > available) {
                     showToast("Insufficient commission balance. Available: KES " + available.toFixed(2), "error");
                     btn.disabled = false;
@@ -2719,7 +2796,7 @@
                     return;
                 }
                 try {
-                    const result = await api("/api/wallet/withdraw", {
+                    const result = await api("/api/admin/commission/withdraw", {
                         method: "POST",
                         body: JSON.stringify(body),
                     });
@@ -2770,7 +2847,7 @@
                 }
                 list.innerHTML = filtered.map(s => {
                     const replied = s.replied ? 'replied' : 'unreplied';
-                    const date = s.createdAt ? new Date(s.createdAt).toLocaleDateString() : '—';
+                    const date = (s.createdAt || s.created_at) ? new Date(Number(s.createdAt || s.created_at)).toLocaleDateString() : '—';
                     return '<div class="support-card ' + replied + '">' +
                         '<div class="support-card-header">' +
                             '<div><strong>' + escHtml(s.name) + '</strong> <span style="color:var(--gray);font-size:0.8rem;">&lt;' + escHtml(s.email) + '&gt;</span></div>' +
@@ -2874,7 +2951,7 @@
                         return;
                     }
                     el.innerHTML = adminNotifs.slice(0, 20).map(n => {
-                        const date = n.createdAt ? new Date(n.createdAt).toLocaleString() : '—';
+                        const date = (n.createdAt || n.created_at) ? new Date(Number(n.createdAt || n.created_at)).toLocaleString() : '—';
                         const type = n.type || 'info';
                         const colors = { info: '#2563eb', success: '#16a34a', warning: '#d97706', error: '#dc2626' };
                         const dot = '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:' + (colors[type] || colors.info) + ';margin-right:8px;flex-shrink:0;"></span>';

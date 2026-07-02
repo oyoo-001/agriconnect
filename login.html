@@ -190,26 +190,14 @@
             height: 1px;
             background: var(--gray-light);
         }
-        .google-btn {
+        #googleButtonContainer {
             width: 100%;
-            background: var(--white);
-            color: var(--dark);
-            border: 1.5px solid var(--gray-light);
-            padding: 0.85rem;
-            border-radius: var(--radius-sm);
-            font-size: 0.95rem;
-            font-weight: 600;
-            font-family: inherit;
-            cursor: pointer;
-            transition: var(--transition);
             display: flex;
-            align-items: center;
             justify-content: center;
-            gap: 0.75rem;
+            margin-bottom: 0.5rem;
         }
-        .google-btn:hover {
-            background: #f8f9fa;
-            border-color: #d0d0d0;
+        #googleButtonContainer iframe {
+            transform: scale(1.15);
         }
         .forgot-password {
             text-align: right;
@@ -326,10 +314,7 @@
             <button type="submit" class="btn" id="loginBtn">Log In</button>
         </form>
         <div class="divider">or continue with</div>
-        <button class="google-btn" id="googleLogin">
-            <svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-            Log in with Google
-        </button>
+        <div id="googleButtonContainer"></div>
         <div class="links">
             <p>Don't have an account? <a href="signup">Sign up</a></p>
         </div>
@@ -340,8 +325,7 @@
 
     <div class="toast-container" id="toastContainer"></div>
 
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script>
         function showToast(message, type) {
             type = type || 'info';
@@ -362,19 +346,31 @@
             }, 4000);
         }
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyDsY-TO3ellL4_tb3j4qZDXLJLkf0MJe2I",
-            authDomain: "agri-bab5b.firebaseapp.com",
-            databaseURL: "https://agri-bab5b-default-rtdb.firebaseio.com",
-            projectId: "agri-bab5b",
-            storageBucket: "agri-bab5b.firebasestorage.app",
-            messagingSenderId: "107510119947",
-            appId: "1:107510119947:web:26e76e26f2117f2bd5110e",
-            measurementId: "G-GG3JXH6RPG",
-        };
+        function initGoogleGSI(clientId) {
+            if (typeof google === 'undefined' || !google.accounts || !google.accounts.id) {
+                setTimeout(() => initGoogleGSI(clientId), 100);
+                return;
+            }
+            google.accounts.id.initialize({
+                client_id: clientId,
+                callback: handleGoogleCredential,
+                ux_mode: 'popup'
+            });
+            google.accounts.id.renderButton(
+                document.getElementById('googleButtonContainer'),
+                { type: 'standard', shape: 'rectangular', theme: 'outline', size: 'large', text: 'signin_with', width: 300 }
+            );
+        }
 
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
+        fetch('/api/auth/google-client-id')
+            .then(r => r.json())
+            .then(data => { initGoogleGSI(data.clientId); })
+            .catch(() => {});
+
+        function handleRoleRedirect(data) {
+            const roleMap = { admin: 'admin', farmer: 'farmer', organization: 'organisation', consumer: 'consumer' };
+            return roleMap[data.role] || 'consumer';
+        }
 
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -385,21 +381,18 @@
             loginBtn.innerHTML = 'Logging in...';
 
             try {
-                const userCredential = await auth.signInWithEmailAndPassword(email, password);
-                const idToken = await userCredential.user.getIdToken();
                 const response = await fetch('/api/auth/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ idToken })
+                    body: JSON.stringify({ email, password })
                 });
                 const data = await response.json();
-                    if (response.ok) {
-                        sessionStorage.setItem('user', JSON.stringify(data));
-                        sessionStorage.setItem('idToken', idToken);
-                        document.cookie = 'idToken=' + idToken + ';path=/;max-age=3600;SameSite=Strict';
-                        showToast('Login successful! Redirecting...', 'success');
-                        const redirect = data.role === 'admin' ? 'admin' : data.role === 'farmer' ? 'farmer' : data.role === 'organization' ? 'organisation' : 'consumer';
-                        setTimeout(() => { window.location.href = redirect; }, 1000);
+                if (response.ok) {
+                    sessionStorage.setItem('user', JSON.stringify(data));
+                    if (data.token) sessionStorage.setItem('idToken', data.token);
+                    showToast('Login successful! Redirecting...', 'success');
+                    const redirect = handleRoleRedirect(data);
+                    setTimeout(() => { window.location.href = redirect; }, 1000);
                 } else {
                     showToast(data.error || 'Login failed', 'error');
                     loginBtn.disabled = false;
@@ -412,80 +405,42 @@
             }
         });
 
-        document.getElementById('googleLogin').addEventListener('click', async () => {
-            const googleBtn = document.getElementById('googleLogin');
-            googleBtn.disabled = true;
-            googleBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" style="animation:spin 1s linear infinite"><circle cx="12" cy="12" r="10" stroke="#4285F4" stroke-width="2" fill="none" stroke-dasharray="31.4 31.4" stroke-linecap="round"/></svg> Logging in...';
-            const provider = new firebase.auth.GoogleAuthProvider();
-            try {
-                const result = await auth.signInWithPopup(provider);
-                const idToken = await result.user.getIdToken();
-                const response = await fetch('/api/auth/google', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ idToken })
-                });
-                const data = await response.json();
-                    if (response.ok) {
-                        sessionStorage.setItem('user', JSON.stringify(data));
-                        sessionStorage.setItem('idToken', idToken);
-                        document.cookie = 'idToken=' + idToken + ';path=/;max-age=3600;SameSite=Strict';
-                        showToast('Welcome back! Redirecting...', 'success');
-                        const redirect2 = data.role === 'admin' ? 'admin' : data.role === 'farmer' ? 'farmer' : data.role === 'organization' ? 'organisation' : 'consumer';
-                        setTimeout(() => { window.location.href = redirect2; }, 1000);
-                    } else if (response.status === 404) {
-                        showToast('Account not found. Redirecting to sign up...', 'info');
-                        googleBtn.disabled = false;
-                        googleBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg> Log in with Google';
-                        setTimeout(() => { window.location.href = 'signup'; }, 1500);
-                        return;
+        function handleGoogleCredential(response) {
+            const credential = response.credential;
+            fetch('/api/auth/google', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ idToken: credential })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.user || data.id || data.uid) {
+                    sessionStorage.setItem('user', JSON.stringify(data));
+                    if (data.token) sessionStorage.setItem('idToken', data.token);
+                    showToast('Welcome back! Redirecting...', 'success');
+                    const redirect = handleRoleRedirect(data);
+                    setTimeout(() => { window.location.href = redirect; }, 1000);
+                } else if (data.error && data.error.includes('not found')) {
+                    showToast('Account not found. Redirecting to sign up...', 'info');
+                    setTimeout(() => { window.location.href = 'signup'; }, 1500);
+                } else {
+                    showToast(data.error || 'Google login failed', 'error');
                 }
-            } catch (error) {
-                if (error.code === 'auth/popup-closed-by-user') { googleBtn.disabled = false; googleBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg> Log in with Google'; return; }
-                if (error.code === 'auth/popup-blocked') {
-                    showToast('Pop-up was blocked. Please allow pop-ups and try again.', 'warning');
-                    googleBtn.disabled = false;
-                    googleBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg> Log in with Google';
-                    return;
-                }
-                showToast(getAuthErrorMessage(error), 'error');
-            }
-            googleBtn.disabled = false;
-            googleBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg> Log in with Google';
-            return;
-        });
+            })
+            .catch(() => {
+                showToast('Google login failed. Please try again.', 'error');
+            });
+        }
 
-        // Firebase Auth error message mapper
         function getAuthErrorMessage(error) {
-            const code = error.code || '';
-            const msg = error.message || '';
-            switch (code) {
-                case 'auth/invalid-credential':
-                case 'auth/wrong-password':
-                case 'auth/user-not-found':
-                    return 'Invalid email or password';
-                case 'auth/too-many-requests':
-                    return 'Too many attempts. Please try again later';
-                case 'auth/user-disabled':
-                    return 'This account has been disabled. Contact support.';
-                case 'auth/invalid-email':
-                    return 'Invalid email address';
-                case 'auth/network-request-failed':
-                    return 'Network error. Check your connection and try again.';
-                case 'auth/popup-blocked':
-                    return 'Pop-up was blocked. Please allow pop-ups and try again.';
-                case 'auth/popup-closed-by-user':
-                    return '';
-                case 'auth/cancelled-popup-request':
-                    return '';
-                case 'auth/account-exists-with-different-credential':
-                    return 'An account already exists with this email. Try signing in with your original method.';
-                default:
-                    // Fallback: extract clean message from verbose Firebase errors
-                    const match = msg.match(/\(auth\/[\w-]+\)/);
-                    if (match) return match[0].replace(/[()]/g, '').replace('auth/', '').replace(/-/g, ' ');
-                    return 'An error occurred. Please try again.';
-            }
+            if (error.status === 0) return 'Network error. Check your connection and try again.';
+            if (error.status === 429) return 'Too many attempts. Please try again later.';
+            const msg = (error.error && error.error.message) || error.message || error.error || '';
+            if (/invalid.*email|email.*invalid/i.test(msg)) return 'Invalid email address';
+            if (/invalid.*(credential|password)|wrong.*password|user.*not.*found/i.test(msg)) return 'Invalid email or password';
+            if (/disabled/i.test(msg)) return 'This account has been disabled. Contact support.';
+            if (/network/i.test(msg)) return 'Network error. Check your connection and try again.';
+            return msg || 'An error occurred. Please try again.';
         }
     </script>
 

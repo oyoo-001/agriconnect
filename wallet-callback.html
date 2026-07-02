@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Payment Successful – AgriConnect</title>
+    <title>Payment – AgriConnect</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -12,93 +12,307 @@
         body { font-family: 'Inter', -apple-system, sans-serif; background: #f0fdf4; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
         .card { background: #fff; border-radius: 20px; padding: 48px 40px; text-align: center; box-shadow: 0 8px 40px rgba(0,0,0,0.08); max-width: 440px; width: 100%; animation: fadeUp 0.5s ease-out; }
         @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
-        .checkmark { width: 72px; height: 72px; border-radius: 50%; background: #dcfce7; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.1s both; }
+
+        /* ---- success state ---- */
+        .icon-wrap { width: 72px; height: 72px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.1s both; }
         @keyframes pop { from { transform: scale(0); } to { transform: scale(1); } }
-        .checkmark svg { width: 36px; height: 36px; stroke: #16a34a; stroke-width: 3; fill: none; stroke-linecap: round; stroke-linejoin: round; }
-        .checkmark svg polyline { animation: draw 0.4s ease-out 0.4s both; }
-        @keyframes draw { from { stroke-dashoffset: 30; stroke-dasharray: 30; } to { stroke-dashoffset: 0; } }
-        h1 { font-size: 24px; font-weight: 800; color: #15803d; margin-bottom: 6px; }
+        .icon-wrap.success { background: #dcfce7; }
+        .icon-wrap.error   { background: #fee2e2; }
+        .icon-wrap svg { width: 36px; height: 36px; stroke-width: 3; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+        .icon-wrap.success svg { stroke: #16a34a; }
+        .icon-wrap.error   svg { stroke: #dc2626; }
+        .icon-wrap svg polyline { animation: draw 0.4s ease-out 0.4s both; stroke-dashoffset: 30; stroke-dasharray: 30; }
+        @keyframes draw { to { stroke-dashoffset: 0; } }
+
+        /* ---- pending state ---- */
+        .pending-wrap { width: 72px; height: 72px; border-radius: 50%; background: #eff6ff; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; }
+        .spinner-ring { width: 44px; height: 44px; border: 4px solid #bfdbfe; border-top-color: #1d4ed8; border-radius: 50%; animation: spin 0.9s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        h1 { font-size: 24px; font-weight: 800; margin-bottom: 6px; }
+        h1.success { color: #15803d; }
+        h1.pending { color: #1d4ed8; }
+        h1.error   { color: #dc2626; }
         .subtitle { font-size: 14px; color: #6b7280; margin-bottom: 28px; }
+
         .details { background: #f9fafb; border-radius: 12px; padding: 20px; text-align: left; margin-bottom: 28px; }
         .details .row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 14px; }
         .details .row:not(:last-child) { border-bottom: 1px solid #f3f4f6; }
         .details .label { color: #6b7280; }
         .details .value { font-weight: 600; color: #1a1a2e; }
         .details .value.highlight { color: #15803d; font-size: 16px; }
-        .btn { display: inline-block; padding: 14px 32px; background: #15803d; color: #fff; border: none; border-radius: 12px; font-size: 15px; font-weight: 600; font-family: inherit; cursor: pointer; text-decoration: none; transition: background 0.2s; }
-        .btn:hover { background: #166534; }
+
+        .progress-bar-wrap { height: 4px; background: #dbeafe; border-radius: 4px; margin-bottom: 20px; overflow: hidden; }
+        .progress-bar { height: 100%; background: #1d4ed8; border-radius: 4px; width: 0%; transition: width 3s linear; }
+
+        .hint { font-size: 13px; color: #6b7280; margin-bottom: 24px; }
+        .hint strong { color: #1d4ed8; }
+
+        .btn { display: inline-block; padding: 14px 32px; color: #fff; border: none; border-radius: 12px; font-size: 15px; font-weight: 600; font-family: inherit; cursor: pointer; text-decoration: none; transition: background 0.2s; width: 100%; }
+        .btn.success { background: #15803d; }
+        .btn.success:hover { background: #166534; }
+        .btn.error   { background: #dc2626; }
+        .btn.error:hover   { background: #b91c1c; }
+        .btn.cancel  { background: #6b7280; margin-top: 10px; }
+        .btn.cancel:hover { background: #374151; }
+
         .auto-redirect { margin-top: 16px; font-size: 13px; color: #9ca3af; }
+
+        #pendingSection, #successSection, #errorSection { display: none; }
+        #pendingSection.show, #successSection.show, #errorSection.show { display: block; }
+
+        .error-code { font-size: 12px; color: #9ca3af; margin-top: 8px; font-family: monospace; }
+
+        @media (max-width: 480px) { .card { padding: 32px 20px; } }
     </style>
 </head>
 <body>
-    <div class="card">
-        <div class="checkmark">
+<div class="card">
+
+    <!-- PENDING: Waiting for M-Pesa callback -->
+    <div id="pendingSection">
+        <div class="pending-wrap"><div class="spinner-ring"></div></div>
+        <h1 class="pending">Waiting for M-Pesa</h1>
+        <p class="subtitle">Check your phone and enter your M-Pesa PIN to complete the payment.</p>
+        <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar"></div></div>
+        <div class="details">
+            <div class="row"><span class="label">Amount</span><span class="value highlight" id="pendingAmount">---</span></div>
+            <div class="row"><span class="label">Phone</span><span class="value" id="pendingPhone">---</span></div>
+            <div class="row"><span class="label">Status</span><span class="value" id="pendingStatus">Awaiting PIN entry...</span></div>
+        </div>
+        <p class="hint">This page checks automatically. Do not close it.<br>Timeout in <strong id="timeoutCountdown">90</strong>s.</p>
+        <button class="btn cancel" id="cancelBtn">Cancel</button>
+    </div>
+
+    <!-- SUCCESS -->
+    <div id="successSection">
+        <div class="icon-wrap success">
             <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12" /></svg>
         </div>
-        <h1 id="title">Payment Successful!</h1>
-        <p class="subtitle" id="subtitle">Your transaction has been processed securely.</p>
+        <h1 class="success" id="successTitle">Payment Successful!</h1>
+        <p class="subtitle" id="successSubtitle">Your transaction has been processed securely.</p>
         <div class="details">
             <div class="row"><span class="label">Type</span><span class="value" id="detailType">---</span></div>
             <div class="row"><span class="label">Amount</span><span class="value highlight" id="detailAmount">---</span></div>
             <div class="row" id="detailToRow"><span class="label">Recipient</span><span class="value" id="detailTo">---</span></div>
-            <div class="row"><span class="label">Reference</span><span class="value" id="detailRef">---</span></div>
+            <div class="row"><span class="label">M-Pesa Ref</span><span class="value" id="detailRef">---</span></div>
             <div class="row"><span class="label">Date &amp; Time</span><span class="value" id="detailDate">---</span></div>
             <div class="row" id="detailFeeRow"><span class="label">Fee</span><span class="value" id="detailFee">---</span></div>
         </div>
-        <a class="btn" id="dashboardBtn" href="/dashboard.html">Back to Dashboard</a>
-        <p class="auto-redirect">Redirecting to dashboard in <span id="countdown">8</span>s...</p>
+        <a class="btn success" id="dashboardBtn" href="#">Back to Dashboard</a>
+        <p class="auto-redirect">Redirecting in <span id="countdown">8</span>s...</p>
     </div>
-    <script>
-        (function () {
-            const params = new URLSearchParams(window.location.search);
-            const type = params.get('type') || 'payment';
-            const amount = params.get('amount') || '0';
-            const ref = params.get('reference') || 'N/A';
-            const toName = params.get('toName') || '';
-            const toWallet = params.get('toWalletId') || '';
-            const fee = params.get('fee') || '';
-            const message = params.get('message') || '';
 
-            const role = sessionStorage.getItem('role') || '';
-            const dashboards = { consumer: 'consumer.html', farmer: 'farmer.html', organisation: 'organisation.html' };
-            const dashboardLink = dashboards[role] || 'consumer.html';
+    <!-- ERROR -->
+    <div id="errorSection">
+        <div class="icon-wrap error">
+            <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </div>
+        <h1 class="error">Payment Failed</h1>
+        <p class="subtitle" id="errorMsg">The transaction was not completed.</p>
+        <p class="error-code" id="errorCode"></p>
+        <br>
+        <a class="btn error" id="retryBtn" href="#">Try Again</a>
+    </div>
 
-            document.getElementById('dashboardBtn').href = dashboardLink;
-            document.getElementById('detailType').textContent = type.charAt(0).toUpperCase() + type.slice(1);
-            document.getElementById('detailAmount').textContent = 'KES ' + parseFloat(amount).toFixed(2);
-            document.getElementById('detailRef').textContent = ref;
-            document.getElementById('detailDate').textContent = new Date().toLocaleString();
+</div>
 
-            if (type === 'transfer' && toName) {
-                document.getElementById('detailTo').textContent = toName + (toWallet ? ' (ID: ' + toWallet + ')' : '');
-            } else if (type === 'withdrawal') {
-                document.getElementById('detailToRow').querySelector('.label').textContent = 'Sent To';
-                document.getElementById('detailTo').textContent = 'M-Pesa ' + (params.get('phone') || '');
+<script>
+(function () {
+    'use strict';
+
+    const params        = new URLSearchParams(window.location.search);
+    const type          = params.get('type') || 'payment';
+    const amount        = params.get('amount') || '0';
+    const phone         = params.get('phone') || '';
+    const toName        = params.get('toName') || '';
+    const toWalletId    = params.get('toWalletId') || '';
+    const fee           = params.get('fee') || '0';
+    const reference     = params.get('reference') || '';           // used by transfer/withdrawal
+    const checkoutReqId = params.get('checkoutRequestId') || '';   // used by deposit
+
+    const role      = sessionStorage.getItem('role') || '';
+    const idToken   = sessionStorage.getItem('idToken') || '';
+    const dashMap   = { consumer: 'consumer.html', farmer: 'farmer.html', organisation: 'organisation.html' };
+    const dashboard = dashMap[role] || 'consumer.html';
+
+    // Section helpers
+    function show(id) {
+        ['pendingSection', 'successSection', 'errorSection'].forEach(function (s) {
+            document.getElementById(s).classList.remove('show');
+        });
+        document.getElementById(id).classList.add('show');
+    }
+
+    // ---- NON-DEPOSIT: transfer / withdrawal — already confirmed server-side, show success immediately ----
+    if (type !== 'deposit' || !checkoutReqId) {
+        showSuccess({
+            displayType : type,
+            amount      : parseFloat(amount),
+            netAmount   : parseFloat(amount),
+            fee         : parseFloat(fee),
+            reference   : reference,
+            toName      : toName,
+            toWalletId  : toWalletId,
+            phone       : phone,
+        });
+        return;
+    }
+
+    // ---- DEPOSIT: poll until Safaricom callback arrives ----
+    show('pendingSection');
+    document.getElementById('pendingAmount').textContent = 'KES ' + parseFloat(amount).toFixed(2);
+    document.getElementById('pendingPhone').textContent  = phone;
+
+    // Animate progress bar fill over ~90s
+    var bar = document.getElementById('progressBar');
+    requestAnimationFrame(function () { bar.style.width = '95%'; });
+
+    var TIMEOUT_SEC  = 90;
+    var POLL_MS      = 3000;
+    var elapsed      = 0;
+    var pollTimer    = null;
+    var countdownEl  = document.getElementById('timeoutCountdown');
+    var statusEl     = document.getElementById('pendingStatus');
+
+    // Countdown display
+    var tickTimer = setInterval(function () {
+        elapsed++;
+        var remaining = TIMEOUT_SEC - elapsed;
+        countdownEl.textContent = remaining > 0 ? remaining : 0;
+        if (remaining <= 0) {
+            clearInterval(tickTimer);
+        }
+    }, 1000);
+
+    function stopPolling() {
+        if (pollTimer)    { clearInterval(pollTimer); pollTimer = null; }
+        if (tickTimer)    { clearInterval(tickTimer); }
+    }
+
+    function poll() {
+        if (!idToken) {
+            stopPolling();
+            showError('Session expired. Please log in again.', '');
+            return;
+        }
+
+        fetch('/api/mpesa/deposit/status/' + encodeURIComponent(checkoutReqId), {
+            cache   : 'no-store',
+            headers : { 'Authorization': 'Bearer ' + idToken },
+        })
+        .then(function (res) { return res.json(); })
+        .then(function (data) {
+            if (data.status === 'success') {
+                stopPolling();
+                bar.style.transition = 'none';
+                bar.style.width = '100%';
+                showSuccess({
+                    displayType : 'Deposit',
+                    amount      : parseFloat(data.amount || amount),
+                    netAmount   : parseFloat(data.netAmount || data.amount || amount),
+                    fee         : parseFloat(data.fee || 0),
+                    reference   : data.mpesaReceiptNumber || '—',
+                    phone       : data.phoneNumber || phone,
+                    toName      : '',
+                    toWalletId  : '',
+                });
+            } else if (data.status === 'failed') {
+                stopPolling();
+                showError('Your M-Pesa payment was declined or timed out. No amount was deducted.', 'ResultCode: cancelled');
             } else {
-                document.getElementById('detailToRow').style.display = 'none';
-            }
-
-            if (fee && parseFloat(fee) > 0) {
-                document.getElementById('detailFee').textContent = 'KES ' + parseFloat(fee).toFixed(2);
-            } else {
-                document.getElementById('detailFeeRow').style.display = 'none';
-            }
-
-            if (message) {
-                document.getElementById('subtitle').textContent = message;
-            }
-
-            let seconds = 8;
-            const countdownEl = document.getElementById('countdown');
-            const timer = setInterval(function () {
-                seconds--;
-                countdownEl.textContent = seconds;
-                if (seconds <= 0) {
-                    clearInterval(timer);
-                    window.location.href = dashboardLink + '?section=wallet';
+                // still pending — update hint
+                statusEl.textContent = 'Waiting for M-Pesa confirmation...';
+                elapsed += Math.floor(POLL_MS / 1000);
+                if (elapsed >= TIMEOUT_SEC) {
+                    stopPolling();
+                    showError('Payment confirmation timed out. If money was deducted, it will be refunded automatically.', 'TIMEOUT');
                 }
-            }, 1000);
-        })();
-    </script>
+            }
+        })
+        .catch(function () {
+            // network hiccup — keep polling silently
+            statusEl.textContent = 'Checking connection...';
+        });
+    }
+
+    // First poll after 4s (give Safaricom time to call back), then every 3s
+    setTimeout(function () {
+        poll();
+        pollTimer = setInterval(poll, POLL_MS);
+    }, 4000);
+
+    // Cancel button
+    document.getElementById('cancelBtn').addEventListener('click', function () {
+        stopPolling();
+        window.location.href = dashboard + '?section=wallet';
+    });
+
+    // ---- Render success ----
+    function showSuccess(opts) {
+        document.title = 'Payment Successful – AgriConnect';
+        document.querySelector('body').style.background = '#f0fdf4';
+
+        var dashLink = dashboard + '?section=wallet';
+        document.getElementById('dashboardBtn').href = dashLink;
+        document.getElementById('retryBtn').href     = dashboard + '?section=wallet';
+
+        document.getElementById('detailType').textContent   = opts.displayType.charAt(0).toUpperCase() + opts.displayType.slice(1);
+        document.getElementById('detailAmount').textContent = 'KES ' + (opts.netAmount || opts.amount || 0).toFixed(2);
+        document.getElementById('detailRef').textContent    = opts.reference || '—';
+        document.getElementById('detailDate').textContent   = new Date().toLocaleString();
+
+        // Recipient row
+        var toRow = document.getElementById('detailToRow');
+        var toLbl  = toRow.querySelector('.label');
+        var toVal  = document.getElementById('detailTo');
+        if (opts.displayType.toLowerCase() === 'transfer' && opts.toName) {
+            toLbl.textContent = 'Recipient';
+            toVal.textContent = opts.toName + (opts.toWalletId ? ' (ID: ' + opts.toWalletId + ')' : '');
+        } else if (opts.displayType.toLowerCase() === 'withdrawal') {
+            toLbl.textContent = 'Sent To';
+            toVal.textContent = 'M-Pesa ' + opts.phone;
+        } else if (opts.displayType.toLowerCase() === 'deposit') {
+            toLbl.textContent = 'From';
+            toVal.textContent = 'M-Pesa ' + (opts.phone || phone);
+        } else {
+            toRow.style.display = 'none';
+        }
+
+        // Fee row
+        var feeRow = document.getElementById('detailFeeRow');
+        if (opts.fee && opts.fee > 0) {
+            document.getElementById('detailFee').textContent = 'KES ' + opts.fee.toFixed(2);
+        } else {
+            feeRow.style.display = 'none';
+        }
+
+        show('successSection');
+
+        // Auto-redirect countdown
+        var secs = 8;
+        var countEl = document.getElementById('countdown');
+        var timer = setInterval(function () {
+            secs--;
+            countEl.textContent = secs;
+            if (secs <= 0) {
+                clearInterval(timer);
+                window.location.href = dashLink;
+            }
+        }, 1000);
+    }
+
+    // ---- Render error ----
+    function showError(msg, code) {
+        document.title = 'Payment Failed – AgriConnect';
+        document.querySelector('body').style.background = '#fef2f2';
+        document.getElementById('errorMsg').textContent  = msg || 'The transaction could not be completed.';
+        document.getElementById('errorCode').textContent = code || '';
+        document.getElementById('retryBtn').href = dashboard + '?section=wallet';
+        show('errorSection');
+    }
+
+})();
+</script>
 </body>
 </html>
