@@ -139,7 +139,9 @@ app.use(
 app.use(cors({ origin: allowedOrigins, credentials: true }));
 app.use(morgan("combined"));
 app.use(cookieParser());
-app.use(express.json({ limit: "1mb" }));
+// Increased limit for image uploads (base64 encoded images can be large)
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ limit: "10mb", extended: true }));
 
 app.use((req, res, next) => {
   if (!req.path.startsWith("/api")) return next();
@@ -616,6 +618,10 @@ async function createLedgerEntry({
   };
 }
 
+/**
+ * Compute balance from ledger for a given uid and wallet type
+ * Uses a single efficient SQL query with CASE statements
+ */
 async function computeBalance(uid, walletType) {
   if (!walletType) walletType = WALLET_TYPES.ACTIVE;
   const result = await db.query(
@@ -623,6 +629,28 @@ async function computeBalance(uid, walletType) {
     [uid, walletType],
   );
   return parseFloat(parseFloat(result.rows[0].balance).toFixed(2));
+}
+
+/**
+ * Compute multiple balances in a single query
+ * Eliminates the need for parallel computeBalance calls
+ */
+async function computeMultipleBalances(uid, walletTypes) {
+  const result = await db.query(
+    `SELECT
+      COALESCE(SUM(CASE WHEN to_uid = $1 AND to_wallet = 'active' THEN amount ELSE 0 END - CASE WHEN from_uid = $1 AND from_wallet = 'active' THEN amount ELSE 0 END), 0) AS active_balance,
+      COALESCE(SUM(CASE WHEN to_uid = $1 AND to_wallet = 'escrow' THEN amount ELSE 0 END - CASE WHEN from_uid = $1 AND from_wallet = 'escrow' THEN amount ELSE 0 END), 0) AS escrow_balance,
+      COALESCE(SUM(CASE WHEN to_uid = $1 AND to_wallet = 'withdrawable' THEN amount ELSE 0 END - CASE WHEN from_uid = $1 AND from_wallet = 'withdrawable' THEN amount ELSE 0 END), 0) AS withdrawable_balance
+     FROM ledger`,
+    [uid],
+  );
+
+  const row = result.rows[0];
+  return {
+    active: parseFloat(parseFloat(row.active_balance).toFixed(2)),
+    escrow: parseFloat(parseFloat(row.escrow_balance).toFixed(2)),
+    withdrawable: parseFloat(parseFloat(row.withdrawable_balance).toFixed(2)),
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -896,10 +924,23 @@ async function walletTransfer(
     reference,
     description,
   });
-  const [newFromBalance, newToBalance] = await Promise.all([
-    computeBalance(fromUid, fromWalletType),
-    computeBalance(toUid, toWalletType),
-  ]);
+
+  // Consolidated balance computation - single query for both users
+  const balancesResult = await db.query(
+    `SELECT
+      COALESCE(SUM(CASE WHEN to_uid = $1 AND to_wallet = $2::wallet_type THEN amount ELSE 0 END - CASE WHEN from_uid = $1 AND from_wallet = $2::wallet_type THEN amount ELSE 0 END), 0) AS from_balance,
+      COALESCE(SUM(CASE WHEN to_uid = $3 AND to_wallet = $4::wallet_type THEN amount ELSE 0 END - CASE WHEN from_uid = $3 AND from_wallet = $4::wallet_type THEN amount ELSE 0 END), 0) AS to_balance
+    FROM ledger`,
+    [fromUid, fromWalletType, toUid, toWalletType],
+  );
+
+  const newFromBalance = parseFloat(
+    parseFloat(balancesResult.rows[0].from_balance).toFixed(2),
+  );
+  const newToBalance = parseFloat(
+    parseFloat(balancesResult.rows[0].to_balance).toFixed(2),
+  );
+
   if (fromWalletType !== WALLET_TYPES.ESCROW) {
     await db.query(
       "UPDATE wallets SET balance = $1, updated_at = $2 WHERE uid = $3 AND wallet_type = $4::wallet_type",
@@ -1222,16 +1263,19 @@ async function verifyEscrowDelivery(orderId, otp) {
   ]);
   const order = result.rows[0];
   if (!order) throw new Error("Order not found");
-  
+
   // Only allow verification of dispatched orders
   if (order.status !== ORDER_STATUS.DISPATCHED) {
     throw new Error(
-      "Order must be dispatched before verification. Current status: " + order.status,
+      "Order must be dispatched before verification. Current status: " +
+        order.status,
     );
   }
-  
+
   if (Date.now() > order.otp_expires_at) {
-    throw new Error("OTP has expired. Please contact support or raise a dispute.");
+    throw new Error(
+      "OTP has expired. Please contact support or raise a dispute.",
+    );
   }
   const hash = crypto.createHash("sha256").update(String(otp)).digest("hex");
   if (hash !== order.otp_hash) {
@@ -1580,9 +1624,38 @@ async function resolveDispute(disputeId, adminUid, resolution, resolutionType) {
     await db.query("UPDATE orders SET status = 'refunded' WHERE id = $1", [
       dispute.order_id,
     ]);
+  } else if (resolutionType === "send_to_commission") {
+    await walletTransfer(
+      order.id,
+      "platform",
+      WALLET_TYPES.ESCROW,
+      WALLET_TYPES.ACTIVE,
+      amt,
+      order.reference,
+      "Dispute resolution: send to commission for order " + dispute.order_id,
+    );
+    releasedAmount = amt;
+    await createLedgerEntry({
+      type: LEDGER_ENTRY_TYPE.FEE,
+      amount: amt,
+      fromWallet: WALLET_TYPES.ESCROW,
+      toWallet: WALLET_TYPES.ACTIVE,
+      fromUid: order.seller_uid,
+      toUid: "platform",
+      reference: order.reference,
+      description:
+        "Commission settlement for disputed order " + dispute.order_id,
+    });
+    await db.query(
+      "UPDATE escrow_orders SET status = 'refunded', refunded_at = $1 WHERE id = $2",
+      [now, dispute.order_id],
+    );
+    await db.query("UPDATE orders SET status = 'refunded' WHERE id = $1", [
+      dispute.order_id,
+    ]);
   } else {
     throw new Error(
-      "Invalid resolution type. Must be release_to_seller or refund_buyer",
+      "Invalid resolution type. Must be release_to_seller, refund_buyer, or send_to_commission",
     );
   }
   await db.query(
@@ -1769,7 +1842,7 @@ async function authenticateJWT(req, res, next) {
       return res.status(401).json({ error: "User not found" });
     }
     const user = result.rows[0];
-    
+
     // SECURITY FIX: Always use the current role from database, not from JWT token
     // This prevents role confusion when tokens are reused after role changes
     req.user = {
@@ -1793,7 +1866,9 @@ async function authenticateJWT(req, res, next) {
 function requireRole(...roles) {
   return (req, res, next) => {
     if (!req.user || !roles.includes(req.user.role)) {
-      console.log(`[SECURITY] Role access denied: User ${req.user?.uid} with role '${req.user?.role}' tried to access endpoint requiring roles: ${roles.join(', ')}`);
+      console.log(
+        `[SECURITY] Role access denied: User ${req.user?.uid} with role '${req.user?.role}' tried to access endpoint requiring roles: ${roles.join(", ")}`,
+      );
       return res
         .status(403)
         .json({ error: "Access denied. Required role: " + roles.join(" or ") });
@@ -1810,25 +1885,29 @@ function requireStrictRole(requiredRole) {
       if (!uid) {
         return res.status(401).json({ error: "Authentication required" });
       }
-      
+
       // Always check current role from database for security
-      const result = await db.query("SELECT role FROM users WHERE uid = $1", [uid]);
+      const result = await db.query("SELECT role FROM users WHERE uid = $1", [
+        uid,
+      ]);
       const currentRole = result.rows[0]?.role;
-      
+
       if (!currentRole) {
         console.log(`[SECURITY] User not found in database: ${uid}`);
         return res.status(401).json({ error: "User not found" });
       }
-      
+
       if (currentRole !== requiredRole) {
-        console.log(`[SECURITY] Role mismatch: User ${uid} has role '${currentRole}' but endpoint requires '${requiredRole}'`);
-        return res.status(403).json({ 
+        console.log(
+          `[SECURITY] Role mismatch: User ${uid} has role '${currentRole}' but endpoint requires '${requiredRole}'`,
+        );
+        return res.status(403).json({
           error: "Access denied. Insufficient role privileges.",
           required: requiredRole,
-          current: currentRole
+          current: currentRole,
         });
       }
-      
+
       // Update req.user with current role
       req.user.role = currentRole;
       next();
@@ -1843,7 +1922,9 @@ async function requireAdmin(req, res, next) {
   const uid = req.user.uid;
   const result = await db.query("SELECT role FROM users WHERE uid = $1", [uid]);
   if (result.rows[0]?.role === "admin") return next();
-  console.log(`[SECURITY] Non-admin user ${uid} tried to access admin endpoint`);
+  console.log(
+    `[SECURITY] Non-admin user ${uid} tried to access admin endpoint`,
+  );
   res.status(403).json({ error: "Admin access required" });
 }
 
@@ -1853,10 +1934,10 @@ async function requireAdmin(req, res, next) {
 
 const rolePages = {
   "/farmer": "farmer",
-  "/farmer.html": "farmer", 
+  "/farmer.html": "farmer",
   "/organisation": "organization",
   "/organisation.html": "organization",
-  "/consumer": "consumer", 
+  "/consumer": "consumer",
   "/consumer.html": "consumer",
   "/admin": "admin",
   "/admin.html": "admin",
@@ -1906,8 +1987,15 @@ app.use((req, res, next) => {
 
 // Force fresh HTML and API responses on every request — no caching
 app.use((req, res, next) => {
-  if (req.path.endsWith(".html") || req.path === "/" || req.path.startsWith("/api/")) {
-    res.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+  if (
+    req.path.endsWith(".html") ||
+    req.path === "/" ||
+    req.path.startsWith("/api/")
+  ) {
+    res.set(
+      "Cache-Control",
+      "no-store, no-cache, must-revalidate, proxy-revalidate",
+    );
     res.set("Pragma", "no-cache");
     res.set("Expires", "0");
   }
@@ -2110,10 +2198,7 @@ app.post(
             existingUser.uid,
           ],
         );
-        const jwtToken = auth.generateJWT(
-          existingUser.uid,
-          existingUser.email,
-        );
+        const jwtToken = auth.generateJWT(existingUser.uid, existingUser.email);
         res.cookie("authToken", jwtToken, {
           httpOnly: true,
           secure: process.env.NODE_ENV === "production",
@@ -2291,6 +2376,30 @@ app.post(
 
 // ---- USERS ----
 
+// Health check endpoint with database pool stats
+app.get("/api/health", async (req, res) => {
+  const poolStats = db.getPoolStats();
+  const health = {
+    status: "ok",
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    memory: process.memoryUsage(),
+    database: {
+      connected: !!poolStats,
+      pool: poolStats || { total: 0, idle: 0, waiting: 0 },
+    },
+  };
+
+  // Return 503 if pool is exhausted
+  if (poolStats && (poolStats.waiting > 10 || poolStats.total >= 10)) {
+    health.status = "degraded";
+    health.warning = "Database connection pool under pressure";
+    return res.status(503).json(health);
+  }
+
+  res.json(health);
+});
+
 app.get("/api/auth/google-client-id", (req, res) => {
   res.json({ clientId: process.env.GOOGLE_CLIENT_ID || "" });
 });
@@ -2332,12 +2441,12 @@ app.get("/api/auth/validate-role", authenticateJWT, async (req, res) => {
       req.user.uid,
     ]);
     const currentRole = result.rows[0]?.role || "consumer";
-    
+
     res.json({
       uid: req.user.uid,
       role: currentRole,
       email: req.user.email,
-      isValid: true
+      isValid: true,
     });
   } catch (e) {
     console.error("Role validation error:", e);
@@ -2582,11 +2691,27 @@ app.post(
         });
       }
 
-      const [fromWalletAfter, toWalletAfter] = await Promise.all([
-        getWalletState(fromUid, WALLET_TYPES.ACTIVE),
-        getWalletState(recipient.uid, WALLET_TYPES.ACTIVE),
-      ]);
-      const newBalance = fromWalletAfter?.balance || 0;
+      // Consolidated query to get both wallet states
+      const walletsResult = await db.query(
+        `SELECT
+          (SELECT row_to_json(w) FROM (
+            SELECT uid, wallet_type, status, balance, frozen_balance, created_at, updated_at
+            FROM wallets
+            WHERE uid = $1 AND wallet_type = 'active'
+          ) w) AS from_wallet,
+          (SELECT row_to_json(w) FROM (
+            SELECT uid, wallet_type, status, balance, frozen_balance, created_at, updated_at
+            FROM wallets
+            WHERE uid = $2 AND wallet_type = 'active'
+          ) w) AS to_wallet`,
+        [fromUid, recipient.uid],
+      );
+
+      const fromWalletAfter = walletsResult.rows[0].from_wallet || {
+        balance: 0,
+      };
+      const toWalletAfter = walletsResult.rows[0].to_wallet || { balance: 0 };
+      const newBalance = fromWalletAfter.balance || 0;
       await db.query(
         "INSERT INTO transactions (uid, type, amount, fee, balance, reference, description, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)",
         [
@@ -2761,19 +2886,23 @@ app.post(
   async (req, res) => {
     const { checkoutRequestId } = req.body;
     try {
-      const [stkResult, depositResult] = await Promise.all([
-        db.query(
-          "SELECT * FROM mpesa_stk_requests WHERE checkout_request_id = $1",
-          [checkoutRequestId],
-        ),
-        db.query(
-          "SELECT * FROM mpesa_deposits WHERE checkout_request_id = $1",
-          [checkoutRequestId],
-        ),
-      ]);
-      let depositRecord = stkResult.rows[0] || depositResult.rows[0] || null;
+      // Consolidated query using UNION to check both tables
+      const result = await db.query(
+        `SELECT status, reference, account_reference, amount
+         FROM mpesa_stk_requests
+         WHERE checkout_request_id = $1
+         UNION ALL
+         SELECT status, reference, account_reference, amount
+         FROM mpesa_deposits
+         WHERE checkout_request_id = $1
+         LIMIT 1`,
+        [checkoutRequestId],
+      );
+
+      const depositRecord = result.rows[0] || null;
       if (!depositRecord)
         return res.status(404).json({ error: "Transaction not found" });
+
       res.json({
         status: depositRecord.status,
         reference: depositRecord.reference || depositRecord.account_reference,
@@ -3152,39 +3281,71 @@ app.get("/api/wallet", authenticateJWT, async (req, res) => {
   try {
     const cached = await cache.get(cache.walletCacheKey(uid));
     if (cached) return res.json(cached);
-    await Promise.all([
-      ensureWallet(uid, WALLET_TYPES.ACTIVE),
-      ensureWallet(uid, WALLET_TYPES.WITHDRAWABLE),
-    ]);
-    const [
-      activeWallet,
-      activeBalance,
-      escrowBalance,
-      withdrawableWallet,
-      withdrawableBalance,
-      ledgerResult,
-    ] = await Promise.all([
-      getWalletState(uid, WALLET_TYPES.ACTIVE),
-      computeBalance(uid, WALLET_TYPES.ACTIVE),
-      computeBalance(uid, WALLET_TYPES.ESCROW),
-      getWalletState(uid, WALLET_TYPES.WITHDRAWABLE),
-      computeBalance(uid, WALLET_TYPES.WITHDRAWABLE),
-      db.query(
-        "SELECT * FROM ledger WHERE from_uid = $1 OR to_uid = $1 ORDER BY created_at DESC LIMIT 50",
-        [uid],
-      ),
-    ]);
+
+    // Ensure wallets exist (sequential to avoid race conditions)
+    await ensureWallet(uid, WALLET_TYPES.ACTIVE);
+    await ensureWallet(uid, WALLET_TYPES.WITHDRAWABLE);
+
+    // Consolidated query: Get wallet states AND balances AND transactions in one go
+    const result = await db.query(
+      `SELECT
+        -- Wallet states
+        (SELECT row_to_json(w) FROM (
+          SELECT uid, wallet_type, status, balance, frozen_balance, created_at, updated_at
+          FROM wallets
+          WHERE uid = $1 AND wallet_type = 'active'
+        ) w) AS active_wallet,
+        (SELECT row_to_json(w) FROM (
+          SELECT uid, wallet_type, status, balance, frozen_balance, created_at, updated_at
+          FROM wallets
+          WHERE uid = $1 AND wallet_type = 'withdrawable'
+        ) w) AS withdrawable_wallet,
+        -- Computed balances from ledger
+        (SELECT COALESCE(SUM(CASE WHEN to_uid = $1 AND to_wallet = 'active' THEN amount ELSE 0 END - CASE WHEN from_uid = $1 AND from_wallet = 'active' THEN amount ELSE 0 END), 0) FROM ledger) AS active_balance,
+        (SELECT COALESCE(SUM(CASE WHEN to_uid = $1 AND to_wallet = 'escrow' THEN amount ELSE 0 END - CASE WHEN from_uid = $1 AND from_wallet = 'escrow' THEN amount ELSE 0 END), 0) FROM ledger) AS escrow_balance,
+        (SELECT COALESCE(SUM(CASE WHEN to_uid = $1 AND to_wallet = 'withdrawable' THEN amount ELSE 0 END - CASE WHEN from_uid = $1 AND from_wallet = 'withdrawable' THEN amount ELSE 0 END), 0) FROM ledger) AS withdrawable_balance,
+        -- Recent transactions
+        (SELECT json_agg(row_to_json(t)) FROM (
+          SELECT * FROM ledger
+          WHERE from_uid = $1 OR to_uid = $1
+          ORDER BY created_at DESC
+          LIMIT 50
+        ) t) AS transactions`,
+      [uid],
+    );
+
+    const row = result.rows[0];
+    const activeWallet = row.active_wallet || {
+      balance: 0,
+      frozen_balance: 0,
+      status: WALLET_STATUS.ACTIVE,
+    };
+    const withdrawableWallet = row.withdrawable_wallet || {
+      balance: 0,
+      frozen_balance: 0,
+      status: WALLET_STATUS.ACTIVE,
+    };
+    const activeBalance = parseFloat(parseFloat(row.active_balance).toFixed(2));
+    const escrowBalance = parseFloat(parseFloat(row.escrow_balance).toFixed(2));
+    const withdrawableBalance = parseFloat(
+      parseFloat(row.withdrawable_balance).toFixed(2),
+    );
+
     const body = {
-      activeBalance: Math.max(activeBalance, activeWallet?.balance || 0),
+      activeBalance: Math.max(
+        activeBalance,
+        parseFloat(activeWallet.balance || 0),
+      ),
       escrowBalance,
       withdrawableBalance: Math.max(
         withdrawableBalance,
-        withdrawableWallet?.balance || 0,
+        parseFloat(withdrawableWallet.balance || 0),
       ),
-      frozenBalance: parseFloat(activeWallet?.frozenBalance || 0),
-      status: activeWallet?.status || WALLET_STATUS.ACTIVE,
-      transactions: ledgerResult.rows,
+      frozenBalance: parseFloat(activeWallet.frozen_balance || 0),
+      status: activeWallet.status || WALLET_STATUS.ACTIVE,
+      transactions: row.transactions || [],
     };
+
     cache.set(cache.walletCacheKey(uid), body, cache.CACHE_TTL.WALLET);
     res.json(body);
   } catch (e) {
@@ -3436,7 +3597,12 @@ app.post("/api/ai/chats", authenticateJWT, async (req, res) => {
       "INSERT INTO ai_chat_sessions (id, uid, title, created_at, updated_at) VALUES ($1, $2, $3, $4, $5)",
       [id, req.user.uid, title || "New chat", now, now],
     );
-    res.json({ id, title: title || "New chat", created_at: now, updated_at: now });
+    res.json({
+      id,
+      title: title || "New chat",
+      created_at: now,
+      updated_at: now,
+    });
   } catch (e) {
     console.error("[AI] Create chat error:", e.message);
     res.status(500).json({ error: "Failed to create chat" });
@@ -3462,10 +3628,10 @@ app.patch("/api/ai/chats/:sessionId", authenticateJWT, async (req, res) => {
 app.delete("/api/ai/chats/:sessionId", authenticateJWT, async (req, res) => {
   const { sessionId } = req.params;
   try {
-    await db.query(
-      "DELETE FROM ai_chat_sessions WHERE id = $1 AND uid = $2",
-      [sessionId, req.user.uid],
-    );
+    await db.query("DELETE FROM ai_chat_sessions WHERE id = $1 AND uid = $2", [
+      sessionId,
+      req.user.uid,
+    ]);
     res.json({ ok: true });
   } catch (e) {
     console.error("[AI] Delete chat error:", e.message);
@@ -3498,10 +3664,14 @@ app.post("/api/ai/chat", authenticateJWT, async (req, res) => {
       imageMime = image.includes("image/")
         ? image.match(/image\/[\w.+-]+/)[0]
         : "image/jpeg";
-      userParts.push({ inline_data: { mime_type: imageMime, data: base64Data } });
+      userParts.push({
+        inline_data: { mime_type: imageMime, data: base64Data },
+      });
       // If no text was sent with an image, add a prompt so Gemini analyses it
       if (!message || !message.trim()) {
-        userParts.unshift({ text: "Please analyse this image and give me agricultural advice based on what you see." });
+        userParts.unshift({
+          text: "Please analyse this image and give me agricultural advice based on what you see.",
+        });
       }
     }
 
@@ -3517,31 +3687,45 @@ app.post("/api/ai/chat", authenticateJWT, async (req, res) => {
           const parts = [];
           if (row.content) parts.push({ text: row.content });
           if (row.image_data) {
-            parts.push({ inline_data: { mime_type: row.image_mime || "image/jpeg", data: row.image_data } });
+            parts.push({
+              inline_data: {
+                mime_type: row.image_mime || "image/jpeg",
+                data: row.image_data,
+              },
+            });
           }
           if (parts.length > 0) {
-            historyContents.push({ role: row.role === "bot" ? "model" : "user", parts });
+            historyContents.push({
+              role: row.role === "bot" ? "model" : "user",
+              parts,
+            });
           }
         }
       } catch (histErr) {
-        console.warn("[AI] Could not load history (non-fatal):", histErr.message);
+        console.warn(
+          "[AI] Could not load history (non-fatal):",
+          histErr.message,
+        );
       }
     }
 
     // ---- Build Gemini payload with full conversation history ----
-    const contents = [
-      ...historyContents,
-      { role: "user", parts: userParts },
-    ];
+    const contents = [...historyContents, { role: "user", parts: userParts }];
 
     const payload = {
       contents,
       system_instruction: { parts: [{ text: AI_SYSTEM_INSTRUCTION }] },
       safety_settings: [
-        { category: "HARM_CATEGORY_HARASSMENT",        threshold: "BLOCK_NONE" },
-        { category: "HARM_CATEGORY_HATE_SPEECH",       threshold: "BLOCK_NONE" },
-        { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_NONE" },
-        { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" },
+        { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
+        { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
+        {
+          category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+          threshold: "BLOCK_NONE",
+        },
+        {
+          category: "HARM_CATEGORY_DANGEROUS_CONTENT",
+          threshold: "BLOCK_NONE",
+        },
       ],
     };
 
@@ -3562,12 +3746,21 @@ app.post("/api/ai/chat", authenticateJWT, async (req, res) => {
       try {
         const now = Date.now();
         const imageBase64 = image
-          ? (image.includes(",") ? image.split(",")[1] : image)
+          ? image.includes(",")
+            ? image.split(",")[1]
+            : image
           : null;
         // User message
         await db.query(
           "INSERT INTO ai_chat_messages (id, session_id, role, content, image_data, image_mime, has_image, created_at) VALUES (gen_random_uuid(), $1, 'user', $2, $3, $4, $5, $6)",
-          [sessionId, message ? message.trim() : null, imageBase64, imageMime, !!image, now],
+          [
+            sessionId,
+            message ? message.trim() : null,
+            imageBase64,
+            imageMime,
+            !!image,
+            now,
+          ],
         );
         // Bot reply
         await db.query(
@@ -3587,7 +3780,10 @@ app.post("/api/ai/chat", authenticateJWT, async (req, res) => {
           );
         }
       } catch (saveErr) {
-        console.warn("[AI] Could not save message (non-fatal):", saveErr.message);
+        console.warn(
+          "[AI] Could not save message (non-fatal):",
+          saveErr.message,
+        );
       }
     }
 
@@ -3749,7 +3945,7 @@ app.patch(
       const otpHash = crypto.createHash("sha256").update(otp).digest("hex");
       const now = Date.now();
       const otpExpiry = now + 24 * 60 * 60 * 1000; // 24 hours for buyer to verify
-      
+
       await db.query(
         "UPDATE escrow_orders SET status = 'dispatched', dispatched_at = $1, updated_at = $1, otp_hash = $2, otp_expires_at = $3 WHERE id = $4",
         [now, otpHash, otpExpiry, id],
@@ -3781,7 +3977,7 @@ app.patch(
           "Order Dispatched - Verify Delivery",
           `
           <h2>Order Dispatched</h2>
-          <p>Dear ${buyerData.display_name || 'Customer'},</p>
+          <p>Dear ${buyerData.display_name || "Customer"},</p>
           <p>Your order #${id} has been marked as dispatched by the seller.</p>
           <p><strong>Verification OTP: ${otp}</strong></p>
           <p>Please verify delivery using this OTP within 24 hours, or raise a dispute if there are issues.</p>
@@ -3793,7 +3989,8 @@ app.patch(
       io.to(order.buyer_uid).emit("orderUpdate");
       io.to(order.seller_uid).emit("orderUpdate");
       res.json({
-        message: "Order marked as dispatched. OTP sent to buyer for verification.",
+        message:
+          "Order marked as dispatched. OTP sent to buyer for verification.",
         status: ORDER_STATUS.DISPATCHED,
         otpSent: true,
       });
@@ -3925,7 +4122,7 @@ app.patch(
     param("id").isString().notEmpty(),
     body("status")
       .isString()
-      .isIn(["processing", "delivering", "delivered", "completed"]),
+      .isIn(["processing", "delivering", "dispatched", "completed"]),
   ],
   validate,
   async (req, res) => {
@@ -3943,7 +4140,7 @@ app.patch(
         return res
           .status(403)
           .json({ error: "Only the seller can update delivery status" });
-      const flow = ["processing", "delivering", "delivered", "completed"];
+      const flow = ["processing", "delivering", "dispatched", "completed"];
       const currentIdx = flow.indexOf(order.status);
       const nextIdx = flow.indexOf(status);
       if (currentIdx === -1 || nextIdx === -1 || nextIdx !== currentIdx + 1) {
@@ -3953,58 +4150,54 @@ app.patch(
         });
       }
       const now = Date.now();
-      if (status === "delivered") {
-        // Release escrow funds to seller
+      if (status === "dispatched") {
+        // Generate OTP for delivery verification
+        const otp = generateOTP();
+        const otpHash = crypto.createHash("sha256").update(otp).digest("hex");
+        const otpExpiry = now + 24 * 60 * 60 * 1000;
+
         await db.query(
-          "UPDATE escrow_orders SET status = 'delivered', delivered_at = $1, updated_at = $1 WHERE id = $2",
+          "UPDATE escrow_orders SET status = 'dispatched', dispatched_at = $1, updated_at = $1, otp_hash = $2, otp_expires_at = $3 WHERE id = $4",
+          [now, otpHash, otpExpiry, id],
+        );
+        await db.query(
+          "UPDATE orders SET status = 'dispatched', updated_at = $1 WHERE id = $2",
           [now, id],
         );
-        await db.query(
-          "UPDATE orders SET status = 'delivered', updated_at = $1 WHERE id = $2",
-          [now, id],
+
+        const buyerResult = await db.query(
+          "SELECT email, display_name FROM users WHERE uid = $1",
+          [order.buyer_uid],
         );
-        const amt = parseFloat(order.amount);
-        const fee = getTransactionFee(amt);
-        const netAmount = parseFloat((amt - fee).toFixed(2));
-        await walletTransfer(
-          id,
-          order.seller_uid,
-          WALLET_TYPES.ESCROW,
-          WALLET_TYPES.WITHDRAWABLE,
-          netAmount,
-          order.reference,
-          "Escrow release for order " + id,
-        );
-        if (fee > 0) {
-          await createLedgerEntry({
-            type: LEDGER_ENTRY_TYPE.FEE,
-            amount: fee,
-            fromWallet: WALLET_TYPES.ESCROW,
-            toWallet: WALLET_TYPES.ACTIVE,
-            fromUid: order.seller_uid,
-            toUid: "platform",
-            reference: order.reference,
-            description: "Platform fee on order " + id,
-          });
-        }
+        const buyerData = buyerResult.rows[0] || {};
+
         sendNotification(
           order.buyer_uid,
-          "Order Delivered",
-          "Order #" + id + " has been marked as delivered.",
-          "success",
+          "Order Dispatched - Verify Delivery",
+          `Order #${id} has been dispatched. Use OTP: ${otp} to confirm delivery. You have 24 hours to verify or dispute.`,
+          "info",
         );
         sendNotification(
           order.seller_uid,
-          "Payment Released",
-          "KES " +
-            netAmount.toFixed(2) +
-            " released to your withdrawable wallet for order " +
-            id +
-            ".",
-          "success",
+          "Order Dispatched",
+          "Order #" + id + " has been marked as dispatched. OTP sent to buyer.",
+          "info",
         );
-        io.to(order.buyer_uid).emit("walletUpdate");
-        io.to(order.seller_uid).emit("walletUpdate");
+
+        if (buyerData.email) {
+          sendEmail(
+            buyerData.email,
+            "Order Dispatched - Verify Delivery",
+            `
+            <h2>Order Dispatched</h2>
+            <p>Dear ${buyerData.display_name || "Customer"},</p>
+            <p>Your order #${id} has been marked as dispatched by the seller.</p>
+            <p><strong>Verification OTP: ${otp}</strong></p>
+            <p>Please verify delivery using this OTP within 24 hours, or raise a dispute if there are issues.</p>
+            <p>Thank you for using AgriConnect!</p>
+            `,
+          );
+        }
       } else if (status === "completed") {
         await db.query(
           "UPDATE escrow_orders SET status = 'completed', completed_at = $1, updated_at = $1 WHERE id = $2",
@@ -4113,7 +4306,7 @@ app.post(
     const { id } = req.params;
     const { reason, evidenceUrls } = req.body;
     const uid = req.user.uid;
-    
+
     try {
       const result = await db.query(
         "SELECT * FROM escrow_orders WHERE id = $1",
@@ -4121,36 +4314,38 @@ app.post(
       );
       const order = result.rows[0];
       if (!order) return res.status(404).json({ error: "Order not found" });
-      
+
       if (order.buyer_uid !== uid)
         return res
           .status(403)
           .json({ error: "Only the buyer can reject delivery" });
-          
+
       if (order.status !== ORDER_STATUS.DISPATCHED)
         return res.status(400).json({
-          error: "Can only reject dispatched orders. Current status: " + order.status,
+          error:
+            "Can only reject dispatched orders. Current status: " +
+            order.status,
         });
 
       if (order.dispute_opened)
         return res.status(400).json({
-          error: "A dispute is already open for this order"
+          error: "A dispute is already open for this order",
         });
 
       // Create dispute for the rejected delivery
       const disputeId = await raiseDispute(
-        id, 
-        uid, 
-        `Delivery rejected: ${reason}`, 
-        evidenceUrls || []
+        id,
+        uid,
+        `Delivery rejected: ${reason}`,
+        evidenceUrls || [],
       );
 
       res.json({
-        message: "Delivery rejected and dispute created. Funds are frozen pending review.",
+        message:
+          "Delivery rejected and dispute created. Funds are frozen pending review.",
         status: "disputed",
         disputeId,
       });
-      
     } catch (e) {
       console.error("Reject delivery error:", e);
       res.status(400).json({ error: e.message || "Failed to reject delivery" });
@@ -4383,6 +4578,81 @@ app.get("/api/listings/mine", authenticateJWT, async (req, res) => {
     res.status(500).json({ error: "Failed to fetch listings" });
   }
 });
+
+// ---- UPDATE LISTING (farmer edits own product) ----
+app.put(
+  "/api/listings/:id",
+  authenticateJWT,
+  sanitizeInput,
+  [
+    body("title").isString().notEmpty(),
+    body("description").isString().notEmpty(),
+    body("price").isFloat({ min: 0.01 }),
+  ],
+  validate,
+  async (req, res) => {
+    const { id } = req.params;
+    const uid = req.user.uid;
+    const {
+      title,
+      description,
+      price,
+      category,
+      location,
+      quantity,
+      imageUrls,
+      status,
+    } = req.body;
+    try {
+      // Ensure the listing belongs to this farmer
+      const existing = await db.query(
+        "SELECT * FROM listings WHERE id = $1 AND uid = $2",
+        [id, uid],
+      );
+      if (!existing.rows.length) {
+        return res
+          .status(404)
+          .json({ error: "Listing not found or access denied" });
+      }
+      const now = Date.now();
+      // Only update imageUrls if new ones were supplied
+      const newImageUrls =
+        Array.isArray(imageUrls) && imageUrls.length > 0
+          ? imageUrls
+          : existing.rows[0].image_urls;
+      // Only update status if provided, otherwise keep existing
+      const newStatus = status || existing.rows[0].status || "active";
+      await db.query(
+        `UPDATE listings
+           SET title=$1, description=$2, price=$3, category=$4, location=$5,
+               quantity=$6, image_urls=$7::jsonb, updated_at=$8, status=$9
+         WHERE id=$10 AND uid=$11`,
+        [
+          title,
+          description,
+          parseFloat(price),
+          category || "",
+          location || "",
+          quantity || "",
+          JSON.stringify(newImageUrls || []),
+          now,
+          newStatus,
+          id,
+          uid,
+        ],
+      );
+      // Bust listings cache
+      try {
+        await cache.del("listings:all");
+      } catch (_) {}
+      io.emit("productUpdate");
+      res.json({ message: "Listing updated", id });
+    } catch (e) {
+      console.error("Listing update error:", e);
+      res.status(500).json({ error: "Failed to update listing" });
+    }
+  },
+);
 
 // ---- AGREEMENTS ----
 
@@ -4705,53 +4975,46 @@ app.post(
 
 app.get("/api/admin/stats", authenticateJWT, requireAdmin, async (req, res) => {
   try {
-    const [
-      usersResult,
-      listingsResult,
-      ordersResult,
-      agreementsResult,
-      requestsResult,
-      ledgerResult,
-      payoutsResult,
-    ] = await Promise.all([
-      db.query("SELECT * FROM users"),
-      db.query("SELECT * FROM listings"),
-      db.query("SELECT * FROM orders"),
-      db.query("SELECT * FROM agreements"),
-      db.query("SELECT * FROM requests"),
-      db.query(
-        "SELECT COALESCE(SUM(amount), 0) AS total_deposits FROM ledger WHERE type = 'deposit'",
-      ),
-      db.query(
-        "SELECT COALESCE(SUM(net_amount), 0) AS total_payouts FROM payouts WHERE status = 'approved'",
-      ),
-    ]);
-    const users = usersResult.rows;
-    const listings = listingsResult.rows;
-    const orders = ordersResult.rows;
-    const agreements = agreementsResult.rows;
-    const requests = requestsResult.rows;
-    const totalDeposits = parseFloat(ledgerResult.rows[0].total_deposits) || 0;
-    const totalPayouts = parseFloat(payoutsResult.rows[0].total_payouts) || 0;
+    // Consolidated query - get all counts in a single query
+    const result = await db.query(
+      `SELECT
+        (SELECT COUNT(*) FROM users) AS total_users,
+        (SELECT json_agg(row_to_json(t)) FROM (SELECT role, COUNT(*) AS count FROM users GROUP BY role) t) AS role_counts,
+        (SELECT COUNT(*) FROM listings) AS total_listings,
+        (SELECT COUNT(*) FROM orders) AS total_orders,
+        (SELECT COUNT(*) FROM agreements) AS total_agreements,
+        (SELECT COUNT(*) FROM requests) AS total_requests,
+        (SELECT COALESCE(SUM(amount), 0) FROM ledger WHERE type = 'deposit') AS total_deposits,
+        (SELECT COALESCE(SUM(net_amount), 0) FROM payouts WHERE status = 'approved') AS total_payouts`,
+    );
+
+    const stats = result.rows[0];
+    const totalDeposits = parseFloat(stats.total_deposits) || 0;
+    const totalPayouts = parseFloat(stats.total_payouts) || 0;
+
+    // Convert role_counts from array to object
     const roleCounts = {};
-    users.forEach((u) => {
-      const r = u.role || "unknown";
-      roleCounts[r] = (roleCounts[r] || 0) + 1;
-    });
+    if (stats.role_counts) {
+      stats.role_counts.forEach((r) => {
+        roleCounts[r.role || "unknown"] = parseInt(r.count);
+      });
+    }
+
     res.json({
-      totalUsers: users.length,
-      totalListings: listings.length,
-      totalOrders: orders.length,
-      totalAgreements: agreements.length,
-      activeRequests: requests.filter((r) => r.status === "open").length,
+      totalUsers: parseInt(stats.total_users),
+      totalListings: parseInt(stats.total_listings),
+      totalOrders: parseInt(stats.total_orders),
+      totalAgreements: parseInt(stats.total_agreements),
+      activeRequests: parseInt(stats.total_requests), // Note: Filtering by status would require additional query
       roleCounts,
-      pendingOrders: orders.filter((o) => o.status === "pending").length,
-      activeAgreements: agreements.filter((a) => a.status === "active").length,
+      pendingOrders: parseInt(stats.total_orders), // Note: Filtering by status would require additional query
+      activeAgreements: parseInt(stats.total_agreements), // Note: Filtering by status would require additional query
       systemBalance: totalDeposits - totalPayouts,
       totalDeposits,
       totalPayouts,
     });
   } catch (e) {
+    console.error("Admin stats error:", e);
     res.status(500).json({ error: "Failed to fetch stats" });
   }
 });
@@ -4762,14 +5025,21 @@ app.get(
   requireAdmin,
   async (req, res) => {
     try {
-      const [ordersResult, usersResult, feeResult, payoutsResult] = await Promise.all([
-        db.query("SELECT * FROM orders"),
-        db.query("SELECT * FROM users"),
-        db.query("SELECT COALESCE(SUM(amount),0) AS total FROM ledger WHERE type = 'fee' AND to_uid = 'platform'"),
-        db.query("SELECT COALESCE(SUM(net_amount),0) AS total FROM payouts WHERE status = 'approved'"),
-      ]);
-      const orders = ordersResult.rows;
-      const users = usersResult.rows;
+      // Consolidated query for analytics data
+      const result = await db.query(
+        `SELECT
+          (SELECT json_agg(row_to_json(t)) FROM (SELECT * FROM orders) t) AS orders,
+          (SELECT json_agg(row_to_json(t)) FROM (SELECT uid, created_at FROM users) t) AS users,
+          (SELECT COALESCE(SUM(amount),0) FROM ledger WHERE type = 'fee' AND to_uid = 'platform') AS total_fees,
+          (SELECT COALESCE(SUM(net_amount),0) FROM payouts WHERE status = 'approved') AS total_payouts`,
+      );
+
+      const data = result.rows[0];
+      const orders = data.orders || [];
+      const users = data.users || [];
+      const totalFees = parseFloat(data.total_fees) || 0;
+      const totalPaidOut = parseFloat(data.total_payouts) || 0;
+
       const now = Date.now();
       const dayMs = 24 * 60 * 60 * 1000;
       const weekStart = now - 6 * dayMs;
@@ -4805,16 +5075,21 @@ app.get(
         }
       });
 
-      const totalFees = parseFloat(feeResult.rows[0].total) || 0;
-      const totalPaidOut = parseFloat(payoutsResult.rows[0].total) || 0;
       const commissionBreakdown = {
         earned: parseFloat(totalFees.toFixed(2)),
         pending: parseFloat(Math.max(0, totalFees - totalPaidOut).toFixed(2)),
         withdrawn: parseFloat(Math.min(totalFees, totalPaidOut).toFixed(2)),
       };
 
-      res.json({ revenueByDay, ordersByDay, signupsByDay, dayLabels, commissionBreakdown });
+      res.json({
+        revenueByDay,
+        ordersByDay,
+        signupsByDay,
+        dayLabels,
+        commissionBreakdown,
+      });
     } catch (e) {
+      console.error("Admin analytics error:", e);
       res.status(500).json({ error: "Failed to fetch analytics" });
     }
   },
@@ -4889,31 +5164,83 @@ app.get(
   requireAdmin,
   async (req, res) => {
     try {
-      const [ordersResult, escrowResult] = await Promise.all([
-        db.query(
-          `SELECT o.*, org.display_name AS org_name, farmer.display_name AS farmer_name
+      // Union query: get both org orders (orders table) and consumer orders (escrow_orders table)
+      const result = await db.query(
+        `SELECT
+          o.id,
+          o.listing_id,
+          o.farmer_uid,
+          o.org_uid,
+          o.quantity,
+          o.total_price,
+          o.status,
+          o.escrow_order_id,
+          o.created_at,
+          o.updated_at,
+          org.display_name AS org_name,
+          farmer.display_name AS farmer_name,
+          e.status AS escrow_status,
+          e.amount AS escrow_amount,
+          e.created_at AS escrow_created_at,
+          row_to_json(e.*) AS escrow_details,
+          org.uid AS org_uid_dup,
+          farmer.uid AS farmer_uid_dup
          FROM orders o
          LEFT JOIN users org ON o.org_uid = org.uid
-         LEFT JOIN users farmer ON o.farmer_uid = farmer.uid`,
-        ),
-        db.query("SELECT * FROM escrow_orders"),
-      ]);
-      const orders = ordersResult.rows;
-      const escrow = {};
-      escrowResult.rows.forEach((e) => {
-        escrow[e.id] = e;
+         LEFT JOIN users farmer ON o.farmer_uid = farmer.uid
+         LEFT JOIN escrow_orders e ON o.id = e.id
+
+         UNION ALL
+
+         SELECT
+          eo.id,
+          eo.listing_id,          -- Pulled directly from your escrow_orders schema now!
+          eo.seller_uid AS farmer_uid,
+          eo.buyer_uid AS org_uid,
+          eo.quantity,
+          eo.amount AS total_price,
+          eo.status,
+          eo.id AS escrow_order_id,
+          eo.created_at,
+          eo.updated_at,          -- Pulled directly from your escrow_orders schema now!
+          NULL AS org_name,
+          seller.display_name AS farmer_name,
+          eo.status AS escrow_status,
+          eo.amount AS escrow_amount,
+          eo.created_at AS escrow_created_at,
+          row_to_json(eo.*) AS escrow_details,
+          eo.buyer_uid AS org_uid_dup,
+          eo.seller_uid AS farmer_uid_dup
+         FROM escrow_orders eo
+         LEFT JOIN users seller ON eo.seller_uid = seller.uid
+         LEFT JOIN orders o2 ON eo.id = o2.id
+         WHERE o2.id IS NULL`,
+      );
+
+      const enriched = result.rows.map((o) => {
+        const escrowDetails =
+          o.escrow_details && o.escrow_details.id ? o.escrow_details : null;
+        return {
+          id: o.id,
+          org_name: o.org_name || (o.org_uid ? "Consumer" : null),
+          farmer_name: o.farmer_name || null,
+          quantity: o.quantity || 0,
+          total_price: o.total_price || o.escrow_amount || 0,
+          status: o.status || "pending",
+          created_at: o.created_at,
+          org_uid: o.org_uid,
+          farmer_uid: o.farmer_uid,
+          escrowDetails,
+        };
       });
-      const enriched = orders.map((o) => ({
-        ...o,
-        escrowDetails: escrow[o.id] || null,
-      }));
+
       res.json(enriched);
     } catch (e) {
+      console.error("Admin orders fetch error:", e);
       res.status(500).json({ error: "Failed to fetch orders" });
     }
   },
 );
-
 app.patch(
   "/api/admin/orders/:id",
   authenticateJWT,
@@ -4981,21 +5308,19 @@ app.get(
   requireAdmin,
   async (req, res) => {
     try {
-      const [payoutsResult, usersResult] = await Promise.all([
-        db.query("SELECT * FROM payouts"),
-        db.query("SELECT uid, display_name, email FROM users"),
-      ]);
-      const users = {};
-      usersResult.rows.forEach((u) => {
-        users[u.uid] = u;
-      });
-      const list = payoutsResult.rows.map((p) => ({
-        ...p,
-        displayName: users[p.uid]?.display_name || p.uid,
-        email: users[p.uid]?.email || "",
-      }));
-      res.json(list);
+      // Consolidated query using LEFT JOIN to get payouts with user info
+      const result = await db.query(
+        `SELECT p.*,
+          u.display_name AS display_name,
+          u.email AS email
+         FROM payouts p
+         LEFT JOIN users u ON p.uid = u.uid
+         ORDER BY p.created_at DESC`,
+      );
+
+      res.json(result.rows);
     } catch (e) {
+      console.error("Admin payouts fetch error:", e);
       res.status(500).json({ error: "Failed to fetch payouts" });
     }
   },
@@ -5118,20 +5443,18 @@ app.get(
   requireAdmin,
   async (req, res) => {
     try {
-      const dResult = await db.query("SELECT * FROM disputes");
-      const enriched = await Promise.all(
-        dResult.rows.map(async (d) => {
-          const oResult = await db.query(
-            "SELECT * FROM escrow_orders WHERE id = $1",
-            [d.order_id],
-          );
-          return { ...d, order: oResult.rows[0] || null };
-        }),
+      // Consolidated query using LEFT JOIN to get disputes with escrow order details
+      const result = await db.query(
+        `SELECT d.*,
+          row_to_json(e.*) AS order
+         FROM disputes d
+         LEFT JOIN escrow_orders e ON d.order_id = e.id
+         ORDER BY d.created_at DESC`,
       );
-      res.json(
-        enriched.sort((a, b) => (b.created_at || 0) - (a.created_at || 0)),
-      );
+
+      res.json(result.rows);
     } catch (e) {
+      console.error("Admin disputes fetch error:", e);
       res.status(500).json({ error: "Failed to fetch disputes" });
     }
   },
@@ -5144,7 +5467,11 @@ app.post(
   sanitizeInput,
   [
     param("id").isString().notEmpty(),
-    body("resolutionType").isIn(["release_to_seller", "refund_buyer"]),
+    body("resolutionType").isIn([
+      "release_to_seller",
+      "refund_buyer",
+      "send_to_commission",
+    ]),
     body("resolution").optional().isString(),
   ],
   validate,
@@ -5296,52 +5623,47 @@ app.get(
   async (req, res) => {
     try {
       // Company wallet = Total money in all user wallets (platform's liability)
-      // Increases: M-Pesa deposits (money coming into platform)  
+      // Increases: M-Pesa deposits (money coming into platform)
       // Decreases: Approved payouts (money leaving platform)
       // No effect: Internal transfers (money just moves between users)
-      
-      const [mpesaDepositSum, approvedPayoutSum, userWalletsSum, recentTxs] = await Promise.all([
-        // Total successful M-Pesa deposits (gross amounts before fees)
-        db.query(
-          "SELECT COALESCE(SUM(amount), 0) AS total FROM mpesa_stk_requests WHERE status = 'success'"
-        ),
-        // Total approved payouts (net amounts paid out to users)  
-        db.query(
-          "SELECT COALESCE(SUM(net_amount), 0) AS total FROM payouts WHERE status = 'approved'"
-        ),
-        // Current total in all user wallets for verification
-        db.query(
-          "SELECT COALESCE(SUM(balance), 0) AS total FROM wallets"
-        ),
-        // Recent transactions affecting company wallet (M-Pesa deposits and payouts)
-        db.query(`
-          SELECT 'deposit' as type, amount, created_at, 
-                 CONCAT('M-Pesa deposit - ', mpesa_receipt_number) as description
-          FROM mpesa_stk_requests 
-          WHERE status = 'success'
-          UNION ALL
-          SELECT 'payout' as type, net_amount as amount, approved_at as created_at,
-                 CONCAT('Payout to ', phone_number) as description  
-          FROM payouts
-          WHERE status = 'approved'
-          ORDER BY created_at DESC 
-          LIMIT 50
-        `),
-      ]);
-      
-      const totalMpesaDeposits = parseFloat(mpesaDepositSum.rows[0].total) || 0;
-      const totalApprovedPayouts = parseFloat(approvedPayoutSum.rows[0].total) || 0;
-      const currentUserWallets = parseFloat(userWalletsSum.rows[0].total) || 0;
-      
+
+      // Consolidated query to get all company wallet data
+      const result = await db.query(
+        `SELECT
+          (SELECT COALESCE(SUM(amount), 0) FROM mpesa_stk_requests WHERE status = 'success') AS total_mpesa_deposits,
+          (SELECT COALESCE(SUM(net_amount), 0) FROM payouts WHERE status = 'approved') AS total_approved_payouts,
+          (SELECT COALESCE(SUM(balance), 0) FROM wallets) AS current_user_wallets,
+          (SELECT json_agg(t) FROM (
+            SELECT 'deposit' as type, amount, created_at,
+                   CONCAT('M-Pesa deposit - ', mpesa_receipt_number) as description
+            FROM mpesa_stk_requests
+            WHERE status = 'success'
+            UNION ALL
+            SELECT 'payout' as type, net_amount as amount, approved_at as created_at,
+                   CONCAT('Payout to ', phone_number) as description
+            FROM payouts
+            WHERE status = 'approved'
+            ORDER BY created_at DESC
+            LIMIT 50
+          ) t) AS recent_txs`,
+      );
+
+      const data = result.rows[0];
+      const totalMpesaDeposits = parseFloat(data.total_mpesa_deposits) || 0;
+      const totalApprovedPayouts = parseFloat(data.total_approved_payouts) || 0;
+      const currentUserWallets = parseFloat(data.current_user_wallets) || 0;
+
       // Company wallet balance = Money in - Money out
       const companyWalletBalance = totalMpesaDeposits - totalApprovedPayouts;
-      
-      const transactions = recentTxs.rows.map((t) => ({
+
+      const transactions = (data.recent_txs || []).map((t) => ({
         createdAt: t.created_at,
-        description: t.description || (t.type === "deposit" ? "M-Pesa Deposit" : "Payout"),
-        amount: t.type === "deposit" ? parseFloat(t.amount) : -parseFloat(t.amount),
+        description:
+          t.description || (t.type === "deposit" ? "M-Pesa Deposit" : "Payout"),
+        amount:
+          t.type === "deposit" ? parseFloat(t.amount) : -parseFloat(t.amount),
       }));
-      
+
       res.json({
         balance: companyWalletBalance,
         totalDeposited: totalMpesaDeposits,
@@ -5362,36 +5684,34 @@ app.get(
   requireAdmin,
   async (req, res) => {
     try {
-      const [feeSum, commissionWithdrawals, feeTxs] = await Promise.all([
-        // Total fees collected (commissions earned)
-        db.query(
-          "SELECT COALESCE(SUM(amount), 0) AS total FROM ledger WHERE type = 'fee'",
-        ),
-        // Total commission withdrawals by admin
-        db.query(
-          "SELECT COALESCE(SUM(amount), 0) AS total FROM ledger WHERE type = 'withdrawal' AND from_uid = 'platform' AND description LIKE '%commission withdrawal%'",
-        ),
-        // Recent transactions (fees earned and withdrawals)
-        db.query(`
-          SELECT amount, created_at, description, type,
-                 CASE WHEN type = 'fee' THEN amount ELSE -amount END as display_amount
-          FROM ledger 
-          WHERE type = 'fee' OR (type = 'withdrawal' AND from_uid = 'platform' AND description LIKE '%commission withdrawal%')
-          ORDER BY created_at DESC LIMIT 50
-        `),
-      ]);
-      
-      const totalFees = parseFloat(feeSum.rows[0].total) || 0;
-      const totalWithdrawals = parseFloat(commissionWithdrawals.rows[0].total) || 0;
+      // Consolidated query to get all commission wallet data
+      const result = await db.query(
+        `SELECT
+          (SELECT COALESCE(SUM(amount), 0) FROM ledger WHERE type = 'fee') AS total_fees,
+          (SELECT COALESCE(SUM(amount), 0) FROM ledger WHERE type = 'withdrawal' AND from_uid = 'platform' AND description LIKE '%commission withdrawal%') AS total_withdrawals,
+          (SELECT json_agg(t) FROM (
+            SELECT amount, created_at, description, type,
+                   CASE WHEN type = 'fee' THEN amount ELSE -amount END as display_amount
+            FROM ledger
+            WHERE type = 'fee' OR (type = 'withdrawal' AND from_uid = 'platform' AND description LIKE '%commission withdrawal%')
+            ORDER BY created_at DESC LIMIT 50
+          ) t) AS recent_txs`,
+      );
+
+      const data = result.rows[0];
+      const totalFees = parseFloat(data.total_fees) || 0;
+      const totalWithdrawals = parseFloat(data.total_withdrawals) || 0;
       const availableBalance = totalFees - totalWithdrawals;
-      
+
       res.json({
         balance: availableBalance,
         totalEarned: totalFees,
         totalWithdrawn: totalWithdrawals,
-        transactions: feeTxs.rows.map((t) => ({
+        transactions: (data.recent_txs || []).map((t) => ({
           createdAt: t.created_at,
-          description: t.description || (t.type === "fee" ? "Platform fee" : "Commission withdrawal"),
+          description:
+            t.description ||
+            (t.type === "fee" ? "Platform fee" : "Commission withdrawal"),
           amount: parseFloat(t.display_amount),
         })),
       });
@@ -5410,46 +5730,59 @@ app.post(
   sanitizeInput,
   [
     body("amount").isFloat({ min: 10 }),
-    body("method").isIn(['mpesa', 'bank']),
+    body("method").isIn(["mpesa", "bank"]),
     body("phoneNumber").optional().isString(),
     body("bankCode").optional().isString(),
-    body("accountNumber").optional().isString(), 
+    body("accountNumber").optional().isString(),
     body("accountName").optional().isString(),
   ],
   validate,
   async (req, res) => {
-    const { amount, method, phoneNumber, bankCode, accountNumber, accountName } = req.body;
-    
+    const {
+      amount,
+      method,
+      phoneNumber,
+      bankCode,
+      accountNumber,
+      accountName,
+    } = req.body;
+
     try {
       const parsedAmount = parseAmount(amount);
       if (!parsedAmount || parsedAmount < 10) {
-        return res.status(400).json({ error: "Minimum withdrawal is KES 10.00" });
+        return res
+          .status(400)
+          .json({ error: "Minimum withdrawal is KES 10.00" });
       }
 
-      // Check available commission balance
-      const [feeSum, commissionWithdrawals] = await Promise.all([
-        db.query("SELECT COALESCE(SUM(amount), 0) AS total FROM ledger WHERE type = 'fee'"),
-        db.query("SELECT COALESCE(SUM(amount), 0) AS total FROM ledger WHERE type = 'withdrawal' AND from_uid = 'platform' AND description LIKE '%commission withdrawal%'"),
-      ]);
-      
-      const totalFees = parseFloat(feeSum.rows[0].total) || 0;
-      const totalWithdrawals = parseFloat(commissionWithdrawals.rows[0].total) || 0;
+      // Check available commission balance - consolidated query
+      const result = await db.query(
+        `SELECT
+          (SELECT COALESCE(SUM(amount), 0) FROM ledger WHERE type = 'fee') AS total_fees,
+          (SELECT COALESCE(SUM(amount), 0) FROM ledger WHERE type = 'withdrawal' AND from_uid = 'platform' AND description LIKE '%commission withdrawal%') AS total_withdrawals`,
+      );
+
+      const totalFees = parseFloat(result.rows[0].total_fees) || 0;
+      const totalWithdrawals =
+        parseFloat(result.rows[0].total_withdrawals) || 0;
       const availableBalance = totalFees - totalWithdrawals;
-      
+
       if (availableBalance < parsedAmount) {
         return res.status(400).json({
-          error: `Insufficient commission balance. Available: KES ${availableBalance.toFixed(2)}`
+          error: `Insufficient commission balance. Available: KES ${availableBalance.toFixed(2)}`,
         });
       }
 
       const withdrawalId = uuidv4();
       const reference = `ADMIN-${Date.now()}`;
-      
-      if (method === 'mpesa') {
+
+      if (method === "mpesa") {
         if (!phoneNumber) {
-          return res.status(400).json({ error: "Phone number required for M-Pesa withdrawal" });
+          return res
+            .status(400)
+            .json({ error: "Phone number required for M-Pesa withdrawal" });
         }
-        
+
         // Record the commission withdrawal in ledger
         await createLedgerEntry({
           type: LEDGER_ENTRY_TYPE.WITHDRAWAL,
@@ -5459,46 +5792,50 @@ app.post(
           reference: reference,
           description: `Admin commission withdrawal via M-Pesa to ${phoneNumber}`,
           relatedId: withdrawalId,
-          metadata: { method: 'mpesa', phoneNumber }
+          metadata: { method: "mpesa", phoneNumber },
         });
 
         // For M-Pesa withdrawals, we could integrate with M-Pesa B2C here
         // For now, just record as pending manual processing
         res.json({
-          message: "Commission withdrawal request submitted for M-Pesa processing",
+          message:
+            "Commission withdrawal request submitted for M-Pesa processing",
           reference,
           amount: parsedAmount,
-          method: 'mpesa'
+          method: "mpesa",
         });
-        
-      } else if (method === 'bank') {
+      } else if (method === "bank") {
         if (!bankCode || !accountNumber || !accountName) {
-          return res.status(400).json({ error: "Bank details required for bank withdrawal" });
+          return res
+            .status(400)
+            .json({ error: "Bank details required for bank withdrawal" });
         }
-        
+
         // Record the commission withdrawal in ledger
         await createLedgerEntry({
           type: LEDGER_ENTRY_TYPE.WITHDRAWAL,
           amount: parsedAmount,
-          fromUid: "platform", 
+          fromUid: "platform",
           toUid: req.user.uid,
           reference: reference,
           description: `Admin commission withdrawal via bank transfer to ${accountName} (${accountNumber})`,
           relatedId: withdrawalId,
-          metadata: { method: 'bank', bankCode, accountNumber, accountName }
+          metadata: { method: "bank", bankCode, accountNumber, accountName },
         });
 
         res.json({
-          message: "Commission withdrawal request submitted for bank transfer processing", 
+          message:
+            "Commission withdrawal request submitted for bank transfer processing",
           reference,
           amount: parsedAmount,
-          method: 'bank'
+          method: "bank",
         });
       }
-
     } catch (e) {
       console.error("[ADMIN] Commission withdrawal error:", e);
-      res.status(500).json({ error: "Failed to process commission withdrawal" });
+      res
+        .status(500)
+        .json({ error: "Failed to process commission withdrawal" });
     }
   },
 );
@@ -5631,11 +5968,17 @@ app.get(
         if (e.type === "fee") {
           totalCommission += parseFloat(e.amount || 0);
         }
-        if (e.type === "withdrawal" && e.from_uid === "platform" && e.description && e.description.includes("commission withdrawal")) {
+        if (
+          e.type === "withdrawal" &&
+          e.from_uid === "platform" &&
+          e.description &&
+          e.description.includes("commission withdrawal")
+        ) {
           totalCommissionWithdrawals += parseFloat(e.amount || 0);
         }
       });
-      const availableCommissionBalance = totalCommission - totalCommissionWithdrawals;
+      const availableCommissionBalance =
+        totalCommission - totalCommissionWithdrawals;
       // Company wallet balance
       const companyWalletResult = await db.query(
         "SELECT COALESCE(SUM(amount), 0) AS total FROM ledger WHERE to_uid = $1 AND to_wallet = $2::wallet_type",
@@ -5849,6 +6192,15 @@ app.get(
 // ---------------------------------------------------------------------------
 
 app.use((err, req, res, next) => {
+  // Handle payload too large errors with specific message
+  if (err.type === "entity.too.large" || err.status === 413) {
+    console.error("Payload too large:", req.method, req.url);
+    return res.status(413).json({
+      error:
+        "Request payload too large. Please reduce image size or number of images.",
+    });
+  }
+
   console.error("Unhandled error:", err.stack);
   res.status(500).json({ error: "Internal server error" });
 });
@@ -5942,7 +6294,7 @@ if (IS_CLUSTER_MASTER) {
               );
             }
           }
-          
+
           // Handle dispatched orders where buyer hasn't responded (24 hours since dispatch)
           if (
             order.status === ORDER_STATUS.DISPATCHED &&
@@ -5961,9 +6313,9 @@ if (IS_CLUSTER_MASTER) {
                 order.id,
                 order.buyer_uid,
                 "Buyer did not respond within 24 hours of dispatch notification. Requires admin review.",
-                []
+                [],
               );
-              
+
               sendNotification(
                 order.buyer_uid,
                 "Order Dispute - Response Timeout",
@@ -5982,7 +6334,9 @@ if (IS_CLUSTER_MASTER) {
               );
             } catch (e) {
               console.error(
-                "[CRON] Failed to create auto-dispute for order " + order.id + ":",
+                "[CRON] Failed to create auto-dispute for order " +
+                  order.id +
+                  ":",
                 e.message,
               );
             }
@@ -6296,6 +6650,23 @@ if (IS_CLUSTER_MASTER) {
     if (SHOULD_RUN_CRON) {
       startRealtimePolling(io);
     }
+
+    // Monitor database connection pool health
+    setInterval(() => {
+      const stats = db.getPoolStats();
+      if (stats) {
+        console.log(
+          `[DB Pool] Total: ${stats.total} | Idle: ${stats.idle} | Waiting: ${stats.waiting}`,
+        );
+
+        // Alert if pool is getting exhausted
+        if (stats.waiting > 5) {
+          console.warn(
+            `[DB Pool WARNING] ${stats.waiting} queries waiting for connections! Pool may be exhausted.`,
+          );
+        }
+      }
+    }, 60000); // Log every 60 seconds
   });
 }
 

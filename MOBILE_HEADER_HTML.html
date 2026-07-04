@@ -1,0 +1,130 @@
+<!-- ==============================================
+     MOBILE HEADER STRUCTURE
+     Add this RIGHT AFTER the <body> tag in:
+     - consumer.html
+     - farmer.html  
+     - organisation.html
+     ============================================== -->
+
+<!-- Fixed Mobile Header Bar -->
+<div class="mobile-header">
+  <!-- Left: Hamburger Menu -->
+  <div class="mobile-header-left">
+    <button class="mobile-hamburger" id="mobileHamburger" aria-label="Toggle menu">
+      <span class="hamburger-line"></span>
+      <span class="hamburger-line"></span>
+      <span class="hamburger-line"></span>
+    </button>
+  </div>
+
+  <!-- Center: Brand/Logo -->
+  <div class="mobile-header-center">
+    <span class="mobile-header-brand">AgriConnect</span>
+  </div>
+
+  <!-- Right: Notification Bell -->
+  <div class="mobile-header-right">
+    <button class="mobile-notif-bell" id="mobileNotifBell" aria-label="Notifications">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+        <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+      </svg>
+      <span class="badge" id="mobileNotifBadge">0</span>
+    </button>
+  </div>
+</div>
+
+<!-- ==============================================
+     JAVASCRIPT FOR MOBILE HEADER
+     Add this to the existing <script> section
+     ============================================== -->
+
+<script>
+(function() {
+  // Mobile Hamburger Toggle
+  const mobileHamburger = document.getElementById('mobileHamburger');
+  const sidebar = document.querySelector('.sidebar');
+  const sidebarOverlay = document.querySelector('.sidebar-overlay');
+
+  if (mobileHamburger) {
+    mobileHamburger.addEventListener('click', function() {
+      // Toggle hamburger animation
+      this.classList.toggle('active');
+      
+      // Toggle sidebar
+      sidebar?.classList.toggle('open');
+      sidebarOverlay?.classList.toggle('open');
+    });
+  }
+
+  // Close sidebar when overlay is clicked
+  if (sidebarOverlay) {
+    sidebarOverlay.addEventListener('click', function() {
+      sidebar?.classList.remove('open');
+      this.classList.remove('open');
+      mobileHamburger?.classList.remove('active');
+    });
+  }
+
+  // Mobile Notification Bell
+  const mobileNotifBell = document.getElementById('mobileNotifBell');
+  const desktopNotifBell = document.querySelector('.notif-bell');
+  
+  if (mobileNotifBell && desktopNotifBell) {
+    // Sync click behavior with desktop notification bell
+    mobileNotifBell.addEventListener('click', function() {
+      desktopNotifBell.click();
+    });
+  }
+
+  // Sync notification badge count
+  function syncNotificationBadge() {
+    const desktopBadge = document.querySelector('.notif-bell .badge');
+    const mobileBadge = document.getElementById('mobileNotifBadge');
+    
+    if (desktopBadge && mobileBadge) {
+      const count = desktopBadge.textContent;
+      mobileBadge.textContent = count;
+      
+      if (desktopBadge.classList.contains('show')) {
+        mobileBadge.classList.add('show');
+        mobileNotifBell?.classList.add('has-new');
+      } else {
+        mobileBadge.classList.remove('show');
+        mobileNotifBell?.classList.remove('has-new');
+      }
+    }
+  }
+
+  // Watch for notification changes
+  const observer = new MutationObserver(syncNotificationBadge);
+  const desktopBadge = document.querySelector('.notif-bell .badge');
+  
+  if (desktopBadge) {
+    observer.observe(desktopBadge, {
+      childList: true,
+      characterData: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ['class']
+    });
+  }
+
+  // Initial sync
+  syncNotificationBadge();
+
+  // Handle resize
+  let resizeTimer;
+  window.addEventListener('resize', function() {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function() {
+      if (window.innerWidth > 768) {
+        // Desktop view - close mobile menu
+        sidebar?.classList.remove('open');
+        sidebarOverlay?.classList.remove('open');
+        mobileHamburger?.classList.remove('active');
+      }
+    }, 250);
+  });
+})();
+</script>

@@ -16,6 +16,7 @@
   <script src="/socket.io/socket.io.js"></script>
   <!-- SECURITY: Role guard script to prevent unauthorized access -->
   <script src="/js/role-guard.js"></script>
+  <script src="/public/js/chart.js/dist/chart.umd.min.js"></script>
   <style>
     :root {
       --primary: #7b1fa2;
@@ -42,7 +43,8 @@
     .sidebar { position: fixed; top: 0; left: 0; width: var(--sidebar-w); height: 100vh; background: linear-gradient(180deg, var(--dark) 0%, var(--dark-2) 100%); z-index: 200; display: flex; flex-direction: column; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
     .sidebar.open { transform: translateX(0); }
     .sidebar-brand { padding: 1.5rem 1.25rem; display: flex; align-items: center; gap: 0.75rem; border-bottom: 1px solid rgba(255, 255, 255, 0.06); }
-    .sidebar-brand-icon { width: 36px; height: 36px; background: linear-gradient(135deg, var(--accent), var(--accent-dark)); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: var(--dark); }
+    .sidebar-brand-icon { width: 40px; height: 40px; border-radius: 10px; overflow: hidden; border: 2px solid rgba(255, 255, 255, 0.2); flex-shrink: 0; }
+    .sidebar-brand-icon img { width: 100%; height: 100%; object-fit: cover; }
     .sidebar-brand span { font-weight: 800; font-size: 1.15rem; color: var(--white); }
     .sidebar-nav { flex: 1; padding: 1rem 0.75rem; overflow-y: auto; }
     .sidebar-nav-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; color: rgba(255, 255, 255, 0.3); padding: 1rem 0.75rem 0.5rem; }
@@ -144,8 +146,8 @@
     .toast.warning .toast-icon { background: #fffbeb; color: var(--accent-dark); }
     @media (max-width: 480px) { .toast-container { top: 1rem; right: 1rem; left: 1rem; } .toast { min-width: auto; max-width: none; } }
     @media (max-width: 1024px) { .dashboard-grid { grid-template-columns: repeat(2, 1fr); } .dashboard-grid.cols-4 { grid-template-columns: repeat(2, 1fr); } }
-    @media (max-width: 768px) { .sidebar { transform: translateX(-100%); } .sidebar.open { transform: translateX(0); } .mobile-menu-btn { display: flex; } .main { margin-left: 0; } .dashboard-grid { grid-template-columns: 1fr; } .dashboard-grid.cols-2, .dashboard-grid.cols-4 { grid-template-columns: 1fr; } .content { padding: 1.25rem; } }
-    @media (max-width: 480px) { .content { padding: 1rem; } .wallet-actions .btn { padding: 0.75rem 1rem; font-size: 0.95rem; min-height: 44px; } .product-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 768px) { .dashboard-grid { grid-template-columns: 1fr; } .dashboard-grid.cols-2, .dashboard-grid.cols-4 { grid-template-columns: 1fr; } }
+    @media (max-width: 480px) { .content { padding: 1rem; } .wallet-actions .btn { padding: 0.75rem 1rem; font-size: 0.95rem; min-height: 44px; } }
     .entity-item { display: flex; align-items: center; gap: 1rem; padding: 0.85rem 1rem; border-bottom: 1px solid var(--gray-light); border-radius: var(--radius-sm); margin-bottom: 0.25rem; transition: all 0.2s ease; }
     .entity-item:hover { background: linear-gradient(135deg, rgba(123, 31, 162, 0.03), rgba(255, 179, 0, 0.03)); }
     .entity-item:last-child { border-bottom: none; margin-bottom: 0; }
@@ -276,18 +278,20 @@
     .topbar-left span { font-weight: 700; font-size: 0.95rem; }
     .topbar-role-badge { font-size: 0.7rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 50px; background: rgba(123, 31, 162, 0.12); color: var(--primary); }
     .topbar-right { display: flex; align-items: center; gap: 1rem; }
-    .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.25rem; }
-    .product-card { background: var(--white); border-radius: var(--radius-md); border: 1px solid var(--gray-light); overflow: hidden; transition: var(--transition); cursor: pointer; box-shadow: var(--shadow-sm); }
-    .product-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); border-color: var(--primary-light); }
-    .product-banner { width: 100%; height: 180px; background-size: cover; background-position: center; background-repeat: no-repeat; background: linear-gradient(135deg, var(--gray-light), var(--light)); display: flex; align-items: center; justify-content: center; color: var(--gray); }
-    .product-banner svg { width: 48px; height: 48px; opacity: 0.4; }
-    .product-body { padding: 1rem 1.25rem 1.25rem; }
-    .product-body .product-title { font-weight: 700; font-size: 1.05rem; color: var(--dark); margin-bottom: 0.25rem; }
-    .product-body .product-price { font-weight: 800; font-size: 1.2rem; color: var(--primary); margin-bottom: 0.35rem; }
-    .product-body .product-meta { font-size: 0.78rem; color: var(--gray); display: flex; flex-wrap: wrap; gap: 0.4rem; }
-    .product-body .product-meta span { background: var(--light); padding: 0.15rem 0.5rem; border-radius: 50px; display: flex; align-items: center; gap: 4px; }
-    .product-body .product-meta span svg { width: 12px; height: 12px; }
-    .product-body .product-desc { font-size: 0.82rem; color: var(--gray); margin-top: 0.5rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .product-grid { display: flex; flex-direction: column; gap: 0; }
+    .product-item { display: flex; align-items: center; gap: 1rem; padding: 0.85rem 1rem; border-bottom: 1px solid var(--gray-light); cursor: pointer; transition: background 0.15s; }
+    .product-item:last-child { border-bottom: none; }
+    .product-item:hover { background: linear-gradient(135deg, rgba(123, 31, 162, 0.03), rgba(255, 179, 0, 0.03)); }
+    .product-item:active { background: rgba(123, 31, 162, 0.06); }
+    .product-thumb { width: 48px; height: 48px; border-radius: 10px; flex-shrink: 0; background: linear-gradient(135deg, var(--gray-light), var(--light)); display: flex; align-items: center; justify-content: center; color: var(--gray); overflow: hidden; }
+    .product-thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .product-thumb svg { width: 22px; height: 22px; opacity: 0.4; }
+    .product-info { flex: 1; min-width: 0; }
+    .product-info .product-title { font-weight: 600; font-size: 0.9rem; color: var(--dark); }
+    .product-info .product-meta { font-size: 0.78rem; color: var(--gray); margin-top: 0.1rem; display: flex; flex-wrap: wrap; gap: 0.35rem; }
+    .product-info .product-meta span { display: inline-flex; align-items: center; gap: 3px; }
+    .product-info .product-meta span svg { width: 11px; height: 11px; }
+    .product-info .product-price { font-weight: 700; font-size: 0.9rem; color: var(--primary); white-space: nowrap; }
     .order-item { display: flex; gap: 1rem; padding: 0.85rem 1rem; border-bottom: 1px solid var(--gray-light); align-items: center; flex-wrap: wrap; }
     .order-item:last-child { border-bottom: none; }
     .order-info { flex: 1; min-width: 0; }
@@ -307,9 +311,94 @@
     .request-form-wrap input:focus, .request-form-wrap textarea:focus, .request-form-wrap select:focus { outline: none; border-color: var(--primary); }
     .loading-dots::after { content: ''; animation: dots 1.5s infinite; }
     @keyframes dots { 0% { content: ''; } 33% { content: '.'; } 66% { content: '..'; } 100% { content: '...'; } }
+
+    /* ============================================== MOBILE HEADER STYLES ============================================== */
+    .mobile-header { display: none; position: fixed; top: 0; left: 0; right: 0; height: 60px; background: linear-gradient(135deg, var(--primary), var(--primary-light)); z-index: 400; align-items: center; justify-content: space-between; padding: 0 1rem; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); }
+    .mobile-header-left { display: flex; align-items: center; gap: 0.75rem; }
+    .mobile-header-center { flex: 1; display: flex; align-items: center; justify-content: center; }
+    .mobile-header-brand { font-weight: 800; font-size: 1.1rem; color: var(--white); text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); }
+    .mobile-header-right { display: flex; align-items: center; gap: 0.5rem; }
+    .mobile-hamburger { width: 44px; height: 44px; background: rgba(255, 255, 255, 0.15); border: none; border-radius: 10px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative; backdrop-filter: blur(10px); }
+    .mobile-hamburger:hover { background: rgba(255, 255, 255, 0.25); transform: scale(1.05); }
+    .mobile-hamburger:active { transform: scale(0.95); }
+    .hamburger-line { width: 22px; height: 2.5px; background: var(--white); border-radius: 2px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    .mobile-hamburger.active .hamburger-line:nth-child(1) { transform: translateY(7.5px) rotate(45deg); }
+    .mobile-hamburger.active .hamburger-line:nth-child(2) { opacity: 0; transform: scaleX(0); }
+    .mobile-hamburger.active .hamburger-line:nth-child(3) { transform: translateY(-7.5px) rotate(-45deg); }
+    .mobile-hamburger:active { transform: scale(0.95); }
+    .hamburger-line { width: 22px; height: 2.5px; background: var(--white); border-radius: 2px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    .mobile-hamburger.active .hamburger-line:nth-child(1) { transform: translateY(7.5px) rotate(45deg); }
+    .mobile-hamburger.active .hamburger-line:nth-child(2) { opacity: 0; transform: scaleX(0); }
+    .mobile-hamburger.active .hamburger-line:nth-child(3) { transform: translateY(-7.5px) rotate(-45deg); }
+    .mobile-notif-bell { width: 44px; height: 44px; border-radius: 10px; background: rgba(255, 255, 255, 0.15); border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative; backdrop-filter: blur(10px); }
+    .mobile-notif-bell:hover { background: rgba(255, 255, 255, 0.25); transform: scale(1.05); }
+    .mobile-notif-bell:active { transform: scale(0.95); }
+    .mobile-notif-bell svg { width: 22px; height: 22px; color: var(--white); }
+    .mobile-notif-bell .badge { position: absolute; top: 8px; right: 8px; background: #ef4444; color: #fff; font-size: 0.65rem; font-weight: 700; min-width: 18px; height: 18px; border-radius: 9px; display: none; align-items: center; justify-content: center; padding: 0 5px; border: 2px solid var(--primary); box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); }
+    .mobile-notif-bell .badge.show { display: flex; animation: badgePop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+    @keyframes badgePop { 0% { transform: scale(0); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
+    .mobile-notif-bell.has-new svg { animation: bellRing 0.5s ease 2; }
+    @keyframes bellRing { 
+      0%, 100% { transform: rotate(0deg); } 
+      10%, 30%, 50%, 70%, 90% { transform: rotate(-10deg); } 
+      20%, 40%, 60%, 80% { transform: rotate(10deg); } 
+    }
+    
+    /* Mobile responsive styles */
+    @media (max-width: 1024px) { 
+      .mobile-header { display: flex; } 
+      .notif-bell { display: none !important; } 
+      .mobile-menu-btn { display: none !important; } 
+      .main { margin-top: 60px; margin-left: 0; } 
+      .sidebar { transform: translateX(-100%); padding-top: 60px; } 
+      .sidebar.open { transform: translateX(0); } 
+      .content { padding: 1.25rem; padding-top: 1.5rem; } 
+      .page-header h1 { font-size: 1.4rem; } 
+      .stat-card h4 { font-size: 1.5rem; } 
+      .notif-panel { z-index: 500; top: 60px; right: 0.5rem; width: calc(100% - 1rem); max-width: 360px; } 
+      .notif-overlay { z-index: 499; } 
+    }
+    
+    @media (max-width: 480px) { 
+      .mobile-header { height: 56px; padding: 0 0.75rem; } 
+      .mobile-hamburger, .mobile-notif-bell { width: 40px; height: 40px; } 
+      .mobile-header-brand { font-size: 1rem; } 
+      .main { margin-top: 56px; } 
+      .sidebar { padding-top: 56px; } 
+      .content { padding: 1rem; } 
+      .notif-panel { top: 56px; } 
+    }
+    
+    @media (hover: none) and (pointer: coarse) { 
+      .mobile-hamburger, .mobile-notif-bell { min-width: 48px; min-height: 48px; } 
+    }
   </style>
 </head>
 <body>
+
+<!-- Fixed Mobile Header Bar -->
+<div class="mobile-header">
+  <div class="mobile-header-left">
+    <button class="mobile-hamburger" id="mobileHamburger" aria-label="Toggle menu">
+      <span class="hamburger-line"></span>
+      <span class="hamburger-line"></span>
+      <span class="hamburger-line"></span>
+    </button>
+  </div>
+  <div class="mobile-header-center">
+    <span class="mobile-header-brand">AgriConnect</span>
+  </div>
+  <div class="mobile-header-right">
+    <button class="mobile-notif-bell" id="mobileNotifBell" aria-label="Notifications">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+        <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+      </svg>
+      <span class="badge" id="mobileNotifBadge">0</span>
+    </button>
+  </div>
+</div>
+
 <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
 <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Menu">
   <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
@@ -317,7 +406,7 @@
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-brand">
     <div class="sidebar-brand-icon">
-      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 6c-3.3 0-6 2.7-6 6h12c0-3.3-2.7-6-6-6z"/><path d="M4 14c0 2 1.5 3 4 4l1 2M20 14c0 2-1.5 3-4 4l-1 2"/><path d="M8 18h8"/></svg>
+      <img src="icons/Assets.xcassets/AppIcon.appiconset/_/64.png" alt="AgriConnect Logo">
     </div>
     <span>AgriConnect</span>
   </div>
@@ -557,10 +646,21 @@
 <div class="modal-overlay" id="otpModal">
   <div class="modal-content" style="text-align:center;max-width:400px">
     <h2 style="margin:0 0 0.5rem;font-size:1.1rem">Verify Delivery</h2>
-    <p style="font-size:0.85rem;color:var(--gray);margin-bottom:1rem">Enter the 6-digit OTP from the farmer to release payment</p>
+    <p style="font-size:0.85rem;color:var(--gray);margin-bottom:1rem">Enter the 6-digit OTP from your email to release payment</p>
     <input type="text" id="otpInput" maxlength="6" placeholder="000000" style="width:100%;padding:0.8rem;border:1.5px solid var(--gray-light);border-radius:var(--radius-sm);font-family:inherit;font-size:1.5rem;text-align:center;letter-spacing:8px;margin-bottom:1rem">
     <button id="verifyOtpBtn" class="btn btn-primary" style="width:100%" onclick="verifyOtp()">Verify OTP</button>
     <button onclick="closeOtpModal()" style="margin-top:0.5rem;width:100%;padding:0.5rem;background:none;border:1px solid var(--gray-light);border-radius:var(--radius-sm);cursor:pointer;font-family:inherit">Cancel</button>
+  </div>
+</div>
+
+<!-- Dispute Modal -->
+<div class="modal-overlay" id="disputeModal">
+  <div class="modal-content" style="max-width:500px">
+    <h2 style="margin:0 0 0.5rem;font-size:1.2rem;color:#dc2626">Raise a Dispute</h2>
+    <p style="font-size:0.85rem;color:var(--gray);margin-bottom:1rem">If there's an issue with your delivery, describe the problem below. The payment will be frozen until an admin resolves the dispute.</p>
+    <textarea id="disputeReason" placeholder="Describe the issue (minimum 10 characters)..." style="width:100%;min-height:120px;padding:0.8rem;border:1.5px solid var(--gray-light);border-radius:var(--radius-sm);font-family:inherit;font-size:0.9rem;resize:vertical;margin-bottom:1rem"></textarea>
+    <button id="submitDisputeBtn" class="btn btn-primary" style="width:100%;background:linear-gradient(135deg,#dc2626,#ef4444)" onclick="submitDispute()">Submit Dispute</button>
+    <button onclick="closeDisputeModal()" style="margin-top:0.5rem;width:100%;padding:0.5rem;background:none;border:1px solid var(--gray-light);border-radius:var(--radius-sm);cursor:pointer;font-family:inherit">Cancel</button>
   </div>
 </div>
 
@@ -766,10 +866,10 @@ async function loadProducts() {
       const imgs = l.image_urls || l.imageUrls || [];
       const img = imgs[0] || "";
       const imgHtml = img
-        ? '<div class="product-banner" style="background-image:url(' + escHtml(img) + ');background-size:cover;background-position:center"></div>'
-        : '<div class="product-banner"><svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></div>';
-      const locationSvg = '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>';
-      return '<div class="product-card" onclick="openBuyModal(\'' + l.id + '\')">' + imgHtml + '<div class="product-body"><div class="product-price">KES ' + Number(l.price || 0).toFixed(2) + '</div><div class="product-title">' + escHtml(l.title || "Untitled") + '</div><div class="product-meta">' + (l.category ? '<span>' + escHtml(l.category) + '</span>' : '') + (l.location ? '<span>' + locationSvg + escHtml(l.location) + '</span>' : '') + (l.quantity ? '<span>' + escHtml(l.quantity) + '</span>' : '') + '</div><div class="product-desc">' + escHtml((l.description || "").substring(0, 120)) + '</div></div></div>';
+        ? '<div class="product-thumb"><img src="' + escHtml(img) + '" alt="' + escHtml(l.title || "") + '" loading="lazy"></div>'
+        : '<div class="product-thumb"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></div>';
+      const locationSvg = '<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>';
+      return '<div class="product-item" onclick="openBuyModal(\'' + l.id + '\')">' + imgHtml + '<div class="product-info"><div class="product-title">' + escHtml(l.title || "Untitled") + '</div><div class="product-meta">' + (l.location ? '<span>' + locationSvg + escHtml(l.location) + '</span>' : '') + (l.category ? '<span>' + escHtml(l.category) + '</span>' : '') + (l.quantity ? '<span>' + escHtml(l.quantity) + '</span>' : '') + '</div></div><div class="product-price">KES ' + Number(l.price || 0).toFixed(2) + '</div></div>';
     }).join("") + '</div>';
   } catch (e) {
     console.error("loadProducts error:", e);
@@ -853,8 +953,9 @@ async function loadOrders(filter) {
       if (o.status === "pending" || o.status === "in_escrow") {
         actions += '<button class="btn-xs red" onclick="cancelOrder(\'' + o.id + '\', this)">Cancel</button>';
       }
-      if (o.status === "dispatched") {
-        actions += '<button class="btn-xs green" onclick="openOtpModal(\'' + o.id + '\')">Verify Delivery</button>';
+      if (o.status === "delivered" || o.status === "dispatched") {
+        actions += '<button class="btn-xs green" onclick="openOtpModal(\'' + o.id + '\')"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:3px"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg> Verify Delivery</button>';
+        actions += '<button class="btn-xs amber" onclick="openDisputeModal(\'' + o.id + '\')" style="margin-left:4px"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:3px"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Dispute</button>';
       }
       return '<div class="order-item"><div class="entity-avatar" style="width:36px;height:36px;font-size:0.8rem;border-radius:8px">' +
         '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>' +
@@ -912,8 +1013,87 @@ window.verifyOtp = async function () {
     loadDashboardStats();
     loadWallet();
   } catch (e) {
+    showToast(e.message || "Verification failed", "error");
   } finally {
     btn.disabled = false; btn.textContent = "Verify OTP";
+  }
+};
+
+let activeDisputeOrderId = null;
+
+function openDisputeModal(orderId) {
+  activeDisputeOrderId = orderId;
+  document.getElementById("disputeReason").value = "";
+  document.getElementById("disputeModal").classList.add("show");
+}
+
+function closeDisputeModal() {
+  document.getElementById("disputeModal").classList.remove("show");
+  activeDisputeOrderId = null;
+}
+
+window.submitDispute = async function () {
+  const reason = document.getElementById("disputeReason").value.trim();
+  if (!reason || reason.length < 10) {
+    showToast("Please describe the issue (minimum 10 characters)", "warning");
+    return;
+  }
+  if (!activeDisputeOrderId) {
+    showToast("No order selected", "error");
+    return;
+  }
+  const btn = document.getElementById("submitDisputeBtn");
+  btn.disabled = true;
+  btn.textContent = "Submitting...";
+  try {
+    await api("/api/disputes", {
+      method: "POST",
+      body: JSON.stringify({
+        orderId: activeDisputeOrderId,
+        reason: reason,
+        evidenceUrls: []
+      }),
+    });
+    showToast("Dispute raised successfully. Payment frozen pending admin review.", "success");
+    closeDisputeModal();
+    loadOrders();
+    loadDashboardStats();
+  } catch (e) {
+    showToast(e.message || "Failed to submit dispute", "error");
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Submit Dispute";
+  }
+};
+
+// Products
+window.submitDispute = async function () {
+  const reason = document.getElementById("disputeReason").value.trim();
+  if (!reason || reason.length < 10) {
+    showToast("Please describe the issue (minimum 10 characters)", "warning");
+    return;
+  }
+  if (!activeDisputeOrderId) {
+    showToast("No order selected", "error");
+    return;
+  }
+  const btn = document.getElementById("submitDisputeBtn");
+  btn.disabled = true;
+  btn.textContent = "Submitting...";
+  try {
+    await api("/api/disputes", {
+      method: "POST",
+      body: JSON.stringify({ orderId: activeDisputeOrderId, reason }),
+    });
+    showToast("Dispute submitted. Payment frozen pending admin review.", "success");
+    closeDisputeModal();
+    loadOrders();
+    loadDashboardStats();
+  } catch (e) {
+    showToast(e.message || "Failed to submit dispute", "error");
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Submit Dispute";
   }
 };
 
@@ -1152,6 +1332,7 @@ document.addEventListener("keydown", function (e) {
     if (document.getElementById("depositModal").classList.contains("show")) closeDepositModal();
     if (document.getElementById("buyModal").classList.contains("show")) closeBuyModal();
     if (document.getElementById("otpModal").classList.contains("show")) closeOtpModal();
+    if (document.getElementById("disputeModal").classList.contains("show")) closeDisputeModal();
   }
 });
 
@@ -1349,6 +1530,82 @@ loadNotifs();
 loadOrders();
 loadRequests();
 loadDashboardStats();
+
+// ============================================== MOBILE HEADER JAVASCRIPT ==============================================
+(function() {
+  const mobileHamburger = document.getElementById('mobileHamburger');
+  const sidebar = document.querySelector('.sidebar');
+  const sidebarOverlay = document.querySelector('.sidebar-overlay');
+
+  if (mobileHamburger) {
+    mobileHamburger.addEventListener('click', function() {
+      this.classList.toggle('active');
+      sidebar?.classList.toggle('open');
+      sidebarOverlay?.classList.toggle('open');
+    });
+  }
+
+  if (sidebarOverlay) {
+    sidebarOverlay.addEventListener('click', function() {
+      sidebar?.classList.remove('open');
+      this.classList.remove('open');
+      mobileHamburger?.classList.remove('active');
+    });
+  }
+
+  const mobileNotifBell = document.getElementById('mobileNotifBell');
+  
+  if (mobileNotifBell) {
+    mobileNotifBell.addEventListener('click', function() {
+      toggleNotifPanel();
+    });
+  }
+
+  function syncNotificationBadge() {
+    const desktopBadge = document.querySelector('.notif-bell .badge');
+    const mobileBadge = document.getElementById('mobileNotifBadge');
+    
+    if (desktopBadge && mobileBadge) {
+      const count = desktopBadge.textContent;
+      mobileBadge.textContent = count;
+      
+      if (desktopBadge.classList.contains('show')) {
+        mobileBadge.classList.add('show');
+        mobileNotifBell?.classList.add('has-new');
+      } else {
+        mobileBadge.classList.remove('show');
+        mobileNotifBell?.classList.remove('has-new');
+      }
+    }
+  }
+
+  const observer = new MutationObserver(syncNotificationBadge);
+  const desktopBadge = document.querySelector('.notif-bell .badge');
+  
+  if (desktopBadge) {
+    observer.observe(desktopBadge, {
+      childList: true,
+      characterData: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ['class']
+    });
+  }
+
+  syncNotificationBadge();
+
+  let resizeTimer;
+  window.addEventListener('resize', function() {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function() {
+      if (window.innerWidth > 768) {
+        sidebar?.classList.remove('open');
+        sidebarOverlay?.classList.remove('open');
+        mobileHamburger?.classList.remove('active');
+      }
+    }, 250);
+  });
+})();
 </script>
 </body>
 </html>

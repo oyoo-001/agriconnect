@@ -16,7 +16,8 @@
   <script src="/socket.io/socket.io.js"></script>
   <!-- SECURITY: Role guard script to prevent unauthorized access -->
   <script src="/js/role-guard.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="/public/js/chart.js/dist/chart.umd.min.js"></script>
+ 
   <style>
     :root {
       --primary: #1565c0;
@@ -43,7 +44,8 @@
     .sidebar { position: fixed; top: 0; left: 0; width: var(--sidebar-w); height: 100vh; background: linear-gradient(180deg, var(--dark) 0%, var(--dark-2) 100%); z-index: 200; display: flex; flex-direction: column; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
     .sidebar.open { transform: translateX(0); }
     .sidebar-brand { padding: 1.5rem 1.25rem; display: flex; align-items: center; gap: 0.75rem; border-bottom: 1px solid rgba(255, 255, 255, 0.06); }
-    .sidebar-brand-icon { width: 36px; height: 36px; background: linear-gradient(135deg, var(--accent), var(--accent-dark)); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; }
+    .sidebar-brand-icon { width: 40px; height: 40px; border-radius: 10px; overflow: hidden; border: 2px solid rgba(255, 255, 255, 0.2); flex-shrink: 0; }
+    .sidebar-brand-icon img { width: 100%; height: 100%; object-fit: cover; }
     .sidebar-brand span { font-weight: 800; font-size: 1.15rem; color: var(--white); }
     .sidebar-nav { flex: 1; padding: 1rem 0.75rem; overflow-y: auto; }
     .sidebar-nav-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; color: rgba(255, 255, 255, 0.3); padding: 1rem 0.75rem 0.5rem; }
@@ -249,9 +251,10 @@
     .status-badge.pending { background: rgba(255, 179, 0, 0.12); color: var(--accent-dark); }
     .status-badge.active { background: rgba(21, 101, 192, 0.12); color: var(--primary); }
     .status-badge.rejected, .status-badge.cancelled { background: rgba(239, 68, 68, 0.1); color: #dc2626; }
-    .status-badge.delivered { background: rgba(34, 197, 94, 0.1); color: #16a34a; }
+    .status-badge.delivered, .status-badge.verified { background: rgba(34, 197, 94, 0.1); color: #16a34a; }
     .status-badge.shipped { background: rgba(37, 99, 235, 0.1); color: #2563eb; }
     .status-badge.confirmed { background: rgba(147, 51, 234, 0.1); color: #7c3aed; }
+    .status-badge.completed { background: rgba(34, 197, 94, 0.15); color: #15803d; }
     .entity-empty { text-align: center; padding: 1.5rem; color: var(--gray); font-size: 0.9rem; }
     .btn-loading { position: relative; pointer-events: none; opacity: 0.8; }
     .btn-loading .btn-text { visibility: hidden; }
@@ -330,13 +333,72 @@
     .request-form-wrap { margin-bottom: 1rem; }
     .request-form-wrap input, .request-form-wrap textarea, .request-form-wrap select { width: 100%; padding: 0.6rem 0.8rem; border: 1.5px solid var(--gray-light); border-radius: var(--radius-sm); font-family: inherit; font-size: 0.85rem; margin-bottom: 0.5rem; }
     .reply-input { width: 100%; padding: 0.5rem 0.7rem; border: 1.5px solid var(--gray-light); border-radius: var(--radius-sm); font-family: inherit; font-size: 0.8rem; margin-bottom: 0.4rem; }
+
+    /* ============================================== MOBILE HEADER STYLES ============================================== */
+    .mobile-header { display: none; position: fixed; top: 0; left: 0; right: 0; height: 60px; background: linear-gradient(135deg, var(--primary), var(--primary-light)); z-index: 400; align-items: center; justify-content: space-between; padding: 0 1rem; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); }
+    .mobile-header-left { display: flex; align-items: center; gap: 0.75rem; }
+    .mobile-header-center { flex: 1; display: flex; align-items: center; justify-content: center; }
+    .mobile-header-brand { font-weight: 800; font-size: 1.1rem; color: var(--white); text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); }
+    .mobile-header-right { display: flex; align-items: center; gap: 0.5rem; }
+    .mobile-hamburger { width: 44px; height: 44px; background: rgba(255, 255, 255, 0.15); border: none; border-radius: 10px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative; backdrop-filter: blur(10px); }
+    .mobile-hamburger:hover { background: rgba(255, 255, 255, 0.25); transform: scale(1.05); }
+    .mobile-hamburger:active { transform: scale(0.95); }
+    .hamburger-line { width: 22px; height: 2.5px; background: var(--white); border-radius: 2px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    .mobile-hamburger.active .hamburger-line:nth-child(1) { transform: translateY(7.5px) rotate(45deg); }
+    .mobile-hamburger.active .hamburger-line:nth-child(2) { opacity: 0; transform: scaleX(0); }
+    .mobile-hamburger.active .hamburger-line:nth-child(3) { transform: translateY(-7.5px) rotate(-45deg); }
+    .mobile-hamburger:active { transform: scale(0.95); }
+    .hamburger-line { width: 22px; height: 2.5px; background: var(--white); border-radius: 2px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    .mobile-hamburger.active .hamburger-line:nth-child(1) { transform: translateY(7.5px) rotate(45deg); }
+    .mobile-hamburger.active .hamburger-line:nth-child(2) { opacity: 0; transform: scaleX(0); }
+    .mobile-hamburger.active .hamburger-line:nth-child(3) { transform: translateY(-7.5px) rotate(-45deg); }
+    .mobile-notif-bell { width: 44px; height: 44px; border-radius: 10px; background: rgba(255, 255, 255, 0.15); border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative; backdrop-filter: blur(10px); }
+    .mobile-notif-bell:hover { background: rgba(255, 255, 255, 0.25); transform: scale(1.05); }
+    .mobile-notif-bell:active { transform: scale(0.95); }
+    .mobile-notif-bell svg { width: 22px; height: 22px; color: var(--white); }
+    .mobile-notif-bell .badge { position: absolute; top: 8px; right: 8px; background: #ef4444; color: #fff; font-size: 0.65rem; font-weight: 700; min-width: 18px; height: 18px; border-radius: 9px; display: none; align-items: center; justify-content: center; padding: 0 5px; border: 2px solid var(--primary); box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); }
+    .mobile-notif-bell .badge.show { display: flex; animation: badgePop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+    @keyframes badgePop { 0% { transform: scale(0); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
+    .mobile-notif-bell.has-new svg { animation: bellRing 0.5s ease 2; }
+    @keyframes bellRing { 0%, 100% { transform: rotate(0deg); } 10%, 30%, 50%, 70%, 90% { transform: rotate(-10deg); } 20%, 40%, 60%, 80% { transform: rotate(10deg); } }
+    @media (max-width: 768px) { .mobile-header { display: flex; } .notif-bell { display: none !important; } .mobile-menu-btn { display: none !important; } .main { margin-top: 60px; margin-left: 0; } .sidebar { transform: translateX(-100%); padding-top: 60px; } .sidebar.open { transform: translateX(0); } .content { padding: 1.25rem; padding-top: 1.5rem; } .page-header h1 { font-size: 1.4rem; } .stat-card h4 { font-size: 1.5rem; } .notif-panel { top: 60px; right: 0; left: 0; width: 100%; max-width: 100%; max-height: calc(100vh - 60px); border-radius: 0; z-index: 401 !important; } .notif-overlay { z-index: 400; } }
+    @media (max-width: 480px) { .mobile-header { height: 56px; padding: 0 0.75rem; } .mobile-hamburger, .mobile-notif-bell { width: 40px; height: 40px; } .mobile-header-brand { font-size: 1rem; } .main { margin-top: 56px; } .sidebar { padding-top: 56px; } .content { padding: 1rem; } }
+    @media (min-width: 769px) and (max-width: 1024px) { .mobile-header { display: none; } .sidebar { transform: translateX(-100%); } .main { margin-left: 0; } .mobile-menu-btn { display: flex !important; } }
+    @media (hover: none) and (pointer: coarse) { .mobile-hamburger, .mobile-notif-bell { min-width: 48px; min-height: 48px; } }
   </style>
 </head>
-<body><div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+<body>
+
+<!-- Fixed Mobile Header Bar -->
+<div class="mobile-header">
+  <div class="mobile-header-left">
+    <button class="mobile-hamburger" id="mobileHamburger" aria-label="Toggle menu">
+      <span class="hamburger-line"></span>
+      <span class="hamburger-line"></span>
+      <span class="hamburger-line"></span>
+    </button>
+  </div>
+  <div class="mobile-header-center">
+    <span class="mobile-header-brand">AgriConnect</span>
+  </div>
+  <div class="mobile-header-right">
+    <button class="mobile-notif-bell" id="mobileNotifBell" aria-label="Notifications">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+        <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+      </svg>
+      <span class="badge" id="mobileNotifBadge">0</span>
+    </button>
+  </div>
+</div>
+
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
 <button class="mobile-menu-btn" id="mobileMenuBtn" onclick="document.getElementById('sidebar').classList.add('open');document.getElementById('sidebarOverlay').classList.add('open')"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-brand">
-    <div class="sidebar-brand-icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 20h10M12 20v-8M12 12l-3-3a4 4 0 0 1 6 0l-3 3z"/><circle cx="12" cy="4" r="2"/></svg></div>
+    <div class="sidebar-brand-icon">
+      <img src="icons/Assets.xcassets/AppIcon.appiconset/_/64.png" alt="AgriConnect Logo">
+    </div>
     <span>AgriConnect</span>
   </div>
   <nav class="sidebar-nav">
@@ -606,6 +668,18 @@
     <button onclick="closeOtpModal()" style="margin-top:0.5rem;width:100%;padding:0.5rem;background:none;border:1px solid var(--gray-light);border-radius:var(--radius-sm);cursor:pointer;font-family:inherit">Cancel</button>
   </div>
 </div>
+
+<!-- Dispute Modal -->
+<div class="modal-overlay" id="disputeModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:999;align-items:center;justify-content:center">
+  <div style="background:#fff;border-radius:var(--radius-md);padding:28px;width:90%;max-width:500px;box-shadow:0 25px 80px rgba(0,0,0,0.25)">
+    <h2 style="margin:0 0 0.5rem;font-size:1.2rem;color:#dc2626">Raise a Dispute</h2>
+    <p style="font-size:0.85rem;color:var(--gray);margin-bottom:1rem">If there's an issue with your delivery, describe the problem below. The payment will be frozen until an admin resolves the dispute.</p>
+    <textarea id="disputeReason" placeholder="Describe the issue (minimum 10 characters)..." style="width:100%;min-height:120px;padding:0.8rem;border:1.5px solid var(--gray-light);border-radius:var(--radius-sm);font-family:inherit;font-size:0.9rem;resize:vertical;margin-bottom:1rem"></textarea>
+    <button id="submitDisputeBtn" class="btn btn-primary" style="width:100%;background:linear-gradient(135deg,#dc2626,#ef4444)" onclick="submitDispute()">Submit Dispute</button>
+    <button onclick="closeDisputeModal()" style="margin-top:0.5rem;width:100%;padding:0.5rem;background:none;border:1px solid var(--gray-light);border-radius:var(--radius-sm);cursor:pointer;font-family:inherit">Cancel</button>
+  </div>
+</div>
+
 <div class="modal-overlay" id="farmerInfoModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:10001;align-items:center;justify-content:center" onclick="if(event.target===this)closeFarmerInfoModal()">
   <div style="background:var(--white);border-radius:var(--radius);max-width:480px;width:90%;max-height:90vh;overflow-y:auto;padding:1.5rem">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
@@ -665,7 +739,10 @@ if (!user || !idToken) {
 document.cookie = "idToken=" + idToken + ";path=/;max-age=3600;SameSite=Strict";
 let userData = {};
 try { userData = JSON.parse(user); } catch (e) {}
-const displayName = userData.displayName || "User";
+if (!userData || userData.role !== "organization") {
+  window.location.href = "signup";
+}
+const displayName = userData.displayName || "";
 const email = userData.email || "";
 
 document.getElementById("acctName").textContent = displayName;
@@ -888,8 +965,9 @@ async function loadOrders(filter) {
       if (o.status === "pending" || o.status === "in_escrow") {
         actions += '<button class="btn-xs red" onclick="cancelOrder(\'' + o.id + '\', this)">Cancel</button>';
       }
-      if (o.status === "dispatched") {
-        actions += '<button class="btn-xs green" onclick="openOtpModal(\'' + o.id + '\')"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:3px"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Verify Delivery</button>';
+      if (o.status === "delivered" || o.status === "dispatched") {
+        actions += '<button class="btn-xs green" onclick="openOtpModal(\'' + o.id + '\')"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:3px"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg> Verify Delivery</button>';
+        actions += '<button class="btn-xs amber" onclick="openDisputeModal(\'' + o.id + '\')"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:3px"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Dispute</button>';
       }
       const orderDate = o.created_at || o.createdAt;
       return '<div class="order-item"><div class="entity-avatar" style="width:36px;height:36px;font-size:0.8rem;border-radius:8px"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div><div class="order-info"><div class="order-title">' + escHtml(o.listing_title || o.title || "Order") + '</div><div class="order-detail">' + (o.quantity ? "Qty: " + escHtml(o.quantity) + " &middot; " : "") + 'KES ' + Number(o.amount || o.listing_price || 0).toFixed(2) + ' &middot; ' + (orderDate ? new Date(Number(orderDate)).toLocaleDateString() : "") + '</div></div><span class="status-badge ' + statusCls + '">' + statusCls + '</span><div class="order-actions">' + actions + '</div></div>';
@@ -943,8 +1021,57 @@ window.verifyOtp = async function () {
     loadDashboardStats();
     loadWallet();
   } catch (e) {
+    showToast(e.message || "Verification failed", "error");
   } finally {
-    btn.disabled = false; btn.textContent = "Verify OTP";
+    btn.disabled = false;
+    btn.textContent = "Verify OTP";
+  }
+};
+
+let activeDisputeOrderId = null;
+
+function openDisputeModal(orderId) {
+  activeDisputeOrderId = orderId;
+  document.getElementById("disputeReason").value = "";
+  document.getElementById("disputeModal").style.display = "flex";
+}
+
+function closeDisputeModal() {
+  document.getElementById("disputeModal").style.display = "none";
+  activeDisputeOrderId = null;
+}
+
+window.submitDispute = async function () {
+  const reason = document.getElementById("disputeReason").value.trim();
+  if (!reason || reason.length < 10) {
+    showToast("Please describe the issue (minimum 10 characters)", "warning");
+    return;
+  }
+  if (!activeDisputeOrderId) {
+    showToast("No order selected", "error");
+    return;
+  }
+  const btn = document.getElementById("submitDisputeBtn");
+  btn.disabled = true;
+  btn.textContent = "Submitting...";
+  try {
+    await api("/api/disputes", {
+      method: "POST",
+      body: JSON.stringify({
+        orderId: activeDisputeOrderId,
+        reason: reason,
+        evidenceUrls: []
+      }),
+    });
+    showToast("Dispute raised successfully. Payment frozen pending admin review.", "success");
+    closeDisputeModal();
+    loadOrders();
+    loadDashboardStats();
+  } catch (e) {
+    showToast(e.message || "Failed to submit dispute", "error");
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Submit Dispute";
   }
 };
 
@@ -1558,11 +1685,16 @@ document.getElementById("otpModal")?.addEventListener("click", function (e) {
   if (e.target === this) closeOtpModal();
 });
 
+document.getElementById("disputeModal")?.addEventListener("click", function (e) {
+  if (e.target === this) closeDisputeModal();
+});
+
 document.addEventListener("keydown", function (e) {
   if (e.key === "Escape") {
     if (document.getElementById("depositModal").style.display === "flex") document.getElementById("depositModal").style.display = "none";
     if (document.getElementById("buyModal").style.display === "flex") closeBuyModal();
     if (document.getElementById("otpModal").style.display === "flex") closeOtpModal();
+    if (document.getElementById("disputeModal").style.display === "flex") closeDisputeModal();
   }
 });
 
@@ -1726,4 +1858,85 @@ loadOrders();
 loadRequests();
 loadPayoutHistory();
 loadDashboardStats();
+
+// ============================================== MOBILE HEADER JAVASCRIPT ==============================================
+(function() {
+  const mobileHamburger = document.getElementById('mobileHamburger');
+  const sidebar = document.querySelector('.sidebar');
+  const sidebarOverlay = document.querySelector('.sidebar-overlay');
+
+  if (mobileHamburger) {
+    mobileHamburger.addEventListener('click', function() {
+      this.classList.toggle('active');
+      sidebar?.classList.toggle('open');
+      sidebarOverlay?.classList.toggle('open');
+    });
+  }
+
+  if (sidebarOverlay) {
+    sidebarOverlay.addEventListener('click', function() {
+      sidebar?.classList.remove('open');
+      this.classList.remove('open');
+      mobileHamburger?.classList.remove('active');
+    });
+  }
+
+  const mobileNotifBell = document.getElementById('mobileNotifBell');
+  
+  if (mobileNotifBell) {
+    mobileNotifBell.addEventListener('click', function() {
+      const panel = document.getElementById('notifPanel');
+      const overlay = document.getElementById('notifOverlay');
+      if (!panel || !overlay) return;
+      const open = !panel.classList.contains('open');
+      panel.classList.toggle('open', open);
+      overlay.classList.toggle('open', open);
+    });
+  }
+
+  function syncNotificationBadge() {
+    const desktopBadge = document.querySelector('.notif-bell .badge');
+    const mobileBadge = document.getElementById('mobileNotifBadge');
+    
+    if (desktopBadge && mobileBadge) {
+      const count = desktopBadge.textContent;
+      mobileBadge.textContent = count;
+      
+      if (desktopBadge.classList.contains('show')) {
+        mobileBadge.classList.add('show');
+        mobileNotifBell?.classList.add('has-new');
+      } else {
+        mobileBadge.classList.remove('show');
+        mobileNotifBell?.classList.remove('has-new');
+      }
+    }
+  }
+
+  const observer = new MutationObserver(syncNotificationBadge);
+  const desktopBadge = document.querySelector('.notif-bell .badge');
+  
+  if (desktopBadge) {
+    observer.observe(desktopBadge, {
+      childList: true,
+      characterData: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ['class']
+    });
+  }
+
+  syncNotificationBadge();
+
+  let resizeTimer;
+  window.addEventListener('resize', function() {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function() {
+      if (window.innerWidth > 768) {
+        sidebar?.classList.remove('open');
+        sidebarOverlay?.classList.remove('open');
+        mobileHamburger?.classList.remove('active');
+      }
+    }, 250);
+  });
+})();
 </script></body></html>

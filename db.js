@@ -14,13 +14,24 @@ function initDb(config) {
       rejectUnauthorized: false,
     },
 
-    max: 20,
-    idleTimeoutMillis: 30000,
-    connectionTimeoutMillis: 5000,
+    // Reduced pool size for cloud databases with connection limits
+    max: 10, // Reduced from 20 to be more conservative
+    min: 2, // Minimum idle connections
+    idleTimeoutMillis: 20000, // Release idle connections faster (20s instead of 30s)
+    connectionTimeoutMillis: 10000, // Increased timeout for connection acquisition
+    allowExitOnIdle: true, // Allow pool to close when idle
   });
 
   pool.on("error", (err) => {
     console.error("Unexpected error on idle client", err);
+  });
+
+  pool.on("connect", () => {
+    console.log("New database connection established");
+  });
+
+  pool.on("remove", () => {
+    console.log("Database connection removed from pool");
   });
 
   return pool;
@@ -28,9 +39,7 @@ function initDb(config) {
 
 async function testConnection() {
   try {
-    const client = await pool.connect();
-    await client.query("SELECT 1");
-    client.release();
+    await pool.query("SELECT 1");
     console.log("Database connected successfully");
     return true;
   } catch (err) {
@@ -44,16 +53,24 @@ function getPool() {
   return pool;
 }
 
+/**
+ * Execute a single query using native pool.query()
+ * This avoids manual connection checkout/release and reduces pool exhaustion
+ */
 async function query(text, params) {
-  const client = await getPool().connect();
   try {
-    const result = await client.query(text, params);
+    const result = await getPool().query(text, params);
     return result;
-  } finally {
-    client.release();
+  } catch (err) {
+    console.error("Query error:", err.message);
+    throw err;
   }
 }
 
+/**
+ * Execute a transaction with multiple statements
+ * This is the ONLY place where we use manual connection checkout
+ */
 async function queryTx(callback) {
   const client = await getPool().connect();
   try {
@@ -62,10 +79,15 @@ async function queryTx(callback) {
     await client.query("COMMIT");
     return result;
   } catch (e) {
-    await client.query("ROLLBACK");
+    await client.query("ROLLBACK").catch((rollbackErr) => {
+      console.error("Rollback error:", rollbackErr.message);
+    });
     throw e;
   } finally {
-    client.release();
+    // Always release the client back to the pool
+    if (client) {
+      client.release();
+    }
   }
 }
 
@@ -73,4 +95,13 @@ async function closeDb() {
   if (pool) await pool.end();
 }
 
-module.exports = { initDb, getPool, query, queryTx, closeDb, testConnection };
+function getPoolStats() {
+  if (!pool) return null;
+  return {
+    total: pool.totalCount,
+    idle: pool.idleCount,
+    waiting: pool.waitingCount,
+  };
+}
+
+module.exports = { initDb, getPool, query, queryTx, closeDb, testConnection, getPoolStats };

@@ -1,0 +1,282 @@
+/* ==============================================
+   MOBILE HEADER IMPROVEMENTS
+   Add these styles to consumer.html, farmer.html, and organisation.html
+   ============================================== */
+
+/* Fixed Mobile Header Bar */
+.mobile-header {
+  display: none; /* Hidden on desktop */
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  z-index: 400;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.mobile-header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.mobile-header-center {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mobile-header-brand {
+  font-weight: 800;
+  font-size: 1.1rem;
+  color: var(--white);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.mobile-header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Hamburger Button - Responsive & Animated */
+.mobile-hamburger {
+  width: 44px;
+  height: 44px;
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  backdrop-filter: blur(10px);
+}
+
+.mobile-hamburger:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: scale(1.05);
+}
+
+.mobile-hamburger:active {
+  transform: scale(0.95);
+}
+
+.hamburger-line {
+  width: 22px;
+  height: 2.5px;
+  background: var(--white);
+  border-radius: 2px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Hamburger Animation when Open */
+.mobile-hamburger.active .hamburger-line:nth-child(1) {
+  transform: translateY(7.5px) rotate(45deg);
+}
+
+.mobile-hamburger.active .hamburger-line:nth-child(2) {
+  opacity: 0;
+  transform: scaleX(0);
+}
+
+.mobile-hamburger.active .hamburger-line:nth-child(3) {
+  transform: translateY(-7.5px) rotate(-45deg);
+}
+
+/* Notification Bell - Fixed in Mobile Header */
+.mobile-notif-bell {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  backdrop-filter: blur(10px);
+}
+
+.mobile-notif-bell:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: scale(1.05);
+}
+
+.mobile-notif-bell:active {
+  transform: scale(0.95);
+}
+
+.mobile-notif-bell svg {
+  width: 22px;
+  height: 22px;
+  color: var(--white);
+}
+
+.mobile-notif-bell .badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: #ef4444;
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 0 5px;
+  border: 2px solid var(--primary);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.mobile-notif-bell .badge.show {
+  display: flex;
+  animation: badgePop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes badgePop {
+  0% { transform: scale(0); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+/* Notification bell ring animation */
+.mobile-notif-bell.has-new svg {
+  animation: bellRing 0.5s ease 2;
+}
+
+@keyframes bellRing {
+  0%, 100% { transform: rotate(0deg); }
+  10%, 30%, 50%, 70%, 90% { transform: rotate(-10deg); }
+  20%, 40%, 60%, 80% { transform: rotate(10deg); }
+}
+
+/* Mobile Responsive Adjustments */
+@media (max-width: 768px) {
+  /* Show mobile header */
+  .mobile-header {
+    display: flex;
+  }
+
+  /* Hide desktop notification bell */
+  .notif-bell {
+    display: none !important;
+  }
+
+  /* Hide desktop hamburger */
+  .mobile-menu-btn {
+    display: none !important;
+  }
+
+  /* Adjust main content for fixed header */
+  .main {
+    margin-top: 60px;
+    margin-left: 0;
+  }
+
+  /* Sidebar adjustments */
+  .sidebar {
+    transform: translateX(-100%);
+    padding-top: 60px; /* Space for fixed header */
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  /* Content padding adjustment */
+  .content {
+    padding: 1.25rem;
+    padding-top: 1.5rem;
+  }
+
+  /* Responsive typography */
+  .page-header h1 {
+    font-size: 1.4rem;
+  }
+
+  .stat-card h4 {
+    font-size: 1.5rem;
+  }
+}
+
+/* Extra small devices */
+@media (max-width: 480px) {
+  .mobile-header {
+    height: 56px;
+    padding: 0 0.75rem;
+  }
+
+  .mobile-hamburger,
+  .mobile-notif-bell {
+    width: 40px;
+    height: 40px;
+  }
+
+  .mobile-header-brand {
+    font-size: 1rem;
+  }
+
+  .main {
+    margin-top: 56px;
+  }
+
+  .sidebar {
+    padding-top: 56px;
+  }
+
+  .content {
+    padding: 1rem;
+  }
+}
+
+/* Tablet landscape */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .mobile-header {
+    display: none;
+  }
+
+  .sidebar {
+    transform: translateX(-100%);
+  }
+
+  .main {
+    margin-left: 0;
+  }
+
+  .mobile-menu-btn {
+    display: flex !important;
+  }
+}
+
+/* Smooth transitions */
+.sidebar,
+.sidebar-overlay,
+.mobile-hamburger,
+.mobile-notif-bell {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Touch-friendly sizing */
+@media (hover: none) and (pointer: coarse) {
+  .mobile-hamburger,
+  .mobile-notif-bell {
+    min-width: 48px;
+    min-height: 48px;
+  }
+}
