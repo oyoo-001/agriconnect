@@ -1,4 +1,4 @@
-const CACHE = 'agri-connect-v4';
+const CACHE = 'agri-connect-v5';
 const URLS = [
   '/',
   '/login',
@@ -33,6 +33,11 @@ self.addEventListener('fetch', function(e) {
 
   const url = new URL(e.request.url);
 
+  // Cross-origin requests (Google photos, CDNs, etc.): passthrough, never intercept
+  if (url.origin !== self.location.origin) {
+    return; // let browser handle it directly
+  }
+
   // API requests: always network-only, never cache
   if (url.pathname.startsWith('/api/')) {
     e.respondWith(fetch(e.request));
@@ -50,14 +55,14 @@ self.addEventListener('fetch', function(e) {
         return res;
       }).catch(function() {
         return caches.match(e.request).then(function(cached) {
-          return cached || caches.match('/');
+          return cached || caches.match('/') || new Response('Offline', { status: 503, headers: { 'Content-Type': 'text/plain' } });
         });
       })
     );
     return;
   }
 
-  // Everything else: cache-first (static assets)
+  // Everything else (same-origin static assets): cache-first
   e.respondWith(
     caches.match(e.request).then(function(r) {
       return r || fetch(e.request).then(function(res) {
@@ -68,7 +73,9 @@ self.addEventListener('fetch', function(e) {
         return res;
       }).catch(function() {
         if (url.pathname.startsWith('/socket.io/')) return new Response('', { status: 503 });
-        return caches.match('/');
+        return caches.match('/').then(function(cached) {
+          return cached || new Response('Offline', { status: 503, headers: { 'Content-Type': 'text/plain' } });
+        });
       });
     })
   );

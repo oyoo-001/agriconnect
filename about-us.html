@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+        <link rel="manifest" href="/manifest.json" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/icons/Assets.xcassets/AppIcon.appiconset/_/32.png" />
+        <link rel="apple-touch-icon" href="/icons/Assets.xcassets/AppIcon.appiconset/_/180.png" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="theme-color" content="#1B5E20" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>About Us – AgriConnect</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;0,9..144,900;1,9..144,500;1,9..144,600&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --canopy: #0f2818;
+            --canopy-2: #17371f;
+            --moss: #1f5c3a;
+            --fern: #3f8a5c;
+            --sprout: #8bc34a;
+            --sprout-deep: #6ba336;
+            --harvest: #e2982f;
+            --harvest-dark: #c97a1a;
+            --cream: #f7f2e6;
+            --cream-2: #efe6d2;
+            --soil: #26201a;
+            --gray: #6d6558;
+            --gray-light: #e4dcc9;
+            --white: #ffffff;
+            --line: rgba(38, 32, 26, 0.1);
+            --shadow-sm: 0 2px 10px rgba(20, 30, 20, 0.06);
+            --shadow-md: 0 14px 40px rgba(15, 40, 24, 0.14);
+            --shadow-lg: 0 26px 70px rgba(15, 40, 24, 0.22);
+            --radius-sm: 10px;
+            --radius-md: 18px;
+            --radius-lg: 28px;
+            --transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            --font-display: 'Fraunces', serif;
+            --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'IBM Plex Mono', monospace;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: var(--font-body);
+            background-color: var(--cream);
+            color: var(--soil);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        a { text-decoration: none; color: inherit; }
+        img { max-width: 100%; display: block; }
+        ::selection { background: var(--sprout); color: var(--canopy); }
+        a:focus-visible, button:focus-visible {
+            outline: 2px solid var(--sprout);
+            outline-offset: 2px;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
+            }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(24px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .reveal { opacity: 0; transform: translateY(24px); }
+        .reveal.visible { animation: fadeInUp 0.7s cubic-bezier(0.2,0.7,0.3,1) forwards; }
+
+        .furrow {
+            position: absolute;
+            inset: 0;
+            background-image: repeating-linear-gradient(115deg, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 1px, transparent 1px, transparent 34px);
+            pointer-events: none;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.85rem 1.9rem;
+            min-height: 48px;
+            border-radius: 100px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: var(--font-body);
+        }
+        .btn-primary {
+            background: var(--harvest);
+            color: var(--canopy);
+            box-shadow: 0 10px 26px rgba(226, 152, 47, 0.32);
+        }
+        .btn-primary:hover {
+            background: var(--harvest-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 14px 32px rgba(201, 122, 26, 0.4);
+        }
+        .btn-outline-dark {
+            background: transparent;
+            color: var(--moss);
+            border: 1.5px solid var(--line);
+        }
+        .btn-outline-dark:hover {
+            border-color: var(--moss);
+            background: rgba(31, 92, 58, 0.06);
+        }
+        .btn-secondary {
+            background: var(--white);
+            color: var(--moss);
+        }
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        /* Nav */
+        nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 1000;
+            padding: 0 1.5rem;
+            background: rgba(15, 40, 24, 0.94);
+            backdrop-filter: blur(16px);
+            box-shadow: 0 2px 24px rgba(0,0,0,0.18);
+        }
+        .nav-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 70px;
+        }
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 1.3rem;
+            color: var(--white);
+            letter-spacing: -0.01em;
+        }
+        .nav-logo-icon {
+            width: 36px;
+            height: 36px;
+            background: var(--moss);
+            color: var(--sprout);
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            list-style: none;
+        }
+        .nav-links a {
+            font-size: 0.92rem;
+            font-weight: 500;
+            color: rgba(255,255,255,0.75);
+            transition: var(--transition);
+            position: relative;
+        }
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -4px; left: 0;
+            width: 0; height: 2px;
+            background: var(--sprout);
+            transition: var(--transition);
+        }
+        .nav-links a:hover::after { width: 100%; }
+        .nav-links a:hover { color: var(--white); }
+        .nav-links a.active { color: var(--sprout) !important; font-weight: 600; }
+
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            z-index: 1001;
+            min-width: 44px;
+            min-height: 44px;
+            align-items: center;
+            justify-content: center;
+        }
+        .hamburger span {
+            width: 22px;
+            height: 2px;
+            background: var(--white);
+            border-radius: 2px;
+            transition: var(--transition);
+        }
+        .hamburger.active span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+        .hamburger.active span:nth-child(2) { opacity: 0; }
+        .hamburger.active span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
+
+        /* Page header */
+        .page-header {
+            padding: 150px 1.5rem 5rem;
+            background: linear-gradient(160deg, var(--canopy) 0%, var(--canopy-2) 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        .page-header-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+            display: grid;
+            grid-template-columns: 1.15fr 0.85fr;
+            gap: 3rem;
+            align-items: end;
+        }
+        .page-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-family: var(--font-mono);
+            font-size: 0.78rem;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--sprout);
+            background: rgba(139,195,74,0.14);
+            border: 1px solid rgba(139,195,74,0.3);
+            padding: 0.45rem 1rem;
+            border-radius: 100px;
+            margin-bottom: 1.5rem;
+        }
+        .page-header h1 {
+            font-family: var(--font-display);
+            font-size: 3rem;
+            font-weight: 600;
+            color: var(--white);
+            margin-bottom: 1rem;
+            letter-spacing: -0.02em;
+            line-height: 1.12;
+        }
+        .page-header h1 em {
+            font-style: italic;
+            font-weight: 500;
+            color: var(--sprout);
+        }
+        .page-header-lead {
+            color: rgba(255,255,255,0.65);
+            font-size: 1.02rem;
+            line-height: 1.75;
+            border-left: 2px solid rgba(139,195,74,0.35);
+            padding-left: 1.5rem;
+        }
+
+        /* Section basics (shared rhythm with other pages) */
+        section {
+            padding: 96px 1.5rem;
+            position: relative;
+        }
+        .section-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+        .section-header {
+            max-width: 640px;
+            margin: 0 auto 4rem;
+        }
+        .section-header.center { text-align: center; }
+        .section-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-family: var(--font-mono);
+            color: var(--moss);
+            font-size: 0.78rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            margin-bottom: 1.1rem;
+        }
+        .section-tag::before {
+            content: "";
+            width: 22px;
+            height: 1.5px;
+            background: var(--sprout-deep);
+            display: inline-block;
+        }
+        .section-header h2 {
+            font-family: var(--font-display);
+            font-size: 2.4rem;
+            font-weight: 600;
+            color: var(--soil);
+            margin-bottom: 1.1rem;
+            line-height: 1.16;
+            letter-spacing: -0.01em;
+        }
+        .section-header h2 em {
+            font-style: italic;
+            font-weight: 500;
+            color: var(--moss);
+        }
+        .section-header p {
+            color: var(--gray);
+            font-size: 1.05rem;
+            line-height: 1.7;
+        }
+
+        /* Mission / story split */
+        #mission { background: var(--white); }
+        .mission-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: start;
+        }
+        .mission-statement {
+            font-family: var(--font-display);
+            font-size: 1.9rem;
+            font-weight: 500;
+            line-height: 1.35;
+            color: var(--soil);
+        }
+        .mission-statement em {
+            font-style: italic;
+            color: var(--moss);
+        }
+        .mission-copy p {
+            color: var(--gray);
+            font-size: 1rem;
+            line-height: 1.85;
+            margin-bottom: 1.25rem;
+        }
+        .mission-copy p:last-child { margin-bottom: 0; }
+
+        /* Story timeline — genuine chronology, numbering is earned here */
+        #story { background: var(--cream); }
+        .timeline {
+            position: relative;
+            max-width: 760px;
+            margin: 0 auto;
+        }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 27px;
+            width: 0;
+            border-left: 2px dashed var(--gray-light);
+        }
+        .timeline-item {
+            position: relative;
+            display: flex;
+            gap: 1.75rem;
+            padding-bottom: 3rem;
+        }
+        .timeline-item:last-child { padding-bottom: 0; }
+        .timeline-year {
+            flex-shrink: 0;
+            width: 54px;
+            height: 54px;
+            border-radius: 50%;
+            background: var(--white);
+            border: 2px solid var(--moss);
+            color: var(--moss);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-mono);
+            font-weight: 600;
+            font-size: 0.8rem;
+            z-index: 1;
+        }
+        .timeline-content h3 {
+            font-family: var(--font-display);
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--soil);
+            margin-bottom: 0.5rem;
+        }
+        .timeline-content p {
+            color: var(--gray);
+            font-size: 0.96rem;
+            line-height: 1.75;
+        }
+
+        /* Values */
+        #values { background: var(--white); }
+        .values-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+        }
+        .value-card {
+            background: var(--cream);
+            border-radius: var(--radius-md);
+            padding: 2.25rem;
+            transition: var(--transition);
+            border: 1px solid var(--line);
+        }
+        .value-card:hover {
+            transform: translateY(-6px);
+            box-shadow: var(--shadow-md);
+            border-color: transparent;
+            background: var(--white);
+        }
+        .value-icon-wrap {
+            width: 50px;
+            height: 50px;
+            background: var(--canopy);
+            color: var(--sprout);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.4rem;
+        }
+        .value-card h3 {
+            font-family: var(--font-display);
+            font-size: 1.15rem;
+            font-weight: 600;
+            margin-bottom: 0.65rem;
+            color: var(--soil);
+        }
+        .value-card p {
+            font-size: 0.95rem;
+            color: var(--gray);
+            line-height: 1.7;
+        }
+
+        /* Team */
+        #team { background: var(--cream); }
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.75rem;
+        }
+        .team-card {
+            background: var(--white);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--line);
+            padding: 2rem 1.5rem;
+            text-align: center;
+            transition: var(--transition);
+        }
+        .team-card:hover {
+            transform: translateY(-6px);
+            box-shadow: var(--shadow-md);
+        }
+        .team-avatar {
+            width: 68px;
+            height: 68px;
+            border-radius: 50%;
+            background: linear-gradient(150deg, var(--moss), var(--canopy));
+            color: var(--sprout);
+            font-family: var(--font-display);
+            font-weight: 600;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.1rem;
+        }
+        .team-card h4 {
+            font-family: var(--font-display);
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: var(--soil);
+            margin-bottom: 0.25rem;
+        }
+        .team-card span {
+            display: block;
+            font-family: var(--font-mono);
+            font-size: 0.78rem;
+            color: var(--moss);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 0.85rem;
+        }
+        .team-card p {
+            font-size: 0.88rem;
+            color: var(--gray);
+            line-height: 1.6;
+        }
+
+        /* Stats */
+        #stats { background: linear-gradient(160deg, var(--canopy) 0%, var(--canopy-2) 100%); color: var(--white); }
+        .stats-grid {
+            position: relative;
+            z-index: 2;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2rem;
+        }
+        .stat-item { border-left: 2px solid rgba(139, 195, 74, 0.35); padding-left: 1.25rem; }
+        .stat-item .stat-number {
+            font-family: var(--font-mono);
+            font-size: 2.3rem;
+            font-weight: 600;
+            color: var(--sprout);
+            margin-bottom: 0.4rem;
+            display: block;
+        }
+        .stat-item .stat-label { font-size: 0.92rem; color: rgba(255,255,255,0.6); }
+
+        /* CTA */
+        .cta-section { background: var(--white); }
+        .cta-box {
+            max-width: 950px;
+            margin: 0 auto;
+            background: linear-gradient(150deg, var(--moss), var(--canopy));
+            border-radius: var(--radius-lg);
+            padding: 4.5rem 3rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .cta-box h2 {
+            font-family: var(--font-display);
+            font-size: 2.2rem;
+            font-weight: 600;
+            color: var(--white);
+            margin-bottom: 1.25rem;
+            position: relative;
+            z-index: 1;
+        }
+        .cta-box h2 em { font-style: italic; font-weight: 500; color: var(--sprout); }
+        .cta-box p {
+            color: rgba(255,255,255,0.75);
+            font-size: 1.1rem;
+            max-width: 560px;
+            margin: 0 auto 2.5rem;
+            position: relative;
+            z-index: 1;
+            line-height: 1.7;
+        }
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--canopy);
+            color: rgba(255,255,255,0.65);
+            padding: 4rem 1.5rem 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .footer-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 3rem;
+            margin-bottom: 3rem;
+            position: relative;
+            z-index: 1;
+        }
+        .footer-brand h3 {
+            font-family: var(--font-display);
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--white);
+            margin-bottom: 0.85rem;
+        }
+        .footer-brand p { font-size: 0.92rem; line-height: 1.7; max-width: 300px; }
+        .footer-col h4 {
+            font-family: var(--font-mono);
+            font-size: 0.78rem;
+            font-weight: 500;
+            color: var(--white);
+            margin-bottom: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+        .footer-col a {
+            display: block;
+            font-size: 0.92rem;
+            color: rgba(255,255,255,0.55);
+            margin-bottom: 0.65rem;
+            transition: var(--transition);
+        }
+        .footer-col a:hover { color: var(--sprout); transform: translateX(4px); }
+        .footer-bottom {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ---------------- Responsive ---------------- */
+        @media (max-width: 1024px) {
+            .page-header h1 { font-size: 2.5rem; }
+            .section-header h2 { font-size: 2rem; }
+            .team-grid { grid-template-columns: repeat(2, 1fr); }
+            .footer-inner { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 860px) {
+            .page-header-inner { grid-template-columns: 1fr; }
+            .page-header-lead { border-left: none; border-top: 2px solid rgba(139,195,74,0.35); padding-left: 0; padding-top: 1.25rem; }
+            .mission-grid { grid-template-columns: 1fr; gap: 2rem; }
+            .mission-statement { font-size: 1.55rem; }
+            .values-grid { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 768px) {
+            nav { padding: 0 1rem; }
+            .nav-inner { height: 60px; }
+            .nav-links {
+                position: fixed;
+                top: 0; right: -100%;
+                width: min(300px, 84vw);
+                height: 100vh;
+                background: var(--canopy);
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 90px 2rem 2rem;
+                gap: 0.25rem;
+                box-shadow: -20px 0 60px rgba(0,0,0,0.3);
+                transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                z-index: 1000;
+            }
+            .nav-links.open { right: 0; }
+            .nav-links li { width: 100%; }
+            .nav-links a {
+                display: block;
+                color: rgba(255,255,255,0.85) !important;
+                font-size: 1.1rem;
+                font-weight: 600;
+                padding: 0.85rem 0;
+                border-bottom: 1px solid rgba(255,255,255,0.08);
+            }
+            .nav-links a::after { display: none; }
+            .nav-links li:last-child { margin-top: 1rem; }
+            .nav-links li:last-child a {
+                border-bottom: none;
+                background: var(--harvest);
+                color: var(--canopy) !important;
+                border-radius: 100px;
+                text-align: center;
+                padding: 0.85rem 1.5rem;
+            }
+            .hamburger { display: flex; }
+
+            .page-header { padding: 96px 1.25rem 3rem; }
+            .page-header h1 { font-size: 2rem; }
+
+            section { padding: 60px 1.25rem; }
+            .section-header { margin-bottom: 2.5rem; }
+            .section-header h2 { font-size: 1.7rem; }
+
+            .timeline::before { left: 22px; }
+            .timeline-year { width: 44px; height: 44px; font-size: 0.7rem; }
+            .timeline-item { gap: 1.25rem; padding-bottom: 2.25rem; }
+
+            .team-grid { grid-template-columns: repeat(2, 1fr); gap: 1.25rem; }
+            .team-card { padding: 1.5rem 1rem; }
+
+            .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 1.75rem 1.25rem; }
+            .stat-item .stat-number { font-size: 1.9rem; }
+
+            .cta-box { padding: 3rem 1.5rem; }
+            .cta-box h2 { font-size: 1.65rem; }
+            .cta-buttons { flex-direction: column; width: 100%; }
+            .cta-buttons .btn { width: 100%; }
+
+            .footer-inner { grid-template-columns: 1fr; gap: 2.25rem; }
+            .footer-bottom { flex-direction: column; text-align: center; gap: 0.75rem; }
+        }
+
+        @media (max-width: 480px) {
+            .page-header h1 { font-size: 1.75rem; }
+            .team-grid { grid-template-columns: 1fr; }
+            .section-header h2 { font-size: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="nav-inner">
+            <a href="landing-page" class="nav-logo">
+                <div class="nav-logo-icon">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 6c-3.3 0-6 2.7-6 6h12c0-3.3-2.7-6-6-6z"/><path d="M4 14c0 2 1.5 3 4 4l1 2M20 14c0 2-1.5 3-4 4l-1 2"/><path d="M8 18h8"/></svg>
+                </div>
+                AgriConnect
+            </a>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="landing-page">Home</a></li>
+                <li><a href="about-us" class="active">About</a></li>
+                <li><a href="help-center">Help Center</a></li>
+                <li><a href="contact-us">Contact</a></li>
+                <li><a href="login" class="btn btn-primary" style="padding:0.6rem 1.4rem;font-size:0.85rem;min-height:auto;box-shadow:none">Log In</a></li>
+            </ul>
+            <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <section class="page-header">
+        <div class="furrow"></div>
+        <div class="page-header-inner">
+            <div>
+                <div class="page-tag">About AgriConnect</div>
+                <h1>Built by people who <em>know the land</em></h1>
+            </div>
+            <p class="page-header-lead">
+                We started AgriConnect because too many good harvests never made it to the
+                right buyer. Today we're a marketplace built to close that gap — for farmers,
+                consumers, agro-vets, and the industries that depend on them.
+            </p>
+        </div>
+    </section>
+
+    <!-- Mission -->
+    <section id="mission">
+        <div class="section-container">
+            <div class="mission-grid">
+                <div class="mission-statement reveal">
+                    We believe a farmer's fair price shouldn't depend on how many middlemen stand between the field and the market. <em>Our job is to shorten that distance.</em>
+                </div>
+                <div class="mission-copy reveal">
+                    <p>
+                        AgriConnect exists to give every farmer, regardless of the size of their
+                        plot, direct access to buyers who want what they grow. No opaque pricing,
+                        no unpaid invoices, no guesswork about who's actually buying.
+                    </p>
+                    <p>
+                        On the other side, consumers, agro-vets, and industry buyers get a
+                        transparent way to source fresh, verified products — with payments held
+                        safely in escrow until delivery is confirmed.
+                    </p>
+                    <p>
+                        We're a small team, but we grew up around farms, cooperatives, and local
+                        markets, and we built the platform we wish had existed for the people we
+                        know.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Story timeline -->
+    <section id="story">
+        <div class="section-container">
+            <div class="section-header center reveal">
+                <div class="section-tag">Our story</div>
+                <h2>How <em>AgriConnect</em> came to be</h2>
+                <p>A short history of the decisions that shaped the platform.</p>
+            </div>
+            <div class="timeline reveal">
+                <div class="timeline-item">
+                    <div class="timeline-year">2023</div>
+                    <div class="timeline-content">
+                        <h3>The idea takes root</h3>
+                        <p>
+                            After watching local farmers lose margin to unreliable middlemen, our
+                            founding team started sketching a direct farmer-to-buyer marketplace
+                            on a whiteboard in a rented co-working space.
+                        </p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-year">2024</div>
+                    <div class="timeline-content">
+                        <h3>First pilot with 40 farmers</h3>
+                        <p>
+                            We launched a manual, WhatsApp-and-spreadsheet pilot with 40 farmers
+                            in two counties, just to prove that buyers would pay a fair price when
+                            given transparency and a reliable delivery promise.
+                        </p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-year">2025</div>
+                    <div class="timeline-content">
+                        <h3>Escrow and OTP delivery confirmation</h3>
+                        <p>
+                            We built the secure escrow system that still powers every transaction
+                            today, so payment only releases once a buyer confirms delivery with a
+                            one-time code.
+                        </p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-year">2026</div>
+                    <div class="timeline-content">
+                        <h3>Platform opens to everyone</h3>
+                        <p>
+                            AgriConnect went public, now connecting over 1,200 farmers with
+                            thousands of consumers, agro-vets, and industry buyers across the
+                            region — with more joining every week.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Values -->
+    <section id="values">
+        <div class="section-container">
+            <div class="section-header center reveal">
+                <div class="section-tag">What we stand for</div>
+                <h2>The <em>principles</em> behind the platform</h2>
+                <p>Every feature we build gets measured against these four commitments.</p>
+            </div>
+            <div class="values-grid">
+                <div class="value-card reveal">
+                    <div class="value-icon-wrap">
+                        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    </div>
+                    <h3>Fair by default</h3>
+                    <p>
+                        Pricing and commissions are visible before anyone commits to a
+                        transaction. No hidden cuts, no surprise deductions.
+                    </p>
+                </div>
+                <div class="value-card reveal">
+                    <div class="value-icon-wrap">
+                        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"/></svg>
+                    </div>
+                    <h3>Trust is earned in escrow</h3>
+                    <p>
+                        Every payment is held until delivery is confirmed, protecting both sides
+                        of a trade equally.
+                    </p>
+                </div>
+                <div class="value-card reveal">
+                    <div class="value-icon-wrap">
+                        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+                    </div>
+                    <h3>Built for the field, not the desk</h3>
+                    <p>
+                        Most of our users manage listings from a phone in the middle of a
+                        workday, so mobile comes first in everything we design.
+                    </p>
+                </div>
+                <div class="value-card reveal">
+                    <div class="value-icon-wrap">
+                        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    </div>
+                    <h3>Community over competition</h3>
+                    <p>
+                        Farmers can share advice, request products, and support each other
+                        through the community forum — growth here isn't zero-sum.
+                    </p>
+                </div>
+                <div class="value-card reveal">
+                    <div class="value-icon-wrap">
+                        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    </div>
+                    <h3>Answer fast, fix faster</h3>
+                    <p>
+                        Real-time notifications and a responsive support team mean issues get
+                        resolved in hours, not days.
+                    </p>
+                </div>
+                <div class="value-card reveal">
+                    <div class="value-icon-wrap">
+                        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M2 12h20"/></svg>
+                    </div>
+                    <h3>Grow with the ecosystem</h3>
+                    <p>
+                        We build for the whole value chain — farmers, consumers, agro-vets, and
+                        industry — because each one makes the others stronger.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Team -->
+    <section id="team">
+        <div class="section-container">
+            <div class="section-header center reveal">
+                <div class="section-tag">The team</div>
+                <h2>A small team with <em>deep roots</em></h2>
+                <p>We're farmers' kids, engineers, and market operators, working from the same playbook.</p>
+            </div>
+            <div class="team-grid">
+                <div class="team-card reveal">
+                    <div class="team-avatar">BO</div>
+                    <h4>Byron Okoth</h4>
+                    <span>Founder & CEO</span>
+                    <p>Grew up on a family dairy farm; spent six years in agricultural logistics before starting AgriConnect.</p>
+                </div>
+                <div class="team-card reveal">
+                    <div class="team-avatar">RM</div>
+                    <h4>Reon Marshal</h4>
+                    <span>Co-founder & CTO</span>
+                    <p>Built the escrow and payments infrastructure that now processes every transaction on the platform.</p>
+                </div>
+                <div class="team-card reveal">
+                    <div class="team-avatar">FI</div>
+                    <h4>Philys Ingato</h4>
+                    <span>Head of Farmer Success</span>
+                    <p>Leads onboarding and training so new farmers list their first product within a day.</p>
+                </div>
+                <div class="team-card reveal">
+                    <div class="team-avatar">LO</div>
+                    <h4>Lenox Okoth</h4>
+                    <span>Head of Operations</span>
+                    <p>Oversees delivery verification and dispute resolution across every region we operate in.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats -->
+    <section id="stats">
+        <div class="furrow"></div>
+        <div class="section-container">
+            <div class="stats-grid">
+                <div class="stat-item reveal">
+                    <span class="stat-number">1,200+</span>
+                    <div class="stat-label">Active farmers</div>
+                </div>
+                <div class="stat-item reveal">
+                    <span class="stat-number">3,500+</span>
+                    <div class="stat-label">Happy consumers</div>
+                </div>
+                <div class="stat-item reveal">
+                    <span class="stat-number">5,000+</span>
+                    <div class="stat-label">Products listed</div>
+                </div>
+                <div class="stat-item reveal">
+                    <span class="stat-number">98%</span>
+                    <div class="stat-label">Satisfaction rate</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta-section">
+        <div class="cta-box reveal">
+            <div class="furrow"></div>
+            <h2>Want to grow <em>with us</em>?</h2>
+            <p>
+                Whether you're farming, buying, or building the tools in between, there's a
+                place for you on AgriConnect.
+            </p>
+            <div class="cta-buttons">
+                <a href="login" class="btn btn-primary">Create free account</a>
+                <a href="contact-us" class="btn btn-secondary">Talk to our team</a>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="furrow"></div>
+        <div class="footer-inner">
+            <div class="footer-brand">
+                <h3>AgriConnect</h3>
+                <p>
+                    Connecting farms to markets with transparency, security, and efficiency.
+                    Empowering the agricultural value chain through technology.
+                </p>
+            </div>
+            <div class="footer-col">
+                <h4>Platform</h4>
+                <a href="landing-page#how-it-works">How It Works</a>
+                <a href="landing-page#why-choose">Features</a>
+                <a href="login">Sign Up</a>
+                <a href="login">Log In</a>
+            </div>
+            <div class="footer-col">
+                <h4>Company</h4>
+                <a href="about-us">About Us</a>
+                <a href="contact-us">Contact Us</a>
+                <a href="help-center">Help Center</a>
+                <a href="privacy-policy">Privacy Policy</a>
+            </div>
+            <div class="footer-col">
+                <h4>User Types</h4>
+                <a href="login">Farmers</a>
+                <a href="login">Consumers</a>
+                <a href="login">Organisations</a>
+                <a href="login">Admin</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div>&copy; 2026 AgriConnect. All rights reserved.</div>
+            <div>Built with care for agriculture</div>
+        </div>
+    </footer>
+
+    <script>
+        const hamburger = document.getElementById('hamburger');
+        const navLinks = document.getElementById('navLinks');
+        hamburger.addEventListener('click', () => {
+            hamburger.classList.toggle('active');
+            navLinks.classList.toggle('open');
+        });
+        navLinks.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                hamburger.classList.remove('active');
+                navLinks.classList.remove('open');
+            });
+        });
+
+        const revealEls = document.querySelectorAll('.reveal');
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) entry.target.classList.add('visible');
+            });
+        }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+        revealEls.forEach(el => revealObserver.observe(el));
+    </script>
+</body>
+</html>

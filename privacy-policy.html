@@ -1,74 +1,110 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Privacy Policy – AgriConnect</title>
+    <meta charset="UTF-8" />
+        <link rel="manifest" href="/manifest.json" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/icons/Assets.xcassets/AppIcon.appiconset/_/32.png" />
+        <link rel="apple-touch-icon" href="/icons/Assets.xcassets/AppIcon.appiconset/_/180.png" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="theme-color" content="#1B5E20" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #1B5E20;
-            --primary-light: #2E7D32;
-            --secondary: #43A047;
-            --accent: #FFB300;
-            --accent-dark: #FF8F00;
-            --dark: #1a1a2e;
-            --dark-2: #16213e;
-            --light: #f8f9fa;
-            --gray: #6c757d;
-            --gray-light: #e9ecef;
+            --canopy: #0f2818;
+            --canopy-2: #17371f;
+            --moss: #1f5c3a;
+            --fern: #3f8a5c;
+            --sprout: #8bc34a;
+            --sprout-deep: #6ba336;
+            --harvest: #e2982f;
+            --harvest-dark: #c97a1a;
+            --cream: #f7f2e6;
+            --cream-2: #efe6d2;
+            --soil: #26201a;
+            --gray: #6d6558;
+            --gray-light: #e4dcc9;
             --white: #ffffff;
-            --shadow-sm: 0 2px 8px rgba(0,0,0,0.06);
-            --shadow-md: 0 8px 30px rgba(0,0,0,0.12);
-            --shadow-lg: 0 20px 60px rgba(0,0,0,0.15);
-            --radius-sm: 8px;
-            --radius-md: 16px;
-            --radius-lg: 24px;
+            --line: rgba(38, 32, 26, 0.1);
+            --shadow-sm: 0 2px 10px rgba(20, 30, 20, 0.06);
+            --shadow-md: 0 14px 40px rgba(15, 40, 24, 0.14);
+            --shadow-lg: 0 26px 70px rgba(15, 40, 24, 0.22);
+            --radius-sm: 10px;
+            --radius-md: 18px;
+            --radius-lg: 28px;
             --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --font-display: 'Fraunces', serif;
+            --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'IBM Plex Mono', monospace;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html { scroll-behavior: smooth; }
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background-color: var(--light);
-            color: var(--dark);
+            font-family: var(--font-body);
+            background-color: var(--cream);
+            color: var(--soil);
             line-height: 1.6;
             overflow-x: hidden;
         }
         a { text-decoration: none; color: inherit; }
         img { max-width: 100%; display: block; }
+        ::selection { background: var(--sprout); color: var(--canopy); }
+        a:focus-visible, button:focus-visible {
+            outline: 2px solid var(--sprout);
+            outline-offset: 2px;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
+            }
+        }
+
+        .furrow {
+            position: absolute;
+            inset: 0;
+            background-image: repeating-linear-gradient(115deg, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 1px, transparent 1px, transparent 34px);
+            pointer-events: none;
+        }
 
         .btn {
             display: inline-flex;
             align-items: center;
+            justify-content: center;
             gap: 0.5rem;
-            padding: 0.75rem 1.75rem;
-            border-radius: 50px;
-            font-weight: 600;
+            padding: 0.85rem 1.9rem;
+            min-height: 48px;
+            border-radius: 100px;
+            font-weight: 700;
             font-size: 0.95rem;
             border: none;
             cursor: pointer;
             transition: var(--transition);
+            font-family: var(--font-body);
         }
         .btn-primary {
-            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
-            color: var(--dark);
-            box-shadow: 0 4px 20px rgba(255, 179, 0, 0.35);
+            background: var(--harvest);
+            color: var(--canopy);
+            box-shadow: 0 10px 26px rgba(226, 152, 47, 0.32);
         }
-        .btn-primary:hover { transform: translateY(-2px); }
+        .btn-primary:hover {
+            background: var(--harvest-dark);
+            transform: translateY(-2px);
+        }
 
+        /* Nav */
         nav {
             position: fixed;
             top: 0; left: 0; right: 0;
             z-index: 1000;
-            padding: 0 2rem;
-            transition: var(--transition);
-            background: rgba(255,255,255,0.95);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            box-shadow: 0 2px 20px rgba(0,0,0,0.08);
+            padding: 0 1.5rem;
+            background: rgba(15, 40, 24, 0.94);
+            backdrop-filter: blur(16px);
+            box-shadow: 0 2px 24px rgba(0,0,0,0.18);
         }
         .nav-inner {
             max-width: 1200px;
@@ -76,22 +112,24 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            height: 72px;
+            height: 70px;
         }
         .nav-logo {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
-            font-weight: 800;
-            font-size: 1.4rem;
-            color: var(--dark);
-            transition: var(--transition);
+            gap: 0.7rem;
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 1.3rem;
+            color: var(--white);
+            letter-spacing: -0.01em;
         }
         .nav-logo-icon {
             width: 36px;
             height: 36px;
-            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
-            border-radius: var(--radius-sm);
+            background: var(--moss);
+            color: var(--sprout);
+            border-radius: 9px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -103,89 +141,212 @@
             list-style: none;
         }
         .nav-links a {
-            font-size: 0.9rem;
+            font-size: 0.92rem;
             font-weight: 500;
-            color: var(--gray);
+            color: rgba(255,255,255,0.75);
             transition: var(--transition);
             position: relative;
         }
         .nav-links a::after {
             content: '';
             position: absolute;
-            bottom: -4px;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: var(--primary);
+            bottom: -4px; left: 0;
+            width: 0; height: 2px;
+            background: var(--sprout);
             transition: var(--transition);
         }
         .nav-links a:hover::after { width: 100%; }
-        .nav-links a:hover { color: var(--primary); }
+        .nav-links a:hover { color: var(--white); }
+        .nav-links a.active { color: var(--sprout) !important; font-weight: 600; }
 
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            z-index: 1001;
+            min-width: 44px;
+            min-height: 44px;
+            align-items: center;
+            justify-content: center;
+        }
+        .hamburger span {
+            width: 22px;
+            height: 2px;
+            background: var(--white);
+            border-radius: 2px;
+            transition: var(--transition);
+        }
+        .hamburger.active span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+        .hamburger.active span:nth-child(2) { opacity: 0; }
+        .hamburger.active span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
+
+        /* Page header */
         .page-header {
-            padding: 140px 2rem 4rem;
-            background: linear-gradient(135deg, var(--primary), var(--dark-2));
-            text-align: center;
+            padding: 150px 1.5rem 4.5rem;
+            background: linear-gradient(160deg, var(--canopy) 0%, var(--canopy-2) 100%);
+            text-align: left;
             position: relative;
             overflow: hidden;
         }
-        .page-header::before {
-            content: '';
-            position: absolute;
-            width: 500px;
-            height: 500px;
-            background: rgba(255,179,0,0.06);
-            border-radius: 50%;
-            top: -150px;
-            right: -100px;
-        }
-        .page-header h1 {
-            font-size: 3rem;
-            font-weight: 900;
-            color: var(--white);
-            margin-bottom: 0.75rem;
-            position: relative;
-            z-index: 1;
-        }
-        .page-header p {
-            font-size: 1.15rem;
-            color: rgba(255,255,255,0.75);
-            max-width: 600px;
+        .page-header-inner {
+            max-width: 1200px;
             margin: 0 auto;
             position: relative;
-            z-index: 1;
+            z-index: 2;
+        }
+        .page-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-family: var(--font-mono);
+            font-size: 0.78rem;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--sprout);
+            background: rgba(139,195,74,0.14);
+            border: 1px solid rgba(139,195,74,0.3);
+            padding: 0.45rem 1rem;
+            border-radius: 100px;
+            margin-bottom: 1.5rem;
+        }
+        .page-header h1 {
+            font-family: var(--font-display);
+            font-size: 2.8rem;
+            font-weight: 600;
+            color: var(--white);
+            margin-bottom: 0.75rem;
+            letter-spacing: -0.02em;
+        }
+        .page-header h1 em {
+            font-style: italic;
+            font-weight: 500;
+            color: var(--sprout);
+        }
+        .page-header p {
+            font-size: 1.08rem;
+            color: rgba(255,255,255,0.68);
+            max-width: 560px;
         }
 
         .content-section {
-            padding: 4rem 2rem 6rem;
+            padding: 4rem 1.5rem 6rem;
         }
-        .content-container {
-            max-width: 860px;
+        .content-layout {
+            max-width: 1180px;
             margin: 0 auto;
+            display: grid;
+            grid-template-columns: 240px 1fr;
+            gap: 3.5rem;
+            align-items: start;
+        }
+
+        /* Sticky table of contents */
+        .toc {
+            position: sticky;
+            top: 100px;
+        }
+        .toc-label {
+            font-family: var(--font-mono);
+            font-size: 0.72rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--moss);
+            margin-bottom: 1rem;
+        }
+        .toc ul {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.15rem;
+            border-left: 2px solid var(--gray-light);
+        }
+        .toc a {
+            display: block;
+            font-size: 0.88rem;
+            color: var(--gray);
+            padding: 0.45rem 0 0.45rem 1rem;
+            border-left: 2px solid transparent;
+            margin-left: -2px;
+            transition: var(--transition);
+        }
+        .toc a:hover { color: var(--moss); }
+        .toc a.active {
+            color: var(--moss);
+            font-weight: 600;
+            border-left-color: var(--sprout-deep);
+        }
+
+        .content-container { max-width: 720px; }
+
+        .last-updated {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(31, 92, 58, 0.08);
+            color: var(--moss);
+            font-family: var(--font-mono);
+            font-size: 0.82rem;
+            font-weight: 600;
+            padding: 0.5rem 1.1rem;
+            border-radius: 100px;
+            margin-bottom: 2.5rem;
+        }
+
+        .intro-text {
+            color: var(--gray);
+            font-size: 1.02rem;
+            line-height: 1.85;
+            margin-bottom: 3rem;
+            padding-bottom: 3rem;
+            border-bottom: 1px solid var(--line);
         }
 
         .policy-section {
             margin-bottom: 3rem;
+            scroll-margin-top: 100px;
         }
         .policy-section h2 {
+            font-family: var(--font-display);
             font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--primary);
-            margin-bottom: 1rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 2px solid var(--gray-light);
+            font-weight: 600;
+            color: var(--soil);
+            margin-bottom: 1.25rem;
+            padding-bottom: 0.85rem;
+            border-bottom: 1px solid var(--line);
+            display: flex;
+            align-items: baseline;
+            gap: 0.6rem;
+        }
+        .policy-section h2 .num {
+            font-family: var(--font-mono);
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--sprout-deep);
         }
         .policy-section h3 {
-            font-size: 1.1rem;
+            font-family: var(--font-display);
+            font-size: 1.08rem;
             font-weight: 600;
-            color: var(--dark);
-            margin: 1.5rem 0 0.5rem;
+            color: var(--soil);
+            margin: 1.5rem 0 0.6rem;
         }
         .policy-section p {
             color: var(--gray);
-            font-size: 0.95rem;
-            line-height: 1.8;
+            font-size: 0.98rem;
+            line-height: 1.85;
             margin-bottom: 1rem;
+        }
+        .policy-section strong { color: var(--soil); }
+        .policy-section a {
+            color: var(--moss);
+            font-weight: 600;
+            border-bottom: 1px solid var(--sprout-deep);
         }
         .policy-section ul {
             list-style: none;
@@ -194,38 +355,52 @@
         }
         .policy-section ul li {
             color: var(--gray);
-            font-size: 0.95rem;
-            line-height: 1.8;
+            font-size: 0.98rem;
+            line-height: 1.85;
             padding-left: 1.5rem;
             position: relative;
-            margin-bottom: 0.25rem;
+            margin-bottom: 0.4rem;
         }
         .policy-section ul li::before {
             content: '';
             position: absolute;
             left: 0;
-            top: 10px;
+            top: 11px;
             width: 6px;
             height: 6px;
-            background: var(--secondary);
+            background: var(--sprout-deep);
             border-radius: 50%;
         }
 
-        .last-updated {
-            display: inline-block;
-            background: rgba(46,125,50,0.1);
-            color: var(--primary);
-            font-size: 0.85rem;
-            font-weight: 600;
-            padding: 0.4rem 1rem;
-            border-radius: 50px;
-            margin-bottom: 2rem;
+        .policy-footer-note {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            background: var(--white);
+            border: 1px solid var(--line);
+            border-radius: var(--radius-md);
+            padding: 1.75rem;
+            margin-top: 1rem;
         }
+        .policy-footer-note .icon-box {
+            width: 44px;
+            height: 44px;
+            min-width: 44px;
+            background: var(--canopy);
+            color: var(--sprout);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .policy-footer-note p { margin-bottom: 0; }
 
         footer {
-            background: var(--dark);
-            color: rgba(255,255,255,0.7);
-            padding: 3rem 2rem 2rem;
+            background: var(--canopy);
+            color: rgba(255,255,255,0.65);
+            padding: 4rem 1.5rem 2rem;
+            position: relative;
+            overflow: hidden;
         }
         .footer-inner {
             max-width: 1200px;
@@ -233,12 +408,34 @@
             display: grid;
             grid-template-columns: 2fr 1fr 1fr 1fr;
             gap: 3rem;
+            position: relative;
+            z-index: 1;
         }
-        .footer-brand h3 { font-size: 1.3rem; font-weight: 800; color: var(--white); margin-bottom: 0.75rem; }
-        .footer-brand p { font-size: 0.9rem; line-height: 1.7; max-width: 300px; }
-        .footer-col h4 { font-size: 0.9rem; font-weight: 700; color: var(--white); margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 1px; }
-        .footer-col a { display: block; font-size: 0.9rem; color: rgba(255,255,255,0.6); margin-bottom: 0.6rem; transition: var(--transition); }
-        .footer-col a:hover { color: var(--accent); }
+        .footer-brand h3 {
+            font-family: var(--font-display);
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--white);
+            margin-bottom: 0.85rem;
+        }
+        .footer-brand p { font-size: 0.92rem; line-height: 1.7; max-width: 300px; }
+        .footer-col h4 {
+            font-family: var(--font-mono);
+            font-size: 0.78rem;
+            font-weight: 500;
+            color: var(--white);
+            margin-bottom: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+        .footer-col a {
+            display: block;
+            font-size: 0.92rem;
+            color: rgba(255,255,255,0.55);
+            margin-bottom: 0.65rem;
+            transition: var(--transition);
+        }
+        .footer-col a:hover { color: var(--sprout); transform: translateX(4px); }
         .footer-bottom {
             max-width: 1200px;
             margin: 2rem auto 0;
@@ -248,51 +445,85 @@
             justify-content: space-between;
             align-items: center;
             font-size: 0.85rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        @media (max-width: 980px) {
+            .content-layout { grid-template-columns: 1fr; }
+            .toc {
+                position: static;
+                margin-bottom: 2.5rem;
+                background: var(--white);
+                border: 1px solid var(--line);
+                border-radius: var(--radius-md);
+                padding: 1.25rem 1.5rem;
+            }
+            .toc ul {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                border-left: none;
+                gap: 0.1rem;
+            }
+            .toc a {
+                border-left: none;
+                padding: 0.35rem 0;
+            }
+            .toc a.active { border-left: none; }
         }
 
         @media (max-width: 768px) {
             nav { padding: 0 1rem; }
+            .nav-inner { height: 60px; }
             .nav-links {
                 position: fixed;
                 top: 0; right: -100%;
-                width: 280px;
+                width: min(300px, 84vw);
                 height: 100vh;
-                background: var(--white);
+                background: var(--canopy);
                 flex-direction: column;
-                padding: 5rem 2rem 2rem;
-                gap: 1.5rem;
-                box-shadow: -10px 0 40px rgba(0,0,0,0.1);
+                align-items: flex-start;
+                padding: 90px 2rem 2rem;
+                gap: 0.25rem;
+                box-shadow: -20px 0 60px rgba(0,0,0,0.3);
                 transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
                 z-index: 1000;
             }
             .nav-links.open { right: 0; }
-            .nav-links a { color: var(--dark) !important; font-size: 1.1rem; }
-            .nav-links a::after { background: var(--primary); }
-            .page-header h1 { font-size: 2rem; }
+            .nav-links li { width: 100%; }
+            .nav-links a {
+                display: block;
+                color: rgba(255,255,255,0.85) !important;
+                font-size: 1.1rem;
+                font-weight: 600;
+                padding: 0.85rem 0;
+                border-bottom: 1px solid rgba(255,255,255,0.08);
+            }
+            .nav-links a::after { display: none; }
+            .nav-links li:last-child { margin-top: 1rem; }
+            .nav-links li:last-child a {
+                border-bottom: none;
+                background: var(--harvest);
+                color: var(--canopy) !important;
+                border-radius: 100px;
+                text-align: center;
+                padding: 0.85rem 1.5rem;
+            }
+            .hamburger { display: flex; }
+
+            .page-header { padding: 96px 1.25rem 3rem; }
+            .page-header h1 { font-size: 1.9rem; }
+
+            .content-section { padding: 3rem 1.25rem 4rem; }
+            .toc ul { grid-template-columns: 1fr; }
+            .policy-section h2 { font-size: 1.3rem; }
+            .policy-footer-note { flex-direction: column; }
+
             .footer-inner { grid-template-columns: 1fr; gap: 2rem; }
             .footer-bottom { flex-direction: column; gap: 0.5rem; text-align: center; }
         }
-
-        .hamburger {
-            display: none;
-            flex-direction: column;
-            gap: 5px;
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 4px;
-            z-index: 1001;
-        }
-        .hamburger span {
-            width: 24px;
-            height: 2px;
-            background: var(--dark);
-            border-radius: 2px;
-            transition: var(--transition);
-        }
-        .hamburger.active span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
-        .hamburger.active span:nth-child(2) { opacity: 0; }
-        .hamburger.active span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
     </style>
 </head>
 <body>
@@ -301,15 +532,18 @@
         <div class="nav-inner">
             <a href="landing-page" class="nav-logo">
                 <div class="nav-logo-icon">
-                    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 6c-3.3 0-6 2.7-6 6h12c0-3.3-2.7-6-6-6z"/><path d="M4 14c0 2 1.5 3 4 4l1 2M20 14c0 2-1.5 3-4 4l-1 2"/><path d="M8 18h8"/></svg>
-                </div>
+                        <img
+                            src="icons/Assets.xcassets/AppIcon.appiconset/_/64.png"
+                            alt="AgriConnect Logo"
+                        />
+                    </div>
                 AgriConnect
             </a>
             <ul class="nav-links" id="navLinks">
                 <li><a href="landing-page">Home</a></li>
                 <li><a href="help-center">Help Center</a></li>
                 <li><a href="contact-us">Contact</a></li>
-                <li><a href="login" class="btn btn-primary" style="padding:0.6rem 1.5rem;font-size:0.85rem;box-shadow:none">Log In</a></li>
+                <li><a href="login" class="btn btn-primary" style="padding:0.6rem 1.4rem;font-size:0.85rem;min-height:auto;box-shadow:none">Log In</a></li>
             </ul>
             <button class="hamburger" id="hamburger" aria-label="Toggle menu">
                 <span></span>
@@ -320,103 +554,120 @@
     </nav>
 
     <section class="page-header">
-        <h1>
-            <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:8px"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-            Privacy Policy
-        </h1>
-        <p>How we collect, use, and protect your personal information.</p>
+        <div class="furrow"></div>
+        <div class="page-header-inner">
+            <div class="page-tag">Legal</div>
+            <h1>Privacy <em>policy</em></h1>
+            <p>How we collect, use, and protect your personal information across the AgriConnect platform.</p>
+        </div>
     </section>
 
     <section class="content-section">
-        <div class="content-container">
-            <div class="last-updated">Last Updated: June 22, 2026</div>
-
-            <div class="policy-section">
-                <p>AgriConnect ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our platform.</p>
-            </div>
-
-            <div class="policy-section">
-                <h2>1. Information We Collect</h2>
-                <h3>Personal Data</h3>
-                <p>We may collect personally identifiable information such as your name, email address, phone number, business details, and payment information when you register or use our services.</p>
-                <h3>Usage Data</h3>
-                <p>We automatically collect information about how you interact with our platform, including pages visited, time spent, and actions taken.</p>
-                <h3>Device Data</h3>
-                <p>We may collect information about your device, browser type, IP address, and operating system to improve our services.</p>
-            </div>
-
-            <div class="policy-section">
-                <h2>2. How We Use Your Information</h2>
-                <ul>
-                    <li>To provide, operate, and maintain our platform</li>
-                    <li>To process transactions and send transaction notifications</li>
-                    <li>To improve, personalize, and expand our services</li>
-                    <li>To communicate with you about updates, promotions, and support</li>
-                    <li>To detect, prevent, and address fraud and security issues</li>
-                    <li>To comply with legal obligations</li>
+        <div class="content-layout">
+            <nav class="toc" aria-label="Table of contents">
+                <div class="toc-label">On this page</div>
+                <ul id="tocList">
+                    <li><a href="#information-we-collect">Information We Collect</a></li>
+                    <li><a href="#how-we-use">How We Use It</a></li>
+                    <li><a href="#data-sharing">Data Sharing</a></li>
+                    <li><a href="#data-security">Data Security</a></li>
+                    <li><a href="#your-rights">Your Rights</a></li>
+                    <li><a href="#cookies">Cookies</a></li>
+                    <li><a href="#third-party">Third-Party Links</a></li>
+                    <li><a href="#changes">Changes</a></li>
+                    <li><a href="#contact">Contact Us</a></li>
                 </ul>
-            </div>
+            </nav>
 
-            <div class="policy-section">
-                <h2>3. Data Sharing & Disclosure</h2>
-                <p>We do not sell your personal information. We may share data with:</p>
-                <ul>
-                    <li><strong>Service Providers:</strong> Third-party vendors who help us operate the platform (payment processors, hosting services)</li>
-                    <li><strong>Legal Requirements:</strong> When required by law or to protect our rights</li>
-                    <li><strong>Business Transfers:</strong> In connection with a merger, acquisition, or sale of assets</li>
-                </ul>
-            </div>
+            <div class="content-container">
+                <div class="last-updated">Last updated: June 22, 2026</div>
 
-            <div class="policy-section">
-                <h2>4. Data Security</h2>
-                <p>We implement industry-standard security measures including encryption, firewalls, and secure socket layer technology (SSL) to protect your data. However, no method of transmission over the internet is 100% secure.</p>
-            </div>
+                <p class="intro-text">AgriConnect ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our platform.</p>
 
-            <div class="policy-section">
-                <h2>5. Your Rights</h2>
-                <p>Depending on your jurisdiction, you may have the right to:</p>
-                <ul>
-                    <li>Access, update, or delete your personal data</li>
-                    <li>Restrict or object to processing of your data</li>
-                    <li>Data portability</li>
-                    <li>Withdraw consent at any time</li>
-                </ul>
-                <p>To exercise these rights, contact us at <strong>privacy@agriconnect.com</strong>.</p>
-            </div>
+                <div class="policy-section" id="information-we-collect">
+                    <h2><span class="num">01</span> Information We Collect</h2>
+                    <h3>Personal data</h3>
+                    <p>We may collect personally identifiable information such as your name, email address, phone number, business details, and payment information when you register or use our services.</p>
+                    <h3>Usage data</h3>
+                    <p>We automatically collect information about how you interact with our platform, including pages visited, time spent, and actions taken.</p>
+                    <h3>Device data</h3>
+                    <p>We may collect information about your device, browser type, IP address, and operating system to improve our services.</p>
+                </div>
 
-            <div class="policy-section">
-                <h2>6. Cookies</h2>
-                <p>We use cookies and similar tracking technologies to enhance your experience. You can control cookie preferences through your browser settings. Essential cookies are required for the platform to function.</p>
-            </div>
+                <div class="policy-section" id="how-we-use">
+                    <h2><span class="num">02</span> How We Use Your Information</h2>
+                    <ul>
+                        <li>To provide, operate, and maintain our platform</li>
+                        <li>To process transactions and send transaction notifications</li>
+                        <li>To improve, personalize, and expand our services</li>
+                        <li>To communicate with you about updates, promotions, and support</li>
+                        <li>To detect, prevent, and address fraud and security issues</li>
+                        <li>To comply with legal obligations</li>
+                    </ul>
+                </div>
 
-            <div class="policy-section">
-                <h2>7. Third-Party Links</h2>
-                <p>Our platform may contain links to third-party websites. We are not responsible for the privacy practices of these external sites. We encourage you to review their privacy policies.</p>
-            </div>
+                <div class="policy-section" id="data-sharing">
+                    <h2><span class="num">03</span> Data Sharing & Disclosure</h2>
+                    <p>We do not sell your personal information. We may share data with:</p>
+                    <ul>
+                        <li><strong>Service providers:</strong> Third-party vendors who help us operate the platform (payment processors, hosting services)</li>
+                        <li><strong>Legal requirements:</strong> When required by law or to protect our rights</li>
+                        <li><strong>Business transfers:</strong> In connection with a merger, acquisition, or sale of assets</li>
+                    </ul>
+                </div>
 
-            <div class="policy-section">
-                <h2>8. Changes to This Policy</h2>
-                <p>We may update this Privacy Policy from time to time. We will notify you of any changes by posting the new policy on this page and updating the "Last Updated" date.</p>
-            </div>
+                <div class="policy-section" id="data-security">
+                    <h2><span class="num">04</span> Data Security</h2>
+                    <p>We implement industry-standard security measures including encryption, firewalls, and secure socket layer technology (SSL) to protect your data. However, no method of transmission over the internet is 100% secure.</p>
+                </div>
 
-            <div class="policy-section">
-                <h2>9. Contact Us</h2>
-                <p>If you have any questions about this Privacy Policy, please contact us:</p>
-                <ul>
-                    <li>Email: privacy@agriconnect.com</li>
-                    <li>Through our <a href="contact-us" style="color:var(--primary);font-weight:600">Contact Us</a> page</li>
-                </ul>
+                <div class="policy-section" id="your-rights">
+                    <h2><span class="num">05</span> Your Rights</h2>
+                    <p>Depending on your jurisdiction, you may have the right to:</p>
+                    <ul>
+                        <li>Access, update, or delete your personal data</li>
+                        <li>Restrict or object to processing of your data</li>
+                        <li>Data portability</li>
+                        <li>Withdraw consent at any time</li>
+                    </ul>
+                    <p>To exercise these rights, contact us at <strong>privacy@agriconnect.com</strong>.</p>
+                </div>
+
+                <div class="policy-section" id="cookies">
+                    <h2><span class="num">06</span> Cookies</h2>
+                    <p>We use cookies and similar tracking technologies to enhance your experience. You can control cookie preferences through your browser settings. Essential cookies are required for the platform to function.</p>
+                </div>
+
+                <div class="policy-section" id="third-party">
+                    <h2><span class="num">07</span> Third-Party Links</h2>
+                    <p>Our platform may contain links to third-party websites. We are not responsible for the privacy practices of these external sites. We encourage you to review their privacy policies.</p>
+                </div>
+
+                <div class="policy-section" id="changes">
+                    <h2><span class="num">08</span> Changes to This Policy</h2>
+                    <p>We may update this Privacy Policy from time to time. We will notify you of any changes by posting the new policy on this page and updating the "Last Updated" date.</p>
+                </div>
+
+                <div class="policy-section" id="contact" style="margin-bottom: 0;">
+                    <h2><span class="num">09</span> Contact Us</h2>
+                    <p>If you have any questions about this Privacy Policy, please contact us:</p>
+                    <div class="policy-footer-note">
+                        <div class="icon-box">
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                        </div>
+                        <p>Email us at <strong>privacy@agriconnect.com</strong>, or reach out through our <a href="contact-us">Contact Us</a> page and we'll respond within 24 hours.</p>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
 
     <footer>
+        <div class="furrow"></div>
         <div class="footer-inner">
             <div class="footer-brand">
-                <h3>
-                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px"><path d="M12 2v4M12 6c-3.3 0-6 2.7-6 6h12c0-3.3-2.7-6-6-6z"/><path d="M4 14c0 2 1.5 3 4 4l1 2M20 14c0 2-1.5 3-4 4l-1 2"/><path d="M8 18h8"/></svg> AgriConnect
-                </h3>
-                <p>Connecting Farmers, Consumers, Agro-Vets & Industries – Earn Commission on Every Transaction.</p>
+                <h3>AgriConnect</h3>
+                <p>Connecting farmers, consumers, agro-vets & industries – earn commission on every transaction.</p>
             </div>
             <div class="footer-col">
                 <h4>Platform</h4>
@@ -431,6 +682,8 @@
                 <a href="privacy-policy">Privacy Policy</a>
                 <a href="terms-of-service">Terms of Service</a>
                 <a href="contact-us">Contact Us</a>
+                <a href="about-us">About Us</a>
+            
             </div>
             <div class="footer-col">
                 <h4>Connect</h4>
@@ -438,13 +691,12 @@
                 <a href="#">Facebook</a>
                 <a href="#">Instagram</a>
                 <a href="#">LinkedIn</a>
+            
             </div>
         </div>
         <div class="footer-bottom">
             <span>&copy; 2026 AgriConnect. All rights reserved.</span>
-            <span>Built with 
-                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle"><path d="M12 2v4M12 6c-3.3 0-6 2.7-6 6h12c0-3.3-2.7-6-6-6z"/><path d="M4 14c0 2 1.5 3 4 4l1 2M20 14c0 2-1.5 3-4 4l-1 2"/><path d="M8 18h8"/></svg> for a sustainable future
-            </span>
+            <span>Built with care for a sustainable future</span>
         </div>
     </footer>
 
@@ -461,6 +713,27 @@
                 navLinks.classList.remove('open');
             });
         });
+
+        // Highlight active section in the table of contents while scrolling
+        const tocLinks = Array.from(document.querySelectorAll('#tocList a'));
+        const sections = tocLinks
+            .map(link => document.querySelector(link.getAttribute('href')))
+            .filter(Boolean);
+
+        function updateActiveToc() {
+            let currentId = sections[0] ? sections[0].id : null;
+            const scrollPos = window.scrollY + 140;
+            sections.forEach(section => {
+                if (section.offsetTop <= scrollPos) {
+                    currentId = section.id;
+                }
+            });
+            tocLinks.forEach(link => {
+                link.classList.toggle('active', link.getAttribute('href') === '#' + currentId);
+            });
+        }
+        window.addEventListener('scroll', updateActiveToc);
+        updateActiveToc();
     </script>
 </body>
 </html>

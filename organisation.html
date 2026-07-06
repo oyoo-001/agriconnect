@@ -1,9 +1,9 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Organisation Dashboard – AgriConnect</title>
+  <title>Organisation Dashboard â€“ AgriConnect</title>
   <link rel="manifest" href="/manifest.json" />
   <link rel="icon" type="image/png" sizes="32x32" href="/icons/Assets.xcassets/AppIcon.appiconset/_/32.png" />
   <link rel="apple-touch-icon" href="/icons/Assets.xcassets/AppIcon.appiconset/_/180.png" />
@@ -182,12 +182,13 @@
     .entity-item:hover { background: linear-gradient(135deg, rgba(21, 101, 192, 0.03), rgba(255, 179, 0, 0.03)); }
     .entity-item:last-child { border-bottom: none; margin-bottom: 0; }
     .entity-avatar { width: 42px; height: 42px; border-radius: 12px; background: linear-gradient(135deg, var(--secondary), var(--primary)); color: var(--white); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem; flex-shrink: 0; box-shadow: 0 2px 8px rgba(21, 101, 192, 0.15); }
-    .notif-bell { position: fixed; top: 1rem; right: 1.5rem; z-index: 300; width: 40px; height: 40px; border-radius: 50%; background: var(--white); border: 1.5px solid var(--gray-light); display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: var(--shadow-sm); transition: var(--transition); }
-    .notif-bell:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
-    .notif-bell svg { width: 20px; height: 20px; color: var(--gray); }
+    .notif-bell { position: relative; width: 40px; height: 40px; border-radius: 50%; background: var(--white); border: 1.5px solid var(--gray-light); display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: var(--shadow-sm); transition: var(--transition); flex-shrink: 0; }
+    .notif-bell:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); background: #e3f2fd; border-color: var(--secondary); }
+    .notif-bell svg { width: 20px; height: 20px; color: var(--gray); transition: color 0.2s; }
+    .notif-bell:hover svg { color: var(--primary); }
     .notif-bell .badge { position: absolute; top: -4px; right: -4px; background: #ef4444; color: #fff; font-size: 0.6rem; font-weight: 700; min-width: 18px; height: 18px; border-radius: 9px; display: flex; align-items: center; justify-content: center; padding: 0 4px; border: 2px solid var(--white); display: none; }
     .notif-bell .badge.show { display: flex; }
-    .notif-panel { position: fixed; top: 4rem; right: 1.5rem; z-index: 299; width: 360px; max-height: 480px; background: var(--white); border-radius: var(--radius-md); box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15); border: 1px solid var(--gray-light); display: none; flex-direction: column; overflow: hidden; }
+    .notif-panel { position: fixed; top: 56px; right: 1.5rem; z-index: 299; width: 360px; max-height: 480px; background: var(--white); border-radius: var(--radius-md); box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15); border: 1px solid var(--gray-light); display: none; flex-direction: column; overflow: hidden; }
     .notif-panel.open { display: flex; }
     .notif-panel-header { display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.25rem; border-bottom: 1px solid var(--gray-light); }
     .notif-panel-header h3 { font-size: 0.95rem; font-weight: 700; }
@@ -247,6 +248,8 @@
     .btn-xs.red:hover { background: #dc2626; color: var(--white); }
     .btn-xs.gray { background: var(--gray-light); color: var(--gray); }
     .btn-xs.gray:hover { background: var(--gray); color: var(--white); }
+    .btn-xs.blue { background: rgba(29, 155, 240, 0.12); color: #1d9bf0; }
+    .btn-xs.blue:hover { background: #1d9bf0; color: var(--white); }
     .status-badge { font-size: 0.7rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 50px; text-transform: capitalize; }
     .status-badge.pending { background: rgba(255, 179, 0, 0.12); color: var(--accent-dark); }
     .status-badge.active { background: rgba(21, 101, 192, 0.12); color: var(--primary); }
@@ -292,8 +295,8 @@
     .tab-bar { display: flex; gap: 0; margin-bottom: 1.5rem; background: var(--gray-light); border-radius: var(--radius-sm); padding: 3px; overflow-x: auto; }
     .tab-btn { flex: 1; padding: 0.6rem 1rem; border: none; background: transparent; font-family: inherit; font-size: 0.85rem; font-weight: 500; color: var(--gray); cursor: pointer; border-radius: calc(var(--radius-sm) - 3px); transition: var(--transition); white-space: nowrap; text-align: center; }
     .tab-btn:hover { color: var(--dark); }
-    .refresh-btn { width: 36px; height: 36px; border-radius: 50%; background: var(--white); border: 1.5px solid var(--gray-light); display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: var(--shadow-sm); transition: var(--transition); color: var(--gray); }
-    .refresh-btn:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); color: var(--primary); }
+    .refresh-btn { width: 36px; height: 36px; border-radius: 50%; background: var(--white); border: 1.5px solid var(--gray-light); display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: var(--shadow-sm); transition: var(--transition); color: var(--gray); flex-shrink: 0; }
+    .refresh-btn:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); color: var(--primary); background: #e3f2fd; border-color: var(--secondary); }
     .refresh-btn.spinning svg { animation: spin 0.6s linear; }
     @keyframes spin { to { transform: rotate(360deg); } }
     .tab-btn.active { background: var(--white); color: var(--primary); font-weight: 600; box-shadow: var(--shadow-sm); }
@@ -304,11 +307,11 @@
     .btn-primary:hover { box-shadow: 0 4px 15px rgba(21, 101, 192, 0.3); transform: translateY(-2px); }
     .btn-outline { background: var(--white); color: var(--dark); border: 1.5px solid var(--gray-light); }
     .btn-outline:hover { border-color: var(--secondary); transform: translateY(-2px); }
-    .topbar { display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1.5rem; background: var(--white); border-bottom: 1px solid var(--gray-light); }
+    .topbar { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 0 1.5rem; height: 56px; background: var(--white); border-bottom: 1px solid var(--gray-light); box-shadow: 0 1px 4px rgba(0,0,0,0.05); }
     .topbar-left { display: flex; align-items: center; gap: 0.5rem; }
     .topbar-left span { font-weight: 700; font-size: 0.95rem; }
     .topbar-role-badge { font-size: 0.7rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 50px; background: rgba(21, 101, 192, 0.12); color: var(--primary); }
-    .topbar-right { display: flex; align-items: center; gap: 1rem; }
+    .topbar-right { display: flex; align-items: center; gap: 0.75rem; }
     .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.25rem; }
     .product-card { background: var(--white); border-radius: var(--radius-md); border: 1px solid var(--gray-light); overflow: hidden; transition: var(--transition); cursor: pointer; box-shadow: var(--shadow-sm); }
     .product-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); border-color: var(--primary-light); }
@@ -330,8 +333,6 @@
     .farmer-info { flex: 1; min-width: 0; }
     .farmer-name { font-weight: 600; font-size: 0.9rem; }
     .farmer-detail { font-size: 0.8rem; color: var(--gray); margin-top: 0.1rem; }
-    .request-form-wrap { margin-bottom: 1rem; }
-    .request-form-wrap input, .request-form-wrap textarea, .request-form-wrap select { width: 100%; padding: 0.6rem 0.8rem; border: 1.5px solid var(--gray-light); border-radius: var(--radius-sm); font-family: inherit; font-size: 0.85rem; margin-bottom: 0.5rem; }
     .reply-input { width: 100%; padding: 0.5rem 0.7rem; border: 1.5px solid var(--gray-light); border-radius: var(--radius-sm); font-family: inherit; font-size: 0.8rem; margin-bottom: 0.4rem; }
 
     /* ============================================== MOBILE HEADER STYLES ============================================== */
@@ -361,8 +362,9 @@
     @keyframes badgePop { 0% { transform: scale(0); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
     .mobile-notif-bell.has-new svg { animation: bellRing 0.5s ease 2; }
     @keyframes bellRing { 0%, 100% { transform: rotate(0deg); } 10%, 30%, 50%, 70%, 90% { transform: rotate(-10deg); } 20%, 40%, 60%, 80% { transform: rotate(10deg); } }
-    @media (max-width: 768px) { .mobile-header { display: flex; } .notif-bell { display: none !important; } .mobile-menu-btn { display: none !important; } .main { margin-top: 60px; margin-left: 0; } .sidebar { transform: translateX(-100%); padding-top: 60px; } .sidebar.open { transform: translateX(0); } .content { padding: 1.25rem; padding-top: 1.5rem; } .page-header h1 { font-size: 1.4rem; } .stat-card h4 { font-size: 1.5rem; } .notif-panel { top: 60px; right: 0; left: 0; width: 100%; max-width: 100%; max-height: calc(100vh - 60px); border-radius: 0; z-index: 401 !important; } .notif-overlay { z-index: 400; } }
-    @media (max-width: 480px) { .mobile-header { height: 56px; padding: 0 0.75rem; } .mobile-hamburger, .mobile-notif-bell { width: 40px; height: 40px; } .mobile-header-brand { font-size: 1rem; } .main { margin-top: 56px; } .sidebar { padding-top: 56px; } .content { padding: 1rem; } }
+    @media (max-width: 768px) { .mobile-header { display: flex; } .topbar { display: none !important; } .mobile-menu-btn { display: none !important; } .main { margin-top: 60px; margin-left: 0; } .sidebar { transform: translateX(-100%); padding-top: 60px; } .sidebar.open { transform: translateX(0); } .content { padding: 1.25rem; padding-top: 1.5rem; } .page-header h1 { font-size: 1.4rem; } .stat-card h4 { font-size: 1.5rem; } .notif-panel { top: 60px; right: 0; left: 0; width: 100%; max-width: 100%; max-height: calc(100vh - 60px); border-radius: 0; z-index: 401 !important; } .notif-overlay { z-index: 400; } }
+    @media (min-width: 769px) { .topbar { display: flex; } }
+    @media (max-width: 480px) { .mobile-header { height: 56px; padding: 0 0.75rem; } .mobile-hamburger, .mobile-notif-bell { width: 40px; height: 40px; } .mobile-header-brand { font-size: 1rem; } .main { margin-top: 56px; } .sidebar { padding-top: 56px; } .content { padding: 1rem; } .notif-panel { top: 56px; } }
     @media (min-width: 769px) and (max-width: 1024px) { .mobile-header { display: none; } .sidebar { transform: translateX(-100%); } .main { margin-left: 0; } .mobile-menu-btn { display: flex !important; } }
     @media (hover: none) and (pointer: coarse) { .mobile-hamburger, .mobile-notif-bell { min-width: 48px; min-height: 48px; } }
   </style>
@@ -410,7 +412,7 @@
     <div class="sidebar-nav-label">Marketplace</div>
     <button class="sidebar-link" data-section="products"><span class="icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></span> Browse Products</button>
     <button class="sidebar-link" data-section="orders"><span class="icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span> My Orders</button>
-    <button class="sidebar-link" data-section="forum"><span class="icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span> Post Requests</button>
+    <button class="sidebar-link" data-section="forum"><span class="icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span> Forum</button>
     <div class="sidebar-nav-label">Growth</div>
     <button class="sidebar-link" data-section="connections"><span class="icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></span> Connections</button>
     <button class="sidebar-link" data-section="agreements"><span class="icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span> Agreements</button>
@@ -475,8 +477,9 @@
     </div>
     <div class="page-section" id="section-account">
       <div class="page-header"><h1>My Account</h1><p>Manage your organisation profile</p></div>
-      <div class="section-card">
-        <div class="section-card-header"><h3>Profile Details</h3></div>
+      <div class="dashboard-grid cols-2">
+        <div class="section-card">
+          <div class="section-card-header"><h3>Profile Details</h3></div>
         <div class="section-card-body">
           <div class="info-row"><span class="info-label">Full Name</span><span class="info-value" id="acctNameDisplay">--</span></div>
           <div class="info-row"><span class="info-label">Email</span><span class="info-value" id="acctEmail">--</span></div>
@@ -484,6 +487,17 @@
           <div class="info-row" id="profileFields" style="display:none"><div style="width:100%"><div style="font-size:0.85rem;font-weight:700;margin-bottom:0.75rem;color:var(--dark)"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg> Organisation Profile</div><div id="profileForm"></div></div></div>
           <div class="info-row"><span class="info-label">Member Since</span><span class="info-value">Today</span></div>
           <div class="info-row" style="border:none;padding-bottom:0"><span class="info-label">Verification</span><span class="info-value" style="color:#16a34a"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:4px"><polyline points="20 6 9 17 4 12"/></svg> Verified</span></div>
+        </div>
+      </div>
+        <div class="section-card">
+          <div class="section-card-header"><h3><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Security Settings</h3></div>
+          <div class="section-card-body">
+            <div class="info-row"><span class="info-label">Two-Factor Authentication</span><span class="info-value" id="twoFactorStatus" style="color:var(--gray)">Disabled</span></div>
+            <div class="info-row" style="border:none;padding-bottom:0">
+              <button id="twoFactorToggleBtn" class="btn-small" onclick="twoFactorToggleClick()" style="padding:0.4rem 0.8rem;border-radius:50px;border:1px solid var(--gray-light);background:none;cursor:pointer;font-size:0.8rem;font-family:inherit;transition:var(--transition);margin-top:0.5rem">Enable 2FA</button>
+            </div>
+            <div style="margin-top:0.75rem;font-size:0.75rem;color:var(--gray);line-height:1.5">Secure your account with Google Authenticator or any TOTP-compatible app.</div>
+          </div>
         </div>
       </div>
     </div>
@@ -558,28 +572,19 @@
       </div>
     </div>
     <div class="page-section" id="section-forum">
-      <div class="page-header"><h1>Post Requests</h1><p>Create sourcing requests and browse all open requests</p></div>
-      <div class="dashboard-grid cols-2">
-        <div class="section-card">
-          <div class="section-card-header"><h3>Create Request</h3></div>
-          <div class="section-card-body">
-            <div class="request-form-wrap">
-              <input type="text" id="reqTitle" placeholder="Title e.g. Need 500kg of maize">
-              <textarea id="reqDesc" placeholder="Description of what you need..." style="min-height:60px"></textarea>
-              <input type="text" id="reqQty" placeholder="Quantity e.g. 500kg">
-              <input type="text" id="reqLocation" placeholder="Location">
-              <button id="postRequestBtn" class="btn btn-primary" style="width:100%">Post Request</button>
-            </div>
-          </div>
-        </div>
-        <div class="section-card">
-          <div class="section-card-header"><h3>My Requests</h3><span id="myRequestCount">0</span></div>
-          <div class="section-card-body" id="myRequestListContainer"><div class="entity-empty">No requests yet</div></div>
+      <div class="page-header">
+        <h1><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Forum</h1>
+        <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap">
+          <p style="margin:0">Share ideas, ask questions, and connect with the community</p>
+          <button class="btn btn-primary" onclick="openNewPostModal()" style="padding:8px 18px;font-size:0.85rem;white-space:nowrap">+ New Post</button>
         </div>
       </div>
-      <div class="section-card" style="margin-top:1.5rem">
-        <div class="section-card-header"><h3>All Open Requests</h3><span id="requestCount">0</span></div>
-        <div class="section-card-body" id="requestListContainer"><div class="entity-empty">Loading requests...</div></div>
+      <div class="section-card">
+        <div class="section-card-header">
+          <h3>Recent Posts</h3>
+          <span style="font-size:0.8rem;color:var(--gray)" id="forumPostCount">0</span>
+        </div>
+        <div class="section-card-body" id="forumPostContainer"><div class="entity-empty">Loading posts...</div></div>
       </div>
     </div>
     <div class="page-section" id="section-connections">
@@ -703,6 +708,27 @@
     </div>
   </div>
 </div>
+<!-- New Post Modal -->
+<div class="modal-overlay" id="newPostModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:10000;align-items:center;justify-content:center" onclick="if(event.target===this)closeNewPostModal()">
+  <div style="background:#fff;border-radius:16px;padding:28px;width:90%;max-width:520px;box-shadow:0 20px 60px rgba(0,0,0,0.2);position:relative;max-height:90vh;overflow-y:auto">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <h2 style="margin:0;font-size:20px;color:#1a1a2e">Create Post</h2>
+      <button onclick="closeNewPostModal()" style="background:none;border:none;font-size:24px;cursor:pointer;color:#999;padding:0;line-height:1">&times;</button>
+    </div>
+    <input type="text" id="postTitle" placeholder="Post title..." style="width:100%;padding:12px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:15px;font-family:inherit;outline:none;transition:border-color.2s;box-sizing:border-box;margin-bottom:12px">
+    <textarea id="postContent" placeholder="What's on your mind?" style="width:100%;min-height:120px;padding:12px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;font-family:inherit;outline:none;transition:border-color.2s;box-sizing:border-box;resize:vertical;margin-bottom:12px"></textarea>
+    <div style="margin-bottom:12px">
+      <label style="display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:#374151">Banner Image (optional)</label>
+      <input type="file" id="postBannerInput" accept="image/*" style="font-size:13px;font-family:inherit" onchange="previewPostBanner(event)">
+      <div id="postBannerPreview" style="display:none;margin-top:8px;position:relative;border-radius:8px;overflow:hidden;max-height:180px">
+        <img id="postBannerImg" style="width:100%;height:auto;display:block;border-radius:8px">
+        <button type="button" onclick="removePostBanner()" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,0.6);color:#fff;border:none;border-radius:50%;width:24px;height:24px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center">&times;</button>
+      </div>
+      <input type="hidden" id="postBannerData" value="">
+    </div>
+    <button id="submitPostBtn" class="btn btn-primary" style="width:100%;padding:12px;font-size:15px;border:none;cursor:pointer" onclick="submitForumPost()">Post</button>
+  </div>
+</div>
 <script>
 function showToast(message, type) {
   type = type || "info";
@@ -731,23 +757,107 @@ function escHtml(s) {
   return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 }
 
-const user = sessionStorage.getItem("user");
-const idToken = sessionStorage.getItem("idToken");
-if (!user || !idToken) {
-  window.location.href = "login";
+function showConfirmModal(opts) {
+  return new Promise(function(resolve) {
+    var existing = document.getElementById('_confirmModal');
+    if (!existing) {
+      existing = document.createElement('div');
+      existing.id = '_confirmModal';
+      existing.style.cssText = 'display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center;backdrop-filter:blur(2px)';
+      existing.innerHTML = '<div style="background:#fff;border-radius:16px;width:90%;max-width:420px;box-shadow:0 20px 60px rgba(0,0,0,0.18);overflow:hidden;animation:_cmIn .2s ease"><div id="_cmIconWrap" style="display:flex;align-items:center;justify-content:center;padding:24px 24px 0"><div id="_cmIcon" style="width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px"></div></div><div style="padding:16px 24px 8px;text-align:center"><h3 id="_cmTitle" style="font-size:1.1rem;font-weight:700;margin:0 0 6px;color:#1f2937"></h3><p id="_cmMsg" style="font-size:0.875rem;color:#6b7280;margin:0;line-height:1.5"></p></div><div style="padding:16px 24px 24px;display:flex;gap:10px"><button id="_cmCancel" style="flex:1;padding:12px;border:1.5px solid #e5e7eb;border-radius:10px;background:#fff;color:#374151;font-weight:600;font-size:0.875rem;font-family:inherit;cursor:pointer">Cancel</button><button id="_cmOk" style="flex:1;padding:12px;border:none;border-radius:10px;color:#fff;font-weight:700;font-size:0.875rem;font-family:inherit;cursor:pointer"></button></div></div>';
+      var style = document.createElement('style');
+      style.textContent = '@keyframes _cmIn{from{opacity:0;transform:scale(.93) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}}';
+      document.head.appendChild(style);
+      document.body.appendChild(existing);
+    }
+    var colorMap = { danger:'#dc2626', warning:'#d97706', primary:'#16a34a', info:'#2563eb' };
+    var iconMap = {
+      danger: '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>',
+      warning: '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+      primary: '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
+      info: '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>'
+    };
+    var type = opts.type || 'warning';
+    var color = colorMap[type] || '#d97706';
+    document.getElementById('_cmTitle').textContent = opts.title || 'Confirm';
+    document.getElementById('_cmMsg').textContent = opts.message || 'Are you sure?';
+    var ok = document.getElementById('_cmOk');
+    ok.textContent = opts.confirmText || 'Confirm';
+    ok.style.background = color;
+    var icon = document.getElementById('_cmIcon');
+    icon.style.background = color + '18';
+    icon.style.color = color;
+    icon.innerHTML = iconMap[type] || iconMap.warning;
+    existing.style.display = 'flex';
+    function cleanup() {
+      existing.style.display = 'none';
+      ok.onclick = null;
+      document.getElementById('_cmCancel').onclick = null;
+      existing.onclick = null;
+      document.onkeydown = null;
+    }
+    ok.onclick = function() { cleanup(); resolve(true); };
+    document.getElementById('_cmCancel').onclick = function() { cleanup(); resolve(false); };
+    existing.onclick = function(e) { if (e.target === existing) { cleanup(); resolve(false); } };
+    document.onkeydown = function(e) { if (e.key === 'Escape') { cleanup(); resolve(false); } };
+  });
 }
-document.cookie = "idToken=" + idToken + ";path=/;max-age=3600;SameSite=Strict";
-let userData = {};
-try { userData = JSON.parse(user); } catch (e) {}
-if (!userData || userData.role !== "organization") {
-  window.location.href = "signup";
-}
-const displayName = userData.displayName || "";
-const email = userData.email || "";
 
-document.getElementById("acctName").textContent = displayName;
-document.getElementById("acctEmail").textContent = email;
-document.getElementById("acctNameDisplay").textContent = displayName;
+// Auth check â€” read from localStorage first (persists on reload), sessionStorage as fallback
+const _storedUser  = localStorage.getItem("user")    || sessionStorage.getItem("user");
+const _storedToken = localStorage.getItem("idToken") || sessionStorage.getItem("idToken");
+
+if (!_storedUser || !_storedToken) {
+  window.location.replace("/login");
+}
+
+// Keep both storages in sync and write 7-day cookie for server-side guards
+if (_storedToken) {
+  localStorage.setItem("idToken", _storedToken);
+  sessionStorage.setItem("idToken", _storedToken);
+  document.cookie = "idToken=" + _storedToken + ";path=/;max-age=604800;SameSite=Strict";
+}
+if (_storedUser) {
+  localStorage.setItem("user", _storedUser);
+  sessionStorage.setItem("user", _storedUser);
+}
+
+let userData = {};
+try { userData = JSON.parse(_storedUser); } catch (e) {}
+
+// Apply immediately from cache, then refresh from server
+(function applyUserData(ud) {
+  const dn = ud.display_name || ud.displayName || ud.email || "";
+  const el = document.getElementById("acctName");
+  const ee = document.getElementById("acctEmail");
+  const en = document.getElementById("acctNameDisplay");
+  if (el) el.textContent = dn;
+  if (ee) ee.textContent = ud.email || "";
+  if (en) en.textContent = dn;
+})(userData);
+
+(async () => {
+  try {
+    const fresh = await api("/api/users/" + userData.uid);
+    userData = fresh;
+    localStorage.setItem("user", JSON.stringify(fresh));
+    sessionStorage.setItem("user", JSON.stringify(fresh));
+    const dn = fresh.display_name || fresh.displayName || fresh.email || "";
+    const el = document.getElementById("acctName");
+    const ee = document.getElementById("acctEmail");
+    const en = document.getElementById("acctNameDisplay");
+    if (el) el.textContent = dn;
+    if (ee) ee.textContent = fresh.email || "";
+    if (en) en.textContent = dn;
+    // Role check after fresh data â€” role-guard.js handles redirect if wrong page
+    if (fresh.role && fresh.role !== "organization") {
+      const rolePage = { farmer: "/farmer", consumer: "/consumer", admin: "/admin" };
+      window.location.replace(rolePage[fresh.role] || "/login");
+      return;
+    }
+  } catch (e) {}
+  initForum(userData, api);
+})();
 
 const sidebarLinks = document.querySelectorAll(".sidebar-link[data-section]");
 const sections = document.querySelectorAll(".page-section");
@@ -764,8 +874,8 @@ function switchSection(sectionId) {
   if (sectionId === "payout") loadPayoutHistory();
   if (sectionId === "products") loadProducts();
   if (sectionId === "orders") loadOrders();
-  if (sectionId === "forum") { loadMyRequests(); loadRequests(); }
-  if (sectionId === "account") initProfileForm();
+  if (sectionId === "forum") { loadForumPosts(); }
+  if (sectionId === "account") { initProfileForm(); check2faStatus(); }
   if (sectionId === "connections") loadFarmers();
   if (sectionId === "agreements") loadAgreements();
   if (sectionId === "performance") loadPerformanceStats();
@@ -787,9 +897,10 @@ document.getElementById("mobileMenuBtn").addEventListener("click", () => {
 });
 
 async function api(path, options) {
+  const token = localStorage.getItem("idToken") || sessionStorage.getItem("idToken") || _storedToken;
   const res = await fetch(path, {
     cache: "no-store",
-    headers: { "Content-Type": "application/json", Authorization: "Bearer " + idToken },
+    headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
     ...options,
   });
   const data = await res.json();
@@ -801,63 +912,155 @@ async function api(path, options) {
 }
 
 window.logout = function () {
+  localStorage.removeItem("user");
+  localStorage.removeItem("idToken");
+  localStorage.removeItem("role");
   sessionStorage.removeItem("user");
   sessionStorage.removeItem("idToken");
+  sessionStorage.removeItem("role");
   document.cookie = "idToken=;path=/;max-age=0";
-  window.location.href = "login";
+  document.cookie = "authToken=;path=/;max-age=0";
+  window.location.replace("/login");
 };
 document.getElementById("logoutBtn").addEventListener("click", window.logout);
 
-function initProfileForm() {
+async function initProfileForm() {
+  try {
+    const fresh = await api("/api/users/" + userData.uid);
+    userData = fresh;
+    localStorage.setItem("user", JSON.stringify(fresh));
+    sessionStorage.setItem("user", JSON.stringify(fresh));
+  } catch (e) {}
   const container = document.getElementById("profileForm");
+  if (!container) return;
   document.getElementById("profileFields").style.display = "block";
   const profile = typeof userData.profile === 'string' ? JSON.parse(userData.profile || '{}') : (userData.profile || {});
-  let html = "";
-  html += '<div style="margin-bottom:0.5rem"><input id="pfDisplayName" placeholder="Full Name *" value="' + escHtml(userData.displayName || "") + '" required style="width:100%;padding:0.5rem 0.6rem;border:1.5px solid var(--gray-light);border-radius:var(--radius-sm);font-family:inherit;font-size:0.8rem;margin-bottom:0.4rem"></div>';
-  html += '<div style="margin-bottom:0.5rem"><input id="pfPhone" placeholder="Phone Number * (e.g. +2547XX)" value="' + escHtml(userData.phoneNumber || "") + '" required style="width:100%;padding:0.5rem 0.6rem;border:1.5px solid var(--gray-light);border-radius:var(--radius-sm);font-family:inherit;font-size:0.8rem;margin-bottom:0.4rem"></div>';
-  html += '<div style="margin-bottom:0.5rem"><input id="pfBusinessName" placeholder="Business Name" value="' + escHtml(profile.businessName || "") + '" style="width:100%;padding:0.5rem 0.6rem;border:1.5px solid var(--gray-light);border-radius:var(--radius-sm);font-family:inherit;font-size:0.8rem;margin-bottom:0.4rem"></div>';
-  html += '<div style="margin-bottom:0.5rem"><select id="pfCategory" style="width:100%;padding:0.5rem 0.6rem;border:1.5px solid var(--gray-light);border-radius:var(--radius-sm);font-family:inherit;font-size:0.8rem;margin-bottom:0.4rem"><option value="">Select Category</option><option value="food-processing"' + (profile.category === "food-processing" ? " selected" : "") + '>Food Processing</option><option value="retail"' + (profile.category === "retail" ? " selected" : "") + '>Retail</option><option value="distribution"' + (profile.category === "distribution" ? " selected" : "") + '>Distribution</option><option value="restaurant"' + (profile.category === "restaurant" ? " selected" : "") + '>Restaurant</option><option value="other"' + (profile.category === "other" ? " selected" : "") + '>Other</option></select></div>';
-  html += '<div style="margin-bottom:0.5rem"><input id="pfManufacture" placeholder="Manufacture / Processing Type" value="' + escHtml(profile.manufacture || "") + '" style="width:100%;padding:0.5rem 0.6rem;border:1.5px solid var(--gray-light);border-radius:var(--radius-sm);font-family:inherit;font-size:0.8rem;margin-bottom:0.4rem"></div>';
-  html += '<div style="margin-bottom:0.5rem"><input id="pfLocation" placeholder="Location" value="' + escHtml(profile.location || "") + '" style="width:100%;padding:0.5rem 0.6rem;border:1.5px solid var(--gray-light);border-radius:var(--radius-sm);font-family:inherit;font-size:0.8rem;margin-bottom:0.4rem"></div>';
-  html += '<div style="margin-bottom:0.5rem"><textarea id="pfImageUrls" placeholder="Image URLs (one per line)" style="width:100%;padding:0.5rem 0.6rem;border:1.5px solid var(--gray-light);border-radius:var(--radius-sm);font-family:inherit;font-size:0.8rem;min-height:50px">' + escHtml(Array.isArray(profile.imageUrls) ? profile.imageUrls.join("\n") : (profile.imageUrls || "")) + '</textarea></div>';
-  html += '<button id="saveProfileBtn" style="padding:0.4rem 0.8rem;background:linear-gradient(135deg,var(--primary),var(--secondary));color:var(--white);border:none;border-radius:var(--radius-sm);font-size:0.8rem;font-weight:600;cursor:pointer;font-family:inherit"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:4px"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Save Profile</button>';
+  const photoUrl = userData.photo_url || userData.photoUrl || "";
+  const initials = (userData.display_name || userData.displayName || "U")[0].toUpperCase();
+  const iStyle = 'width:100%;padding:0.6rem 0.75rem;border:1.5px solid var(--gray-light);border-radius:var(--radius-sm);font-family:inherit;font-size:0.85rem;box-sizing:border-box;outline:none;transition:border-color .2s';
+  const lStyle = 'display:block;font-size:0.72rem;font-weight:700;color:var(--gray);margin-bottom:4px;text-transform:uppercase;letter-spacing:.3px';
+  const focusAttr = 'onfocus="this.style.borderColor=\'var(--primary)\'" onblur="this.style.borderColor=\'var(--gray-light)\'"';
+  let html = '';
+  // Profile photo
+  html += '<div style="display:flex;flex-direction:column;align-items:center;margin-bottom:1rem">'
+    + '<div style="position:relative;width:80px;height:80px;cursor:pointer" onclick="document.getElementById(\'pfPhotoInput\').click()">'
+    + '<div id="pfAvatarCircle" style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--secondary));display:flex;align-items:center;justify-content:center;font-size:1.8rem;font-weight:700;color:#fff;overflow:hidden;border:3px solid var(--gray-light)">'
+    + (photoUrl ? '<img id="pfAvatarImg" src="' + escHtml(photoUrl) + '" style="width:100%;height:100%;object-fit:cover">' : '<span>' + initials + '</span>')
+    + '</div>'
+    + '<div style="position:absolute;bottom:0;right:0;width:26px;height:26px;border-radius:50%;background:var(--primary);border:2px solid #fff;display:flex;align-items:center;justify-content:center">'
+    + '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>'
+    + '</div></div>'
+    + '<input type="file" id="pfPhotoInput" accept="image/*" style="display:none" onchange="previewProfilePhoto(this)">'
+    + '<span style="font-size:0.72rem;color:var(--gray);margin-top:6px">Tap photo to change</span></div>';
+  html += '<div style="margin-bottom:0.75rem"><label style="' + lStyle + '">Full Name</label><input value="' + escHtml(userData.display_name || userData.displayName || '') + '" readonly style="' + iStyle + ';background:var(--light);color:var(--gray);cursor:not-allowed"></div>';
+  html += '<div style="margin-bottom:0.75rem"><label style="' + lStyle + '">Phone Number</label><input id="pfPhone" placeholder="+2547XXXXXXXX" value="' + escHtml(userData.phone_number || userData.phoneNumber || '') + '" style="' + iStyle + '" ' + focusAttr + '></div>';
+  html += '<div style="margin-bottom:0.75rem"><label style="' + lStyle + '">Business Name</label><input id="pfBusinessName" placeholder="Organisation / Company Name" value="' + escHtml(profile.businessName || userData.business_name || '') + '" style="' + iStyle + '" ' + focusAttr + '></div>';
+  html += '<div style="margin-bottom:0.75rem"><label style="' + lStyle + '">Category</label><select id="pfCategory" style="' + iStyle + '" ' + focusAttr + '><option value="">Select Category</option><option value="food-processing"' + (profile.category === "food-processing" ? " selected" : "") + '>Food Processing</option><option value="retail"' + (profile.category === "retail" ? " selected" : "") + '>Retail</option><option value="distribution"' + (profile.category === "distribution" ? " selected" : "") + '>Distribution</option><option value="restaurant"' + (profile.category === "restaurant" ? " selected" : "") + '>Restaurant</option><option value="other"' + (profile.category === "other" ? " selected" : "") + '>Other</option></select></div>';
+  html += '<div style="margin-bottom:0.75rem"><label style="' + lStyle + '">Processing Type</label><input id="pfManufacture" placeholder="e.g. Cold pressing, Milling" value="' + escHtml(profile.manufacture || userData.manufacture || '') + '" style="' + iStyle + '" ' + focusAttr + '></div>';
+  html += '<div style="margin-bottom:0.75rem"><label style="' + lStyle + '">Location</label><input id="pfLocation" placeholder="City / County" value="' + escHtml(profile.location || userData.location || '') + '" style="' + iStyle + '" ' + focusAttr + '></div>';
+  html += '<div style="margin-bottom:0.75rem"><label style="' + lStyle + '">Organisation Images</label>'
+    + '<div style="display:flex;gap:8px;align-items:center;margin-bottom:6px">'
+    + '<input type="file" id="pfImageUpload" accept="image/*" style="flex:1;font-size:0.8rem">'
+    + '<button id="pfUploadImageBtn" type="button" style="padding:0.4rem 0.8rem;background:var(--primary);color:#fff;border:none;border-radius:var(--radius-sm);font-size:0.75rem;font-weight:600;cursor:pointer;font-family:inherit">Add</button></div>'
+    + '<div id="pfImagePreview" style="display:flex;flex-wrap:wrap;gap:6px">'
+    + (Array.isArray(profile.imageUrls) ? profile.imageUrls.map(function(url) { return '<div style="position:relative;width:60px;height:60px;border:1px solid var(--gray-light);border-radius:6px;overflow:hidden"><img src="' + escHtml(url) + '" style="width:100%;height:100%;object-fit:cover"><span class="pfImgRemove" data-url="' + escHtml(url) + '" style="position:absolute;top:-4px;right:-4px;width:18px;height:18px;background:#dc2626;color:#fff;border-radius:50%;font-size:12px;line-height:18px;text-align:center;cursor:pointer;z-index:2">&times;</span></div>'; }).join('') : '')
+    + '</div><input type="hidden" id="pfImageData" value="' + escHtml(JSON.stringify(profile.imageUrls || [])) + '"></div>';
+  html += '<button type="button" id="saveProfileBtn" style="width:100%;padding:0.7rem;background:linear-gradient(135deg,var(--primary),var(--secondary));color:#fff;border:none;border-radius:var(--radius-sm);font-size:0.875rem;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px;transition:opacity .2s" onmouseover="this.style.opacity=\'.88\'" onmouseout="this.style.opacity=\'1\'">'
+    + '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>'
+    + ' Save Profile</button>';
   container.innerHTML = html;
 }
 
+function previewProfilePhoto(input) {
+  const file = input && input.files && input.files[0];
+  if (!file) return;
+  if (file.size > 3 * 1024 * 1024) { showToast("Image too large (max 3MB)", "error"); input.value = ""; return; }
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    const circle = document.getElementById("pfAvatarCircle");
+    if (circle) circle.innerHTML = '<img id="pfAvatarImg" src="' + ev.target.result + '" style="width:100%;height:100%;object-fit:cover">';
+  };
+  reader.readAsDataURL(file);
+}
+window.previewProfilePhoto = previewProfilePhoto;
+
 document.getElementById("profileForm")?.addEventListener("click", function (e) {
-  if (e.target.id === "saveProfileBtn") saveProfile(e.target);
+  const btn = e.target.id === "saveProfileBtn" ? e.target : e.target.closest("#saveProfileBtn");
+  if (btn) saveProfile(btn);
 });
+
+document.addEventListener("click", function(e) {
+  if (e.target.id === "pfUploadImageBtn") uploadProfileImage();
+  if (e.target.classList.contains("pfImgRemove")) {
+    const url = e.target.dataset.url;
+    const hidden = document.getElementById("pfImageData");
+    if (hidden) {
+      try {
+        let urls = JSON.parse(hidden.value || "[]");
+        urls = urls.filter(function(u) { return u !== url; });
+        hidden.value = JSON.stringify(urls);
+      } catch(ex) {}
+    }
+    e.target.parentElement.remove();
+  }
+});
+
+window.uploadProfileImage = function() {
+  const input = document.getElementById("pfImageUpload");
+  const file = input && input.files && input.files[0];
+  if (!file) { showToast("Select an image first", "error"); return; }
+  if (file.size > 2 * 1024 * 1024) { showToast("Image too large (max 2MB)", "error"); return; }
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const dataUrl = e.target.result;
+    const preview = document.getElementById("pfImagePreview");
+    const hidden = document.getElementById("pfImageData");
+    if (preview && hidden) {
+      preview.insertAdjacentHTML("beforeend", '<div style="position:relative;width:60px;height:60px;border:1px solid var(--gray-light);border-radius:6px;overflow:hidden"><img src="' + dataUrl + '" style="width:100%;height:100%;object-fit:cover"><span class="pfImgRemove" data-url="' + dataUrl.replace(/"/g, "&quot;") + '" style="position:absolute;top:-4px;right:-4px;width:18px;height:18px;background:#dc2626;color:#fff;border-radius:50%;font-size:12px;line-height:18px;text-align:center;cursor:pointer;z-index:2">&times;</span></div>');
+      try {
+        let urls = JSON.parse(hidden.value || "[]");
+        urls.push(dataUrl);
+        hidden.value = JSON.stringify(urls);
+      } catch(ex) {}
+    }
+    input.value = "";
+  };
+  reader.readAsDataURL(file);
+};
 
 window.saveProfile = async function (btn) {
   const body = {};
-  const dn = document.getElementById("pfDisplayName");
-  if (dn && dn.value.trim()) body.displayName = dn.value.trim();
   const ph = document.getElementById("pfPhone");
   if (ph && ph.value.trim()) body.phoneNumber = ph.value.trim();
-  const profile = {};
   const bn = document.getElementById("pfBusinessName");
-  if (bn && bn.value.trim()) profile.businessName = bn.value.trim();
+  if (bn && bn.value.trim()) body.businessName = bn.value.trim();
   const cat = document.getElementById("pfCategory");
-  if (cat && cat.value) profile.category = cat.value;
+  if (cat && cat.value) body.category = cat.value;
   const mf = document.getElementById("pfManufacture");
-  if (mf && mf.value.trim()) profile.manufacture = mf.value.trim();
+  if (mf && mf.value.trim()) body.manufacture = mf.value.trim();
   const loc = document.getElementById("pfLocation");
-  if (loc && loc.value.trim()) profile.location = loc.value.trim();
-  const imgs = document.getElementById("pfImageUrls");
-  if (imgs && imgs.value.trim()) profile.imageUrls = imgs.value.trim().split("\n").filter(Boolean).map(s => s.trim());
-  if (Object.keys(profile).length) body.profile = profile;
+  if (loc && loc.value.trim()) body.location = loc.value.trim();
+  const imgData = document.getElementById("pfImageData");
+  if (imgData) { try { body.imageUrls = JSON.parse(imgData.value); } catch(e) { body.imageUrls = []; } }
+  // Profile photo
+  const img = document.getElementById("pfAvatarImg");
+  if (img && img.src && img.src.startsWith("data:")) body.photoUrl = img.src;
   if (btn) setLoading(btn, true);
   try {
     const result = await api("/api/users/profile", {
       method: "PUT",
       body: JSON.stringify(body),
     });
-    showToast("Profile saved!", "success");
     userData = result;
+    localStorage.setItem("user", JSON.stringify(result));
     sessionStorage.setItem("user", JSON.stringify(result));
-    document.getElementById("acctName").textContent = result.displayName || "User";
-    document.getElementById("acctNameDisplay").textContent = result.displayName || "User";
+    const dn = result.display_name || result.displayName || "";
+    const nameEl = document.getElementById("acctName"); if (nameEl) nameEl.textContent = dn;
+    const dispEl = document.getElementById("acctNameDisplay"); if (dispEl) dispEl.textContent = dn;
+    showToast("Profile saved!", "success");
+    await initProfileForm();
   } catch (e) {
+    showToast(e.message || "Failed to save profile", "error");
   } finally {
     if (btn) setLoading(btn, false);
   }
@@ -969,6 +1172,10 @@ async function loadOrders(filter) {
         actions += '<button class="btn-xs green" onclick="openOtpModal(\'' + o.id + '\')"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:3px"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg> Verify Delivery</button>';
         actions += '<button class="btn-xs amber" onclick="openDisputeModal(\'' + o.id + '\')"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:3px"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Dispute</button>';
       }
+      if (o.status === "completed") {
+        actions += '<a class="btn-xs blue" href="/api/orders/' + o.id + '/receipt?type=receipt" download="Receipt-' + o.id.substring(0,8).toUpperCase() + '.pdf" style="text-decoration:none"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:3px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Receipt</a>';
+        actions += '<a class="btn-xs gray" href="/api/orders/' + o.id + '/receipt?type=invoice" download="Invoice-' + o.id.substring(0,8).toUpperCase() + '.pdf" style="text-decoration:none;margin-left:4px"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:3px"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> Invoice</a>';
+      }
       const orderDate = o.created_at || o.createdAt;
       return '<div class="order-item"><div class="entity-avatar" style="width:36px;height:36px;font-size:0.8rem;border-radius:8px"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div><div class="order-info"><div class="order-title">' + escHtml(o.listing_title || o.title || "Order") + '</div><div class="order-detail">' + (o.quantity ? "Qty: " + escHtml(o.quantity) + " &middot; " : "") + 'KES ' + Number(o.amount || o.listing_price || 0).toFixed(2) + ' &middot; ' + (orderDate ? new Date(Number(orderDate)).toLocaleDateString() : "") + '</div></div><span class="status-badge ' + statusCls + '">' + statusCls + '</span><div class="order-actions">' + actions + '</div></div>';
     }).join("");
@@ -978,7 +1185,8 @@ async function loadOrders(filter) {
 }
 
 window.cancelOrder = async function (id, btn) {
-  if (!confirm("Cancel this order?")) return;
+  const confirmed = await showConfirmModal({ title: 'Cancel Order', message: 'Cancel this order? This cannot be undone.', confirmText: 'Cancel Order', type: 'danger' });
+  if (!confirmed) return;
   if (btn) setLoading(btn, true);
   try {
     await api("/api/orders/" + id + "/cancel", { method: "POST" });
@@ -1075,85 +1283,7 @@ window.submitDispute = async function () {
   }
 };
 
-window.postRequest = async function () {
-  const title = document.getElementById("reqTitle")?.value.trim();
-  if (!title) { showToast("Enter a title", "warning"); return; }
-  const description = document.getElementById("reqDesc")?.value.trim() || "";
-  const quantity = document.getElementById("reqQty")?.value.trim() || "";
-  const location = document.getElementById("reqLocation")?.value.trim() || "";
-  const btn = document.getElementById("postRequestBtn");
-  btn.disabled = true; btn.textContent = "Posting...";
-  try {
-    await api("/api/requests", {
-      method: "POST",
-      body: JSON.stringify({ title, description, quantity, location }),
-    });
-    showToast("Request posted!", "success");
-    document.getElementById("reqTitle").value = "";
-    document.getElementById("reqDesc").value = "";
-    document.getElementById("reqQty").value = "";
-    document.getElementById("reqLocation").value = "";
-    loadMyRequests();
-    loadRequests();
-  } catch (e) {
-  } finally {
-    btn.disabled = false; btn.textContent = "Post Request";
-  }
-};
-
-document.getElementById("postRequestBtn")?.addEventListener("click", function () { window.postRequest(); });
-
-async function loadMyRequests() {
-  const container = document.getElementById("myRequestListContainer");
-  if (!container) return;
-  try {
-    const list = await api("/api/requests");
-    const mine = list.filter((r) => r.uid === userData.uid);
-    document.getElementById("myRequestCount").textContent = mine.length;
-    if (!mine.length) {
-      container.innerHTML = '<div class="entity-empty">You have not posted any requests.</div>';
-      return;
-    }
-    container.innerHTML = mine.map((r) => {
-      return '<div class="entity-item" style="flex-wrap:wrap;flex-direction:column;align-items:stretch">' +
-        '<div style="display:flex;align-items:center;gap:1rem;width:100%">' +
-        '<div class="entity-avatar"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg></div>' +
-        '<div class="entity-info" style="min-width:0;flex:1">' +
-        '<div class="entity-name">' + escHtml(r.title || "") + '</div>' +
-        '<div class="entity-detail">' + escHtml((r.description || "").substring(0, 200)) + ((r.description && r.description.length > 200) ? "..." : "") + '</div>' +
-        '<div style="font-size:0.75rem;color:var(--gray);margin-top:0.2rem">' + (r.quantity ? "Qty: " + escHtml(r.quantity) : "") + (r.location ? " &middot; " + escHtml(r.location) : "") + '</div>' +
-        '</div><span class="status-badge ' + (r.status || "open") + '">' + (r.status || "open") + '</span></div></div>';
-    }).join("");
-  } catch (e) {
-    container.innerHTML = '<div class="entity-empty">Failed to load requests.</div>';
-  }
-}
-
-async function loadRequests() {
-  const container = document.getElementById("requestListContainer");
-  if (!container) return;
-  try {
-    const list = await api("/api/requests");
-    const open = list.filter((r) => r.uid !== userData.uid);
-    document.getElementById("requestCount").textContent = open.length;
-    if (!open.length) {
-      container.innerHTML = '<div class="entity-empty">No open requests from farmers.</div>';
-      return;
-    }
-    container.innerHTML = open.map((r) => {
-      return '<div class="entity-item" style="flex-wrap:wrap;flex-direction:column;align-items:stretch">' +
-        '<div style="display:flex;align-items:center;gap:1rem;width:100%">' +
-        '<div class="entity-avatar"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 20h10M12 20v-8M12 12l-3-3a4 4 0 0 1 6 0l-3 3z"/><circle cx="12" cy="4" r="2"/></svg></div>' +
-        '<div class="entity-info" style="min-width:0;flex:1">' +
-        '<div class="entity-name">' + escHtml(r.title || "") + '</div>' +
-        '<div class="entity-detail">' + escHtml((r.description || "").substring(0, 200)) + ((r.description && r.description.length > 200) ? "..." : "") + '</div>' +
-        '<div style="font-size:0.75rem;color:var(--gray);margin-top:0.2rem">Posted by ' + escHtml(r.displayName || r.display_name || "Unknown") + (r.quantity ? " &middot; Qty: " + escHtml(r.quantity) : "") + (r.location ? " &middot; " + escHtml(r.location) : "") + '</div>' +
-        '</div></div></div>';
-    }).join("");
-  } catch (e) {
-    container.innerHTML = '<div class="entity-empty">Failed to load requests.</div>';
-  }
-}
+// Forum â€” handled by /js/forum.js (initForum called after userData ready)
 
 async function loadFarmers() {
   const container = document.getElementById("farmerListContainer");
@@ -1198,7 +1328,7 @@ window.openFarmerInfoModal = async function (farmerUid) {
   let farmer = allFarmers.find(u => u.uid === farmerUid);
   if (!farmer) {
     try {
-      const res = await fetch("/api/users/" + farmerUid, { cache: "no-store", headers: { Authorization: "Bearer " + idToken } });
+      const res = await fetch("/api/users/" + farmerUid, { cache: "no-store", headers: { Authorization: "Bearer " + (localStorage.getItem("idToken") || sessionStorage.getItem("idToken")) } });
       if (res.ok) farmer = await res.json();
     } catch (e) {}
   }
@@ -1263,26 +1393,41 @@ async function loadAgreements() {
       container.innerHTML = '<div class="entity-empty">No agreements yet.</div>';
       return;
     }
+    const statusColors = { pending:"#f97316", active:"#16a34a", rejected:"#dc2626", cancelled:"#6b7280", terminated:"#6b7280" };
     container.innerHTML = list.map((a) => {
-      const statusCls = a.status || "pending";
-      const partnerName = escHtml(a.farmer_name || a.farmer_uid || "Unknown");
-      const partnerEmail = a.farmer_email ? ' &middot; ' + escHtml(a.farmer_email) : '';
-      const created = a.created_at ? new Date(Number(a.created_at)).toLocaleDateString() : '--';
-      let actions = "";
-      if (a.status === "pending" || a.status === "active") {
-        actions += '<button class="btn-xs red" onclick="updateAgreement(\'' + a.id + '\', \'cancelled\', this)">Cancel</button>';
+      const myUid = userData.uid;
+      const isOrg = a.org_uid === myUid;
+      const partnerName = escHtml(isOrg ? (a.farmer_name || a.farmer_uid || "Unknown") : (a.org_name || a.org_uid || "Unknown"));
+      const partnerEmail = escHtml(isOrg ? (a.farmer_email || "") : (a.org_email || ""));
+      const created = a.created_at ? new Date(Number(a.created_at)).toLocaleDateString("en-KE") : "—";
+      const sc = statusColors[a.status] || "#6b7280";
+      const termsPreview = (a.terms || "No terms").substring(0, 60) + (a.terms && a.terms.length > 60 ? "…" : "");
+      let quickBtns = "";
+      if (a.status === "pending" && isOrg) {
+        quickBtns = `<button class="btn-xs green" onclick="event.stopPropagation();updateAgreement('${a.id}','active',this)" title="Accept">Accept</button>`;
+        quickBtns += `<button class="btn-xs red" onclick="event.stopPropagation();updateAgreement('${a.id}','rejected',this)" title="Reject">Reject</button>`;
+      } else if (a.status === "pending") {
+        quickBtns = `<button class="btn-xs red" onclick="event.stopPropagation();updateAgreement('${a.id}','cancelled',this)" title="Cancel">Cancel</button>`;
+      } else if (a.status === "active") {
+        quickBtns = `<button class="btn-xs red" onclick="event.stopPropagation();updateAgreement('${a.id}','terminated',this)" title="Terminate">End</button>`;
       }
-      if (a.status === "active") {
-        actions += '<button class="btn-xs red" onclick="updateAgreement(\'' + a.id + '\', \'terminated\', this)">Terminate</button>';
-      }
-      return '<div class="farmer-item">' +
-        '<div class="entity-avatar"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>' +
-        '<div class="farmer-info">' +
-        '<div class="farmer-name">' + partnerName + '</div>' +
-        '<div class="farmer-detail">' + partnerEmail + ' Created: ' + created + '</div>' +
-        '</div>' +
-        '<span class="status-badge ' + statusCls + '">' + statusCls + '</span>' +
-        '<div class="order-actions">' + actions + '</div></div>';
+      return `<div class="farmer-item" style="cursor:pointer" onclick="openAgreementDetail('${a.id}')">
+        <div class="entity-avatar" style="background:${sc}22;color:${sc}">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        </div>
+        <div class="farmer-info" style="min-width:0;flex:1">
+          <div class="farmer-name" style="display:flex;align-items:center;gap:6px">
+            ${partnerName}
+            <span style="font-size:0.65rem;font-weight:700;padding:1px 7px;border-radius:20px;background:${sc}18;color:${sc};text-transform:uppercase;flex-shrink:0">${a.status}</span>
+          </div>
+          <div class="farmer-detail" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${partnerEmail ? partnerEmail + " · " : ""}${escHtml(termsPreview)}</div>
+          <div class="farmer-detail" style="margin-top:1px;font-size:0.72rem;color:#9ca3af">${created}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
+          ${quickBtns}
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--gray)"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+      </div>`;
     }).join("");
   } catch (e) {
     container.innerHTML = '<div class="entity-empty">Failed to load agreements.</div>';
@@ -1290,18 +1435,115 @@ async function loadAgreements() {
 }
 
 window.updateAgreement = async function (id, status, btn) {
-  if (!confirm("Update this agreement to " + status + "?")) return;
+  const labels = { active:"Accept", rejected:"Reject", cancelled:"Cancel", terminated:"Terminate" };
+  const types  = { active:"primary", rejected:"danger", cancelled:"warning", terminated:"danger" };
+  const confirmed = await showConfirmModal({ title: labels[status] + ' Agreement', message: 'Are you sure you want to ' + (labels[status]||status).toLowerCase() + ' this agreement?', confirmText: labels[status]||status, type: types[status]||'warning' });
+  if (!confirmed) return;
   if (btn) setLoading(btn, true);
   try {
-    await api("/api/agreements/" + id, {
+    const result = await api("/api/agreements/" + id, {
       method: "PATCH",
       body: JSON.stringify({ status }),
     });
     showToast("Agreement " + status, "success");
     loadAgreements();
+    const dm = document.getElementById("_agreementDetailModal");
+    if (dm) dm.style.display = "none";
   } catch (e) {
+    showToast(e.message || "Failed to update", "error");
   } finally {
     if (btn) setLoading(btn, false);
+  }
+};
+
+// ── Agreement Detail Modal ────────────────────────────────────────────────────
+window.openAgreementDetail = async function(id) {
+  let modal = document.getElementById("_agreementDetailModal");
+  if (!modal) {
+    modal = document.createElement("div");
+    modal.id = "_agreementDetailModal";
+    modal.style.cssText = "display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:10002;align-items:center;justify-content:center;backdrop-filter:blur(2px)";
+    modal.innerHTML = '<div style="background:#fff;border-radius:20px;width:90%;max-width:500px;max-height:90vh;overflow-y:auto;box-shadow:0 24px 80px rgba(0,0,0,0.2);animation:_cmIn .2s ease"><div id="_agrDetailContent"></div></div>';
+    modal.addEventListener("click", function(e) { if (e.target === modal) modal.style.display = "none"; });
+    document.addEventListener("keydown", function(e) { if (e.key === "Escape") { const m = document.getElementById("_agreementDetailModal"); if (m) m.style.display = "none"; }});
+    document.body.appendChild(modal);
+  }
+  const content = document.getElementById("_agrDetailContent");
+  content.innerHTML = '<div style="padding:2rem;text-align:center;color:var(--gray)">Loading…</div>';
+  modal.style.display = "flex";
+  try {
+    const a = await api("/api/agreements/" + id);
+    const myUid = userData.uid;
+    // Recipient = whoever did NOT initiate; they get Accept/Reject buttons
+    const initiatedBy = a.initiated_by || a.org_uid;
+    const isRecipient = myUid !== initiatedBy;
+    const isOrg = a.org_uid === myUid;
+    const partnerName = isOrg ? (a.farmer_name || a.farmer_uid) : (a.org_name || a.org_uid);
+    const partnerEmail = isOrg ? (a.farmer_email || "") : (a.org_email || "");
+    const partnerPhone = isOrg ? (a.farmer_phone || "") : (a.org_phone || "");
+    const partnerLocation = isOrg ? (a.farmer_location || "") : (a.org_location || "");
+    const partnerBiz = isOrg ? (a.farmer_business || "") : (a.org_business || "");
+    const partnerProduce = isOrg ? (a.farmer_produce || "") : "";
+    const partnerBio = isOrg ? (a.farmer_bio || "") : "";
+    const partnerRole = isOrg ? "Farmer" : "Organisation";
+    const initial = (partnerName || "?")[0].toUpperCase();
+    const statusColors = { pending:"#f97316", active:"#16a34a", rejected:"#dc2626", cancelled:"#6b7280", terminated:"#6b7280" };
+    const statusColor = statusColors[a.status] || "#6b7280";
+    const created = a.created_at ? new Date(Number(a.created_at)).toLocaleString("en-KE", {dateStyle:"medium",timeStyle:"short"}) : "—";
+    const updated = a.updated_at ? new Date(Number(a.updated_at)).toLocaleString("en-KE", {dateStyle:"medium",timeStyle:"short"}) : "—";
+    let actions = "";
+    if (a.status === "pending") {
+      if (isRecipient) {
+        actions += `<button onclick="updateAgreement('${a.id}','active',this)" style="flex:1;padding:10px;background:#16a34a;color:#fff;border:none;border-radius:10px;font-weight:700;font-size:0.875rem;font-family:inherit;cursor:pointer">✓ Accept Agreement</button>`;
+        actions += `<button onclick="updateAgreement('${a.id}','rejected',this)" style="flex:1;padding:10px;background:#dc2626;color:#fff;border:none;border-radius:10px;font-weight:700;font-size:0.875rem;font-family:inherit;cursor:pointer">✗ Decline Agreement</button>`;
+      } else {
+        actions += `<button onclick="updateAgreement('${a.id}','cancelled',this)" style="flex:1;padding:10px;background:#6b7280;color:#fff;border:none;border-radius:10px;font-weight:700;font-size:0.875rem;font-family:inherit;cursor:pointer">Cancel Request</button>`;
+      }
+    } else if (a.status === "active") {
+      actions += `<button onclick="updateAgreement('${a.id}','terminated',this)" style="flex:1;padding:10px;background:#dc2626;color:#fff;border:none;border-radius:10px;font-weight:700;font-size:0.875rem;font-family:inherit;cursor:pointer">Terminate Agreement</button>`;
+    }
+    content.innerHTML = `
+      <div style="background:linear-gradient(135deg,var(--primary),var(--secondary));padding:24px 20px 18px;border-radius:20px 20px 0 0;position:relative">
+        <button onclick="document.getElementById('_agreementDetailModal').style.display='none'" style="position:absolute;top:12px;right:14px;width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,0.2);border:none;color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1">&times;</button>
+        <div style="display:flex;align-items:center;gap:14px">
+          <div style="width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:700;color:#fff;flex-shrink:0">${escHtml(initial)}</div>
+          <div>
+            <div style="font-size:1.05rem;font-weight:800;color:#fff">${escHtml(partnerName || "Unknown")}</div>
+            <div style="font-size:0.78rem;color:rgba(255,255,255,0.8);margin-top:2px">${escHtml(partnerRole)}${partnerEmail ? " · " + escHtml(partnerEmail) : ""}</div>
+          </div>
+        </div>
+        <div style="margin-top:12px;display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:20px;background:rgba(255,255,255,0.2);font-size:0.75rem;font-weight:700;color:#fff">
+          <span style="width:8px;height:8px;border-radius:50%;background:${statusColor};display:inline-block"></span>
+          ${a.status.toUpperCase()}
+        </div>
+      </div>
+      <div style="padding:20px">
+        <div style="background:#f9fafb;border-radius:12px;padding:14px;margin-bottom:16px;font-size:0.85rem">
+          <div style="font-weight:700;color:var(--dark);margin-bottom:10px;font-size:0.8rem;text-transform:uppercase;letter-spacing:.5px">Partner Details</div>
+          ${partnerPhone ? `<div style="display:flex;gap:8px;margin-bottom:6px"><span style="color:var(--gray);width:80px">Phone</span><span style="font-weight:600">${escHtml(partnerPhone)}</span></div>` : ""}
+          ${partnerLocation ? `<div style="display:flex;gap:8px;margin-bottom:6px"><span style="color:var(--gray);width:80px">Location</span><span style="font-weight:600">${escHtml(partnerLocation)}</span></div>` : ""}
+          ${partnerBiz ? `<div style="display:flex;gap:8px;margin-bottom:6px"><span style="color:var(--gray);width:80px">Business</span><span style="font-weight:600">${escHtml(partnerBiz)}</span></div>` : ""}
+          ${partnerProduce ? `<div style="display:flex;gap:8px;margin-bottom:6px"><span style="color:var(--gray);width:80px">Produces</span><span style="font-weight:600">${escHtml(partnerProduce)}</span></div>` : ""}
+          ${partnerBio ? `<div style="margin-top:8px;color:var(--gray);line-height:1.5;font-size:0.82rem">${escHtml(partnerBio)}</div>` : ""}
+        </div>
+        <div style="margin-bottom:16px">
+          <div style="font-weight:700;color:var(--dark);margin-bottom:8px;font-size:0.8rem;text-transform:uppercase;letter-spacing:.5px">Agreement Terms</div>
+          <div style="background:#fff;border:1.5px solid var(--gray-light);border-radius:10px;padding:12px;font-size:0.875rem;color:var(--dark);line-height:1.6;white-space:pre-wrap;word-break:break-word">${escHtml(a.terms || "No terms specified")}</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:${actions ? "16px" : "0"};font-size:0.8rem">
+          <div style="background:#f9fafb;border-radius:10px;padding:10px">
+            <div style="color:var(--gray);margin-bottom:3px">Created</div>
+            <div style="font-weight:600;color:var(--dark)">${created}</div>
+          </div>
+          <div style="background:#f9fafb;border-radius:10px;padding:10px">
+            <div style="color:var(--gray);margin-bottom:3px">Last Updated</div>
+            <div style="font-weight:600;color:var(--dark)">${updated}</div>
+          </div>
+        </div>
+        ${actions ? `<div style="display:flex;gap:10px">${actions}</div>` : ""}
+      </div>`;
+  } catch(e) {
+    content.innerHTML = `<div style="padding:2rem;text-align:center;color:var(--danger)">Failed to load: ${escHtml(e.message)}</div>`;
   }
 };
 
@@ -1322,7 +1564,7 @@ async function loadDashboardStats() {
     document.getElementById("dashPendingOrders").textContent = pending;
     document.getElementById("dashCompletedOrders").textContent = completed;
     try {
-      const w = await fetch("/api/wallet", { cache: "no-store", headers: { Authorization: "Bearer " + idToken } });
+      const w = await fetch("/api/wallet", { cache: "no-store", headers: { Authorization: "Bearer " + (localStorage.getItem("idToken") || sessionStorage.getItem("idToken")) } });
       if (w.ok) { const wd = await w.json(); document.getElementById("dashWalletBalance").textContent = "KES " + (wd.activeBalance || 0).toFixed(2); }
     } catch (e) {}
 
@@ -1437,7 +1679,7 @@ window.processDeposit = async function () {
   try {
     const res = await fetch("/api/mpesa/stkpush", {
       method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: "Bearer " + idToken },
+      headers: { "Content-Type": "application/json", Authorization: "Bearer " + (localStorage.getItem("idToken") || sessionStorage.getItem("idToken")) },
       body: JSON.stringify({ phoneNumber: phone, amount, idempotencyKey: Date.now().toString() + Math.random().toString(36).substr(2, 9) }),
     });
     const data = await res.json();
@@ -1454,8 +1696,8 @@ let _recipientData = null;
 async function loadWallet() {
   try {
     const [walletRes, idRes] = await Promise.all([
-      fetch("/api/wallet", { cache: "no-store", headers: { Authorization: "Bearer " + idToken } }),
-      fetch("/api/wallet/id", { cache: "no-store", headers: { Authorization: "Bearer " + idToken } })
+      fetch("/api/wallet", { cache: "no-store", headers: { Authorization: "Bearer " + (localStorage.getItem("idToken") || sessionStorage.getItem("idToken")) } }),
+      fetch("/api/wallet/id", { cache: "no-store", headers: { Authorization: "Bearer " + (localStorage.getItem("idToken") || sessionStorage.getItem("idToken")) } })
     ]);
     if (walletRes.ok) walletData = await walletRes.json();
     if (idRes.ok) { const idData = await idRes.json(); myWalletId = idData.walletId || ""; }
@@ -1523,7 +1765,7 @@ async function lookupRecipient() {
   _recipientData = null; confirmCard.style.display = "none";
   try {
     const res = await fetch("/api/wallet/lookup?walletId=" + encodeURIComponent(walletId), {
-      headers: { Authorization: "Bearer " + idToken },
+      headers: { Authorization: "Bearer " + (localStorage.getItem("idToken") || sessionStorage.getItem("idToken")) },
     });
     if (!res.ok) { const err = await res.json(); info.innerHTML = '<span style="color:#ef4444">' + escHtml(err.error || "Not found") + "</span>"; return; }
     const u = await res.json();
@@ -1555,7 +1797,7 @@ async function processTransfer() {
   try {
     const res = await fetch("/api/wallet/transfer", {
       method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: "Bearer " + idToken },
+      headers: { "Content-Type": "application/json", Authorization: "Bearer " + (localStorage.getItem("idToken") || sessionStorage.getItem("idToken")) },
       body: JSON.stringify({ walletId: _recipientData.walletId, amount, description, idempotencyKey: Date.now().toString() + Math.random().toString(36).substr(2, 9) }),
     });
     const data = await res.json();
@@ -1599,7 +1841,7 @@ async function loadPayoutHistory() {
   try {
     const res = await fetch("/api/payout/history", {
       cache: "no-store",
-      headers: { Authorization: "Bearer " + idToken },
+      headers: { Authorization: "Bearer " + (localStorage.getItem("idToken") || sessionStorage.getItem("idToken")) },
     });
     if (!res.ok) {
       document.getElementById("payoutHistoryContainer").innerHTML = '<div class="entity-empty">Failed to load history</div>';
@@ -1637,7 +1879,7 @@ document.getElementById("requestPayoutBtn")?.addEventListener("click", async fun
   try {
     const res = await fetch("/api/wallet/withdraw", {
       method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: "Bearer " + idToken },
+      headers: { "Content-Type": "application/json", Authorization: "Bearer " + (localStorage.getItem("idToken") || sessionStorage.getItem("idToken")) },
       body: JSON.stringify({ phoneNumber: phone, amount, idempotencyKey: Date.now().toString() + Math.random().toString(36).substr(2, 9) }),
     });
     const data = await res.json();
@@ -1735,6 +1977,7 @@ async function refreshData() {
   if (id === "agreements") await loadAgreements();
   if (id === "connections") {}
   if (id === "payout") { await loadWallet(); }
+  if (id === "forum") { loadForumPosts(); }
   if (id === "performance") {}
   setTimeout(() => btn.classList.remove("spinning"), 600);
 }
@@ -1743,7 +1986,7 @@ async function loadNotifs() {
   try {
     const res = await fetch("/api/notifications", {
       cache: "no-store",
-      headers: { Authorization: "Bearer " + idToken },
+      headers: { Authorization: "Bearer " + (localStorage.getItem("idToken") || sessionStorage.getItem("idToken")) },
     });
     notifs = (await res.json()) || [];
     renderNotifs();
@@ -1782,7 +2025,7 @@ async function markAllRead() {
   try {
     await fetch("/api/notifications/read", {
       method: "POST",
-      headers: { Authorization: "Bearer " + idToken, "Content-Type": "application/json" },
+      headers: { Authorization: "Bearer " + (localStorage.getItem("idToken") || sessionStorage.getItem("idToken")), "Content-Type": "application/json" },
     });
     notifs.forEach((n) => (n.read = true));
     renderNotifs();
@@ -1833,7 +2076,7 @@ document.getElementById("notifDetailMarkRead").addEventListener("click", async f
   try {
     await fetch("/api/notifications/read/" + encodeURIComponent(activeNotifId), {
       method: "POST",
-      headers: { Authorization: "Bearer " + idToken },
+      headers: { Authorization: "Bearer " + (localStorage.getItem("idToken") || sessionStorage.getItem("idToken")) },
     });
     const n = notifs.find((n) => n.id === activeNotifId);
     if (n) n.read = true;
@@ -1855,7 +2098,6 @@ function timeAgo(ts) {
 
 loadNotifs();
 loadOrders();
-loadRequests();
 loadPayoutHistory();
 loadDashboardStats();
 
@@ -1939,4 +2181,152 @@ loadDashboardStats();
     }, 250);
   });
 })();
-</script></body></html>
+
+  // ==================== 2FA Functions ====================
+  window.twoFactorState = {};
+
+  function twoFactorToggleClick() {
+    const btn = document.getElementById("twoFactorToggleBtn");
+    if (btn && btn.textContent === "Disable 2FA") {
+      showDisable2faModal();
+    } else if (btn) {
+      showSetup2faModal();
+    }
+  }
+
+  async function check2faStatus() {
+    try {
+      const data = await api("/api/auth/2fa/status");
+      update2faUI(data.enabled);
+    } catch (e) {}
+  }
+
+  function update2faUI(enabled) {
+    const statusEl = document.getElementById("twoFactorStatus");
+    const toggleBtn = document.getElementById("twoFactorToggleBtn");
+    if (enabled) {
+      statusEl.textContent = "Enabled";
+      statusEl.style.color = "#16a34a";
+      toggleBtn.textContent = "Disable 2FA";
+    } else {
+      statusEl.textContent = "Disabled";
+      statusEl.style.color = "var(--gray)";
+      toggleBtn.textContent = "Enable 2FA";
+    }
+  }
+
+  function showSetup2faModal() {
+    const overlay = document.createElement("div");
+    overlay.className = "modal-overlay";
+    overlay.id = "setup2faModal";
+    overlay.style.cssText = "display:flex;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:10000;align-items:center;justify-content:center";
+    overlay.innerHTML = '<div class="modal-content" style="background:#fff;border-radius:16px;padding:28px;width:90%;max-width:440px;box-shadow:0 20px 60px rgba(0,0,0,0.2);position:relative;max-height:90vh;overflow-y:auto;text-align:center">' +
+      '<div class="modal-header" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><h2 style="margin:0;font-size:1.2rem">Setup Two-Factor Auth</h2><button class="modal-close" onclick="this.closest(\'.modal-overlay\').remove()" style="background:none;border:none;font-size:24px;cursor:pointer;color:#999;padding:0;line-height:1">&times;</button></div>' +
+      '<div id="setup2faLoading" style="padding:40px 0;color:var(--gray)">Generating secret key...</div>' +
+      '<div id="setup2faContent" style="display:none">' +
+      '<p style="font-size:0.85rem;color:var(--gray);margin-bottom:16px">Scan this QR code with your Google Authenticator app, then enter the 6-digit code below.</p>' +
+      '<div id="setup2faQr" style="margin:0 auto 16px;max-width:200px"></div>' +
+      '<div style="font-size:0.75rem;color:var(--gray);margin-bottom:12px;word-break:break-all;background:var(--light);padding:8px;border-radius:6px">Secret: <span id="setup2faSecret" style="font-family:monospace"></span></div>' +
+      '<input type="text" id="setup2faCode" placeholder="Enter 6-digit code" maxlength="6" inputmode="numeric" pattern="[0-9]*" style="width:100%;padding:12px 14px;border:1.5px solid var(--gray-light);border-radius:10px;font-size:16px;font-family:inherit;outline:none;box-sizing:border-box;text-align:center;letter-spacing:4px;font-weight:700;margin-bottom:12px">' +
+      '<button id="verify2faBtn" class="btn btn-primary" style="width:100%;padding:12px;background:linear-gradient(135deg,var(--primary),var(--secondary));color:var(--white);border:none;border-radius:10px;font-size:1rem;font-weight:600;cursor:pointer;font-family:inherit">Verify & Enable</button>' +
+      '<div id="setup2faError" style="color:#dc2626;font-size:0.85rem;margin-top:8px;display:none"></div>' +
+      '</div></div>';
+    document.body.appendChild(overlay);
+    setup2faInit();
+  }
+
+  async function setup2faInit() {
+    try {
+      const data = await api("/api/auth/2fa/setup", { method: "POST" });
+      document.getElementById("setup2faLoading").style.display = "none";
+      document.getElementById("setup2faContent").style.display = "block";
+      document.getElementById("setup2faQr").innerHTML = '<img src="' + data.qrCode + '" alt="QR Code" style="width:100%;max-width:200px;border-radius:8px">';
+      document.getElementById("setup2faSecret").textContent = data.secret;
+      window.twoFactorState.setupSecret = data.secret;
+      document.getElementById("setup2faCode").focus();
+    } catch (e) {
+      document.getElementById("setup2faLoading").textContent = "Failed to setup 2FA. Try again.";
+    }
+  }
+
+  document.addEventListener("click", function(e) {
+    if (e.target.id === "verify2faBtn") enable2fa();
+  });
+
+  async function enable2fa() {
+    const code = document.getElementById("setup2faCode").value.trim();
+    if (!code || code.length < 6) {
+      document.getElementById("setup2faError").textContent = "Please enter a valid 6-digit code";
+      document.getElementById("setup2faError").style.display = "block";
+      return;
+    }
+    const btn = document.getElementById("verify2faBtn");
+    btn.disabled = true;
+    btn.textContent = "Verifying...";
+    try {
+      await api("/api/auth/2fa/verify", {
+        method: "POST",
+        body: JSON.stringify({ code }),
+      });
+      showToast("2FA enabled successfully!", "success");
+      document.getElementById("setup2faModal").remove();
+      update2faUI(true);
+    } catch (e) {
+      document.getElementById("setup2faError").textContent = e.message || "Invalid code. Try again.";
+      document.getElementById("setup2faError").style.display = "block";
+      btn.disabled = false;
+      btn.textContent = "Verify & Enable";
+    }
+  }
+
+  function showDisable2faModal() {
+    const overlay = document.createElement("div");
+    overlay.className = "modal-overlay";
+    overlay.id = "disable2faModal";
+    overlay.style.cssText = "display:flex;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:10000;align-items:center;justify-content:center";
+    overlay.innerHTML = '<div class="modal-content" style="background:#fff;border-radius:16px;padding:28px;width:90%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,0.2);position:relative">' +
+      '<div class="modal-header" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><h2 style="margin:0;font-size:1.2rem">Disable Two-Factor Auth</h2><button class="modal-close" onclick="this.closest(\'.modal-overlay\').remove()" style="background:none;border:none;font-size:24px;cursor:pointer;color:#999;padding:0;line-height:1">&times;</button></div>' +
+      '<p style="font-size:0.85rem;color:var(--gray);margin-bottom:16px">Enter your password to disable 2FA.</p>' +
+      '<input type="password" id="disable2faPassword" placeholder="Your password" style="width:100%;padding:12px 14px;border:1.5px solid var(--gray-light);border-radius:10px;font-size:16px;font-family:inherit;outline:none;box-sizing:border-box;margin-bottom:12px">' +
+      '<button id="confirmDisable2faBtn" class="btn btn-primary" style="width:100%;padding:12px;background:linear-gradient(135deg,#dc2626,#ef4444);color:var(--white);border:none;border-radius:10px;font-size:1rem;font-weight:600;cursor:pointer;font-family:inherit">Disable 2FA</button>' +
+      '<div id="disable2faError" style="color:#dc2626;font-size:0.85rem;margin-top:8px;display:none"></div>' +
+      '</div>';
+    document.body.appendChild(overlay);
+  }
+
+  document.addEventListener("click", function(e) {
+    if (e.target.id === "confirmDisable2faBtn") disable2fa();
+  });
+
+  async function disable2fa() {
+    const password = document.getElementById("disable2faPassword").value;
+    if (!password) {
+      document.getElementById("disable2faError").textContent = "Please enter your password";
+      document.getElementById("disable2faError").style.display = "block";
+      return;
+    }
+    const btn = document.getElementById("confirmDisable2faBtn");
+    btn.disabled = true;
+    btn.textContent = "Disabling...";
+    try {
+      await api("/api/auth/2fa/disable", {
+        method: "POST",
+        body: JSON.stringify({ password }),
+      });
+      showToast("2FA disabled", "success");
+      document.getElementById("disable2faModal").remove();
+      update2faUI(false);
+    } catch (e) {
+      document.getElementById("disable2faError").textContent = e.message || "Incorrect password";
+      document.getElementById("disable2faError").style.display = "block";
+      btn.disabled = false;
+      btn.textContent = "Disable 2FA";
+    }
+  }
+
+  check2faStatus();
+</script>
+<script src="/js/forum.js"></script>
+</body>
+</html>
+

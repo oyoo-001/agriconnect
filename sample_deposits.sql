@@ -19,10 +19,10 @@
 -- =============================================================
 -- 1. SAMPLE USERS
 -- =============================================================
-INSERT INTO users (uid, email, display_name, phone_number, role, provider, profile, created_at) VALUES
-  ('test-farmer-001',  'farmer@test.com',   'Mwangi Farm',       '+254712345678', 'farmer',       'email', '{"location":"Nakuru","manufacture":"Maize, Beans, Tomatoes"}', 1740000000000),
-  ('test-org-001',     'org@test.com',      'Nakuru Fresh Produce Ltd', '+254723456789', 'organization', 'email', '{"location":"Nakuru","category":"Fresh Produce","bio":"Leading fresh produce distributor in the Rift Valley."}', 1740000000001),
-  ('test-consumer-001','consumer@test.com', 'Jane Wangari',       '+254734567890', 'user',         'email', '{}', 1740000000002);
+INSERT INTO users (uid, email, display_name, phone_number, role, provider, location, manufacture, category, bio, created_at) VALUES
+  ('test-farmer-001',  'farmer@test.com',   'Mwangi Farm',       '+254712345678', 'farmer',       'email', 'Nakuru', 'Maize, Beans, Tomatoes', '', '', 1740000000000),
+  ('test-org-001',     'org@test.com',      'Nakuru Fresh Produce Ltd', '+254723456789', 'organization', 'email', 'Nakuru', '', 'Fresh Produce', 'Leading fresh produce distributor in the Rift Valley.', 1740000000001),
+  ('test-consumer-001','consumer@test.com', 'Jane Wangari',       '+254734567890', 'user',         'email', '', '', '', '', 1740000000002);
 
 -- =============================================================
 -- 2. WALLET IDs (8-digit identifiers for transfers)

@@ -44,7 +44,8 @@ async function seed() {
         displayName: 'Mwangi Farm',
         phone: '+254712345678',
         role: 'farmer',
-        profile: JSON.stringify({ location: 'Nakuru', manufacture: 'Maize, Beans, Tomatoes' }),
+        location: 'Nakuru',
+        manufacture: 'Maize, Beans, Tomatoes',
       },
       {
         uid: 'test-org-001',
@@ -52,7 +53,9 @@ async function seed() {
         displayName: 'Nakuru Fresh Produce Ltd',
         phone: '+254723456789',
         role: 'organization',
-        profile: JSON.stringify({ location: 'Nakuru', category: 'Fresh Produce', bio: 'Leading fresh produce distributor in the Rift Valley.' }),
+        location: 'Nakuru',
+        category: 'Fresh Produce',
+        bio: 'Leading fresh produce distributor in the Rift Valley.',
       },
       {
         uid: 'test-consumer-001',
@@ -60,16 +63,15 @@ async function seed() {
         displayName: 'Jane Wangari',
         phone: '+254734567890',
         role: 'user',
-        profile: '{}',
       },
     ];
 
     for (const u of users) {
       await client.query(
-        `INSERT INTO users (uid, email, display_name, phone_number, password_hash, role, provider, profile, created_at, last_login_at)
-         VALUES ($1,$2,$3,$4,$5,$6,'email',$7::jsonb,$8,$8)
+        `INSERT INTO users (uid, email, display_name, phone_number, password_hash, role, provider, location, manufacture, category, bio, created_at, last_login_at)
+         VALUES ($1,$2,$3,$4,$5,$6,'email',$7,$8,$9,$10,$11,$12)
          ON CONFLICT (uid) DO UPDATE SET password_hash = $5`,
-        [u.uid, u.email, u.displayName, u.phone, passwordHash, u.role, u.profile, now]
+        [u.uid, u.email, u.displayName, u.phone, passwordHash, u.role, u.location || '', u.manufacture || '', u.category || '', u.bio || '', now, now]
       );
     }
     console.log('✓ Users created');

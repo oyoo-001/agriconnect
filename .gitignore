@@ -122,3 +122,6 @@ dist
 .yarn/install-state
 .yarn/pnp
 .yarn/pnp.metadata
+
+# Generated PDF receipts and invoices (stored locally, served on demand)
+receipts/

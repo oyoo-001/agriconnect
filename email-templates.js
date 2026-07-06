@@ -119,25 +119,99 @@ function withdrawalEmail(name, amount, balance, accountInfo) {
 
 function orderEmail(name, orderId, status, listingTitle, amount, actor) {
   const fmt = n => 'KES ' + Number(n).toFixed(2);
-  const statusColors = { pending: '#f59e0b', confirmed: '#3b82f6', shipped: '#8b5cf6', delivered: '#2d6a4f', cancelled: '#ef4444' };
-  const color = statusColors[status] || '#666';
-  const isOrg = actor === 'organization';
-  return emailLayout(`Order ${status.charAt(0).toUpperCase() + status.slice(1)}`, `
-    <h1 style="margin:0 0 4px;font-size:24px;color:#1a1a2e">Order ${status.charAt(0).toUpperCase() + status.slice(1)}</h1>
-    <p style="margin:0 0 24px;font-size:15px;color:#555">Hi ${name}, ${isOrg ? 'an organization has' : 'a farmer has'} ${status === 'pending' ? 'placed' : status === 'confirmed' ? 'confirmed' : status === 'shipped' ? 'shipped' : status === 'delivered' ? 'marked as delivered' : 'cancelled'} an order.</p>
-    <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;margin-bottom:24px;font-size:14px;color:#444">
+
+  // Status display config
+  const statusConfig = {
+    pending:    { label: 'Order Received',        color: '#f59e0b', icon: '📋' },
+    in_escrow:  { label: 'Order Confirmed',        color: '#3b82f6', icon: '🔒' },
+    accepted:   { label: 'Order Accepted',         color: '#10b981', icon: '✅' },
+    processing: { label: 'Order Processing',       color: '#8b5cf6', icon: '⚙️' },
+    dispatched: { label: 'Order Dispatched',       color: '#6366f1', icon: '🚚' },
+    delivered:  { label: 'Delivery Confirmed',     color: '#2d6a4f', icon: '📦' },
+    verified:   { label: 'Order Verified',         color: '#2d6a4f', icon: '✔️' },
+    completed:  { label: 'Order Completed',        color: '#16a34a', icon: '🎉' },
+    cancelled:  { label: 'Order Cancelled',        color: '#ef4444', icon: '❌' },
+    disputed:   { label: 'Order Disputed',         color: '#f97316', icon: '⚠️' },
+    refunded:   { label: 'Order Refunded',         color: '#6b7280', icon: '↩️' },
+  };
+
+  const cfg = statusConfig[status] || { label: status.charAt(0).toUpperCase() + status.slice(1).replace(/_/g, ' '), color: '#6b7280', icon: '📋' };
+
+  // Per-status message, tailored to buyer vs seller
+  const isBuyer = actor === 'buyer';
+  const messages = {
+    pending:    isBuyer ? 'Your order has been placed and is awaiting confirmation.'
+                        : 'You have received a new order.',
+    in_escrow:  isBuyer ? 'Your order is confirmed. Payment is securely held in escrow until delivery.'
+                        : 'A buyer has placed an order. Payment is securely held in escrow.',
+    accepted:   isBuyer ? 'The seller has accepted your order and will prepare it for dispatch.'
+                        : 'You have accepted the order. Please prepare for dispatch.',
+    processing: isBuyer ? 'Your order is being processed and prepared for dispatch.'
+                        : 'Your order is being processed.',
+    dispatched: isBuyer ? 'Your order has been dispatched and is on the way. Please check your email for the delivery OTP.'
+                        : 'You have dispatched the order. Awaiting buyer confirmation.',
+    delivered:  isBuyer ? 'The seller has marked your order as delivered. Please verify receipt with the OTP sent to you.'
+                        : 'You have marked the order as delivered. Awaiting buyer verification.',
+    verified:   isBuyer ? 'You have verified delivery. Payment will be released to the seller.'
+                        : 'The buyer has verified delivery. Payment will be released to your wallet.',
+    completed:  isBuyer ? 'Your order is complete. Thank you for using AgriConnect!'
+                        : 'The order is complete. Payment has been released to your wallet.',
+    cancelled:  isBuyer ? 'Your order has been cancelled and a full refund has been issued to your wallet.'
+                        : 'The order has been cancelled. Funds have been returned to the buyer.',
+    disputed:   isBuyer ? 'You have raised a dispute on this order. Our team will review it.'
+                        : 'The buyer has raised a dispute on this order. Our team will review it.',
+    refunded:   isBuyer ? 'A refund has been issued to your wallet.'
+                        : 'The order was refunded to the buyer.',
+  };
+
+  const message = messages[status] || `Your order status has been updated to ${cfg.label}.`;
+
+  return emailLayout(`${cfg.icon} ${cfg.label}`, `
+    <h1 style="margin:0 0 4px;font-size:24px;color:#1a1a2e">${cfg.icon} ${cfg.label}</h1>
+    <p style="margin:0 0 24px;font-size:15px;color:#555;line-height:1.6">Hi ${name}, ${message}</p>
+    <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;margin-bottom:24px">
       <tr>
-        <td style="padding:16px;background:#f9fafb;border-radius:8px">
-          <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%">
-            <tr><td style="padding:4px 0;font-size:12px;color:#8899aa;text-transform:uppercase;letter-spacing:0.5px">Order #${orderId}</td></tr>
-            <tr><td style="padding:4px 0;font-weight:600;font-size:16px;color:#1a1a2e">${listingTitle || 'Product'}</td></tr>
-            <tr><td style="padding:4px 0"><span style="display:inline-block;padding:4px 12px;background:${color}15;color:${color};border-radius:20px;font-size:13px;font-weight:600">${status.charAt(0).toUpperCase() + status.slice(1)}</span></td></tr>
-            ${amount ? `<tr><td style="padding:4px 0;font-weight:600;font-size:18px;color:#1a1a2e">${fmt(amount)}</td></tr>` : ''}
+        <td style="padding:20px;background:#f9fafb;border-radius:12px">
+          <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;font-size:14px;color:#444">
+            <tr>
+              <td style="padding:4px 0;font-size:11px;color:#8899aa;text-transform:uppercase;letter-spacing:0.5px" colspan="2">Order Details</td>
+            </tr>
+            <tr>
+              <td style="padding:8px 0;border-bottom:1px solid #eee">Order ID</td>
+              <td style="padding:8px 0;border-bottom:1px solid #eee;text-align:right;font-family:monospace;color:#333">#${String(orderId).substring(0,8).toUpperCase()}</td>
+            </tr>
+            ${listingTitle ? `<tr><td style="padding:8px 0;border-bottom:1px solid #eee">Product</td><td style="padding:8px 0;border-bottom:1px solid #eee;text-align:right;font-weight:600;color:#1a1a2e">${listingTitle}</td></tr>` : ''}
+            ${amount ? `<tr><td style="padding:8px 0;border-bottom:1px solid #eee">Amount</td><td style="padding:8px 0;border-bottom:1px solid #eee;text-align:right;font-weight:700;color:#2d6a4f">${fmt(amount)}</td></tr>` : ''}
+            <tr>
+              <td style="padding:8px 0">Status</td>
+              <td style="padding:8px 0;text-align:right">
+                <span style="display:inline-block;padding:4px 12px;background:${cfg.color}18;color:${cfg.color};border-radius:20px;font-size:13px;font-weight:600">${cfg.label}</span>
+              </td>
+            </tr>
           </table>
         </td>
       </tr>
     </table>
-    <a href="${process.env.BASE_URL || 'http://localhost:3000'}/home" style="display:inline-block;padding:14px 32px;background:#2d6a4f;color:#fff;text-decoration:none;border-radius:8px;font-weight:600;font-size:15px">View Order &rarr;</a>
+    ${status === 'dispatched' && isBuyer ? `
+    <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;margin-bottom:24px">
+      <tr>
+        <td style="padding:16px;background:#fef3c7;border-radius:8px;border-left:4px solid #f59e0b">
+          <p style="margin:0;font-size:14px;color:#92400e;font-weight:600">📧 Check your email for the delivery OTP</p>
+          <p style="margin:4px 0 0;font-size:13px;color:#92400e">You'll need it to confirm receipt when your order arrives.</p>
+        </td>
+      </tr>
+    </table>` : ''}
+    ${status === 'completed' ? `
+    <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;margin-bottom:24px">
+      <tr>
+        <td style="padding:16px;background:#f0fdf4;border-radius:8px;border-left:4px solid #16a34a">
+          <p style="margin:0;font-size:14px;color:#166534;font-weight:600">🎉 Transaction Complete</p>
+          <p style="margin:4px 0 0;font-size:13px;color:#166534">${isBuyer ? 'Thank you for your purchase!' : 'Payment has been added to your withdrawable wallet.'}</p>
+        </td>
+      </tr>
+    </table>` : ''}
+    <a href="${process.env.BASE_URL || 'http://localhost:3000'}/${isBuyer ? 'consumer' : 'farmer'}" style="display:inline-block;padding:14px 32px;background:#2d6a4f;color:#fff;text-decoration:none;border-radius:8px;font-weight:600;font-size:15px">View Order &rarr;</a>
+    <p style="margin:16px 0 0;font-size:12px;color:#8899aa">Need help? Contact our <a href="${process.env.BASE_URL || 'http://localhost:3000'}/help-center" style="color:#2d6a4f">support team</a>.</p>
   `);
 }
 

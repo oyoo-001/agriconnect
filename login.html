@@ -303,20 +303,25 @@
         <h2>Welcome Back</h2>
         <p class="auth-subtitle">Log in to your AgriConnect account</p>
         <form id="loginForm">
-            <div class="form-group">
+            <div class="form-group" id="loginEmailGroup">
                 <label for="email">Email</label>
                 <input type="email" id="email" required placeholder="Enter your email">
             </div>
-            <div class="form-group">
+            <div class="form-group" id="loginPasswordGroup">
                 <label for="password">Password</label>
                 <input type="password" id="password" required placeholder="Enter your password">
                 <div class="forgot-password">
                     <a href="forgot-password">Forgot password?</a>
                 </div>
             </div>
+            <div class="form-group" id="login2faGroup" style="display:none">
+                <label for="twoFactorCode">Two-Factor Authentication Code</label>
+                <input type="text" id="twoFactorCode" placeholder="Enter 6-digit code from authenticator app" maxlength="6" inputmode="numeric" pattern="[0-9]*">
+                <p style="font-size:0.8rem;color:var(--gray);margin-top:0.4rem">Open your Google Authenticator app and enter the code.</p>
+            </div>
             <button type="submit" class="btn" id="loginBtn">Log In</button>
         </form>
-        <div class="divider">or continue with</div>
+        <div class="divider" id="loginDivider">or continue with</div>
         <div id="googleButtonContainer"></div>
         <div class="links">
             <p>Don't have an account? <a href="signup">Sign up</a></p>
@@ -370,16 +375,62 @@
             .then(data => { initGoogleGSI(data.clientId); })
             .catch(() => {});
 
+        // Persist auth session to both localStorage (reload-safe) and sessionStorage
+        function persistSession(data) {
+            const userJson = JSON.stringify(data);
+            localStorage.setItem('user', userJson);
+            localStorage.setItem('idToken', data.token || '');
+            sessionStorage.setItem('user', userJson);
+            sessionStorage.setItem('idToken', data.token || '');
+        }
+
         function handleRoleRedirect(data) {
             const roleMap = { admin: 'admin', farmer: 'farmer', organization: 'organisation', consumer: 'consumer' };
             return roleMap[data.role] || 'consumer';
         }
 
+        let pending2faUid = null;
+
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            const loginBtn = document.getElementById('loginBtn');
+
+            // If we're in 2FA step
+            if (pending2faUid) {
+                const code = document.getElementById('twoFactorCode').value.trim();
+                if (!code || code.length < 6) {
+                    showToast('Please enter your 6-digit 2FA code', 'error');
+                    return;
+                }
+                loginBtn.disabled = true;
+                loginBtn.innerHTML = 'Verifying...';
+                try {
+                    const response = await fetch('/api/auth/2fa/login-challenge', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ uid: pending2faUid, code })
+                    });
+                    const data = await response.json();
+                    if (response.ok) {
+                        persistSession(data);
+                        showToast('Login successful! Redirecting...', 'success');
+                        const redirect = handleRoleRedirect(data);
+                        setTimeout(() => { window.location.href = redirect; }, 1000);
+                    } else {
+                        showToast(data.error || 'Invalid code', 'error');
+                        loginBtn.disabled = false;
+                        loginBtn.textContent = 'Verify';
+                    }
+                } catch (error) {
+                    showToast(getAuthErrorMessage(error), 'error');
+                    loginBtn.disabled = false;
+                    loginBtn.textContent = 'Verify';
+                }
+                return;
+            }
+
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
-            const loginBtn = document.getElementById('loginBtn');
             loginBtn.disabled = true;
             loginBtn.innerHTML = 'Logging in...';
 
@@ -391,15 +442,25 @@
                 });
                 const data = await response.json();
                 if (response.ok) {
-                    sessionStorage.setItem('user', JSON.stringify(data));
-                    if (data.token) sessionStorage.setItem('idToken', data.token);
+                    if (data.require2fa) {
+                        pending2faUid = data.uid;
+                        document.getElementById('loginEmailGroup').style.display = 'none';
+                        document.getElementById('loginPasswordGroup').style.display = 'none';
+                        document.getElementById('loginDivider').style.display = 'none';
+                        document.getElementById('googleButtonContainer').style.display = 'none';
+                        document.querySelector('.links').style.display = 'none';
+                        document.querySelector('.back-link').style.display = 'none';
+                        document.getElementById('login2faGroup').style.display = 'block';
+                        document.querySelector('.auth-subtitle').textContent = 'Enter the code from your authenticator app';
+                        loginBtn.disabled = false;
+                        loginBtn.textContent = 'Verify';
+                        document.getElementById('twoFactorCode').focus();
+                        return;
+                    }
+                    persistSession(data);
                     showToast('Login successful! Redirecting...', 'success');
                     const redirect = handleRoleRedirect(data);
                     setTimeout(() => { window.location.href = redirect; }, 1000);
-                } else {
-                    showToast(data.error || 'Login failed', 'error');
-                    loginBtn.disabled = false;
-                    loginBtn.textContent = 'Log In';
                 }
             } catch (error) {
                 showToast(getAuthErrorMessage(error), 'error');
@@ -418,8 +479,7 @@
             .then(res => res.json())
             .then(data => {
                 if (data.user || data.id || data.uid) {
-                    sessionStorage.setItem('user', JSON.stringify(data));
-                    if (data.token) sessionStorage.setItem('idToken', data.token);
+                    persistSession(data);
                     showToast('Welcome back! Redirecting...', 'success');
                     const redirect = handleRoleRedirect(data);
                     setTimeout(() => { window.location.href = redirect; }, 1000);

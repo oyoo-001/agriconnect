@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agrovet Portal - AgriConnect</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --primary: #1B5E20;
+        --primary-light: #2E7D32;
+        --secondary: #43A047;
+        --accent: #FFB300;
+        --accent-dark: #FF8F00;
+        --dark: #1a1a2e;
+        --dark-2: #16213e;
+        --light: #f8f9fa;
+        --gray: #6c757d;
+        --gray-light: #e9ecef;
+        --white: #ffffff;
+        --danger: #dc2626;
+        --sidebar-w: 264px;
+        --topbar-h: 68px;
+        --radius-sm: 8px;
+        --radius-md: 14px;
+        --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        --shadow-sm: 0 2px 8px rgba(0,0,0,0.06);
+        --shadow-md: 0 8px 30px rgba(0,0,0,0.1);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        background: #f2f4f3;
+        color: var(--dark);
+        min-height: 100vh;
+    }
+    a { text-decoration: none; color: inherit; }
+    button { font-family: inherit; }
+    ::placeholder { color: #adb5bd; }
+
+    /* ================= SIDEBAR ================= */
+    .sidebar {
+        position: fixed;
+        top: 0; left: 0;
+        width: var(--sidebar-w);
+        height: 100vh;
+        background: linear-gradient(180deg, var(--dark) 0%, var(--dark-2) 100%);
+        color: var(--white);
+        display: flex;
+        flex-direction: column;
+        z-index: 200;
+        transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .sidebar-brand {
+        display: flex;
+        align-items: center;
+        gap: 0.7rem;
+        padding: 1.4rem 1.4rem 1.2rem;
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .sidebar-brand-icon {
+        width: 38px; height: 38px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, var(--secondary), var(--primary));
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0;
+    }
+    .sidebar-brand-icon svg { width: 20px; height: 20px; }
+    .sidebar-brand-text { font-weight: 800; font-size: 1.1rem; letter-spacing: -0.01em; }
+    .sidebar-brand-text span {
+        display: block; font-weight: 500; font-size: 0.7rem;
+        color: rgba(255,255,255,0.55); letter-spacing: 0.03em;
+        text-transform: uppercase; margin-top: 1px;
+    }
+    .sidebar-close {
+        display: none; position: absolute; top: 1.3rem; right: 1rem;
+        background: rgba(255,255,255,0.08); border: none; color: var(--white);
+        width: 32px; height: 32px; border-radius: 8px;
+        align-items: center; justify-content: center; cursor: pointer;
+    }
+    .sidebar-nav {
+        flex: 1; overflow-y: auto; padding: 1rem 0.9rem;
+        display: flex; flex-direction: column; gap: 0.2rem;
+    }
+    .nav-item {
+        display: flex; align-items: center; gap: 0.85rem;
+        padding: 0.72rem 0.9rem; border-radius: var(--radius-sm);
+        color: rgba(255,255,255,0.68); font-size: 0.89rem; font-weight: 500;
+        cursor: pointer; transition: var(--transition); position: relative;
+        border: none; background: none; width: 100%; text-align: left;
+    }
+    .nav-item svg { width: 19px; height: 19px; flex-shrink: 0; opacity: 0.85; }
+    .nav-item:hover { background: rgba(255,255,255,0.06); color: var(--white); }
+    .nav-item.active {
+        background: linear-gradient(135deg, var(--secondary), var(--primary-light));
+        color: var(--white); box-shadow: 0 4px 14px rgba(46,125,50,0.35);
+    }
+    .nav-item.active svg { opacity: 1; }
+    .nav-item.logout { color: #ff8a80; margin-top: 0.4rem; }
+    .nav-item.logout:hover { background: rgba(220,38,38,0.12); color: #ffb4ac; }
+    .nav-divider { height: 1px; background: rgba(255,255,255,0.08); margin: 0.6rem 0.9rem; }
+    .sidebar-footer {
+        padding: 1rem 1.4rem 1.3rem; border-top: 1px solid rgba(255,255,255,0.08);
+        font-size: 0.72rem; color: rgba(255,255,255,0.4); line-height: 1.5;
+    }
+    .sidebar-footer strong { display: block; color: rgba(255,255,255,0.65); font-size: 0.78rem; font-weight: 600; margin-bottom: 0.15rem; }
+    .sidebar-backdrop {
+        display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+        z-index: 190; opacity: 0; transition: opacity 0.3s ease;
+    }
+
+    /* ================= MAIN AREA ================= */
+    .main { margin-left: var(--sidebar-w); min-height: 100vh; transition: margin 0.35s cubic-bezier(0.4, 0, 0.2, 1); }
+
+    /* ================= TOPBAR ================= */
+    .topbar {
+        height: var(--topbar-h); background: var(--white); border-bottom: 1px solid var(--gray-light);
+        display: flex; align-items: center; justify-content: space-between; padding: 0 1.6rem;
+        position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow-sm);
+    }
+    .topbar-left { display: flex; align-items: center; gap: 0.9rem; min-width: 0; }
+    .hamburger {
+        display: none; background: var(--light); border: 1px solid var(--gray-light);
+        width: 38px; height: 38px; border-radius: 9px; align-items: center; justify-content: center;
+        cursor: pointer; flex-shrink: 0; color: var(--dark);
+    }
+    .hamburger svg { width: 20px; height: 20px; }
+    .user-avatar {
+        width: 40px; height: 40px; border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary), var(--secondary)); color: var(--white);
+        display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.95rem; flex-shrink: 0;
+    }
+    .user-meta { min-width: 0; }
+    .user-name { font-weight: 700; font-size: 0.92rem; color: var(--dark); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .user-role { font-size: 0.74rem; color: var(--secondary); font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; }
+    .topbar-right { display: flex; align-items: center; gap: 0.6rem; flex-shrink: 0; }
+    .icon-btn {
+        position: relative; width: 42px; height: 42px; border-radius: 11px; background: var(--light);
+        border: 1px solid var(--gray-light); display: flex; align-items: center; justify-content: center;
+        cursor: pointer; color: var(--dark); transition: var(--transition);
+    }
+    .icon-btn:hover { background: var(--white); border-color: var(--secondary); color: var(--primary); transform: translateY(-1px); box-shadow: var(--shadow-sm); }
+    .icon-btn svg { width: 21px; height: 21px; }
+    .badge {
+        position: absolute; top: -5px; right: -5px; min-width: 18px; height: 18px; padding: 0 4px;
+        border-radius: 9px; background: var(--accent-dark); color: var(--white); font-size: 0.65rem; font-weight: 700;
+        display: flex; align-items: center; justify-content: center; border: 2px solid var(--white);
+    }
+    .badge.danger { background: var(--danger); }
+
+    /* ================= CONTENT ================= */
+    .content { padding: 1.8rem 1.8rem 3rem; }
+    .content-header { margin-bottom: 1.6rem; display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+    .content-header h1 { font-size: 1.5rem; font-weight: 800; color: var(--dark); margin-bottom: 0.25rem; }
+    .content-header p { color: var(--gray); font-size: 0.9rem; }
+
+    .page-section[hidden] { display: none; }
+
+    /* Buttons */
+    .btn-primary, .btn-outline, .btn-ghost {
+        display: inline-flex; align-items: center; gap: 0.45rem; justify-content: center;
+        font-weight: 600; font-size: 0.85rem; padding: 0.65rem 1.1rem; border-radius: var(--radius-sm);
+        cursor: pointer; transition: var(--transition); border: none; font-family: inherit; white-space: nowrap;
+    }
+    .btn-primary { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: var(--white); }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(46,125,50,0.3); }
+    .btn-outline { background: var(--white); color: var(--primary); border: 1.5px solid var(--gray-light); }
+    .btn-outline:hover { border-color: var(--secondary); background: rgba(67,160,71,0.06); }
+    .btn-ghost { background: none; color: var(--gray); padding: 0.5rem 0.7rem; }
+    .btn-ghost:hover { color: var(--danger); }
+    .btn-sm { padding: 0.45rem 0.8rem; font-size: 0.78rem; }
+    .btn-primary svg, .btn-outline svg, .btn-ghost svg { width: 16px; height: 16px; }
+
+    /* Cards / grids */
+    .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.1rem; margin-bottom: 1.8rem; }
+    .stat-card { background: var(--white); border: 1px solid var(--gray-light); border-radius: var(--radius-md); padding: 1.3rem; box-shadow: var(--shadow-sm); }
+    .stat-card-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.8rem; }
+    .stat-icon { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; background: rgba(67,160,71,0.1); color: var(--primary); }
+    .stat-icon svg { width: 19px; height: 19px; }
+    .stat-trend { font-size: 0.74rem; font-weight: 700; color: var(--secondary); }
+    .stat-value { font-size: 1.5rem; font-weight: 800; color: var(--dark); }
+    .stat-label { font-size: 0.82rem; color: var(--gray); margin-top: 0.15rem; }
+
+    .panel { background: var(--white); border: 1px solid var(--gray-light); border-radius: var(--radius-md); box-shadow: var(--shadow-sm); }
+    .panel-header { display: flex; align-items: center; justify-content: space-between; padding: 1.1rem 1.3rem; border-bottom: 1px solid var(--gray-light); gap: 1rem; flex-wrap: wrap; }
+    .panel-header h2 { font-size: 1rem; font-weight: 700; }
+    .panel-body { padding: 1.3rem; }
+    .section-gap { margin-bottom: 1.6rem; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.84rem; min-width: 560px; }
+    th { text-align: left; padding: 0.8rem 1.3rem; background: var(--light); color: var(--gray); font-weight: 700; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.03em; border-bottom: 1px solid var(--gray-light); white-space: nowrap; }
+    td { padding: 0.85rem 1.3rem; border-bottom: 1px solid var(--gray-light); color: var(--dark); }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr { transition: background 0.15s ease; }
+    tbody tr:hover { background: #fafcfa; }
+
+    /* Status badges */
+    .status-badge { display: inline-flex; align-items: center; padding: 0.28rem 0.7rem; border-radius: 20px; font-size: 0.72rem; font-weight: 700; }
+    .status-badge.success { background: #f0fdf4; color: #16a34a; }
+    .status-badge.pending { background: #fffbeb; color: var(--accent-dark); }
+    .status-badge.danger { background: #fef2f2; color: var(--danger); }
+    .status-badge.info { background: #eff6ff; color: #2563eb; }
+    .status-badge.neutral { background: var(--gray-light); color: var(--gray); }
+
+    /* Filter chips */
+    .chip-row { display: flex; gap: 0.5rem; flex-wrap: wrap; padding: 1rem 1.3rem 0; }
+    .chip {
+        padding: 0.4rem 0.9rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600;
+        background: var(--light); color: var(--gray); border: 1.5px solid transparent; cursor: pointer; transition: var(--transition);
+    }
+    .chip.active { background: rgba(67,160,71,0.1); color: var(--primary); border-color: var(--secondary); }
+    .chip:hover { border-color: var(--gray-light); }
+
+    /* Forms */
+    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.1rem; }
+    .form-group label { display: block; margin-bottom: 0.4rem; font-weight: 600; font-size: 0.82rem; color: var(--dark); }
+    .form-group input, .form-group select, .form-group textarea {
+        width: 100%; padding: 0.75rem 0.9rem; border: 1.5px solid var(--gray-light); border-radius: var(--radius-sm);
+        font-size: 0.9rem; font-family: inherit; transition: var(--transition); background: var(--white);
+    }
+    .form-group textarea { resize: vertical; min-height: 90px; }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+        outline: none; border-color: var(--secondary); box-shadow: 0 0 0 3px rgba(67,160,71,0.15);
+    }
+    .form-group.full { grid-column: 1 / -1; }
+    .form-actions { display: flex; gap: 0.7rem; margin-top: 1.3rem; flex-wrap: wrap; }
+
+    .upload-box {
+        border: 1.75px dashed var(--gray-light); border-radius: var(--radius-sm); padding: 1.6rem 1rem;
+        text-align: center; color: var(--gray); font-size: 0.82rem; cursor: pointer; transition: var(--transition);
+    }
+    .upload-box:hover { border-color: var(--secondary); background: rgba(67,160,71,0.04); }
+    .upload-box svg { width: 26px; height: 26px; color: var(--gray-light); margin-bottom: 0.5rem; }
+
+    /* Profile header */
+    .profile-header { display: flex; align-items: center; gap: 1rem; padding: 1.3rem; border-bottom: 1px solid var(--gray-light); flex-wrap: wrap; }
+    .profile-avatar-lg {
+        width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: var(--white); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.3rem; flex-shrink: 0;
+    }
+    .profile-name { font-size: 1.05rem; font-weight: 800; }
+    .profile-sub { font-size: 0.82rem; color: var(--gray); margin-top: 0.1rem; }
+    .verified-tag { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.72rem; font-weight: 700; color: var(--secondary); background: rgba(67,160,71,0.1); padding: 0.2rem 0.6rem; border-radius: 20px; margin-left: 0.5rem; }
+    .verified-tag svg { width: 12px; height: 12px; }
+
+    /* Wallet balance */
+    .balance-card {
+        background: linear-gradient(135deg, var(--dark) 0%, var(--dark-2) 100%); color: var(--white);
+        border-radius: var(--radius-md); padding: 1.6rem; display: flex; align-items: center; justify-content: space-between;
+        flex-wrap: wrap; gap: 1.2rem; margin-bottom: 1.6rem;
+    }
+    .balance-label { font-size: 0.8rem; color: rgba(255,255,255,0.6); margin-bottom: 0.3rem; }
+    .balance-amount { font-size: 2rem; font-weight: 800; }
+    .balance-actions { display: flex; gap: 0.7rem; }
+    .balance-actions .btn-primary { background: var(--accent); color: var(--dark); }
+    .balance-actions .btn-outline { background: rgba(255,255,255,0.08); color: var(--white); border-color: rgba(255,255,255,0.2); }
+    .balance-actions .btn-outline:hover { background: rgba(255,255,255,0.14); }
+
+    /* Forum */
+    .thread-item { display: flex; gap: 0.9rem; padding: 1.1rem 1.3rem; border-bottom: 1px solid var(--gray-light); align-items: flex-start; }
+    .thread-item:last-child { border-bottom: none; }
+    .thread-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--light); color: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; flex-shrink: 0; }
+    .thread-body { flex: 1; min-width: 0; }
+    .thread-title { font-weight: 700; font-size: 0.92rem; margin-bottom: 0.2rem; }
+    .thread-meta { font-size: 0.78rem; color: var(--gray); }
+    .thread-snippet { font-size: 0.84rem; color: var(--gray); margin-top: 0.35rem; line-height: 1.5; }
+    .thread-tags { display: flex; gap: 0.4rem; margin-top: 0.6rem; flex-wrap: wrap; }
+    .thread-stats { text-align: right; font-size: 0.78rem; color: var(--gray); flex-shrink: 0; min-width: 70px; }
+    .thread-stats strong { display: block; font-size: 1rem; color: var(--dark); }
+
+    /* Agreement cards */
+    .agreement-card { display: flex; align-items: center; gap: 1rem; padding: 1.1rem 1.3rem; border-bottom: 1px solid var(--gray-light); flex-wrap: wrap; }
+    .agreement-card:last-child { border-bottom: none; }
+    .agreement-icon { width: 42px; height: 42px; border-radius: 10px; background: rgba(67,160,71,0.1); color: var(--primary); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .agreement-icon svg { width: 21px; height: 21px; }
+    .agreement-info { flex: 1; min-width: 180px; }
+    .agreement-title { font-weight: 700; font-size: 0.92rem; }
+    .agreement-meta { font-size: 0.8rem; color: var(--gray); margin-top: 0.2rem; }
+    .agreement-actions { display: flex; align-items: center; gap: 0.6rem; }
+
+    /* Connections */
+    .connection-card { background: var(--white); border: 1px solid var(--gray-light); border-radius: var(--radius-md); padding: 1.2rem; text-align: center; box-shadow: var(--shadow-sm); }
+    .connection-avatar { width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--secondary)); color: var(--white); display: flex; align-items: center; justify-content: center; font-weight: 800; margin: 0 auto 0.7rem; font-size: 1.1rem; }
+    .connection-name { font-weight: 700; font-size: 0.94rem; }
+    .connection-role { font-size: 0.76rem; color: var(--secondary); font-weight: 700; text-transform: uppercase; letter-spacing: 0.02em; margin: 0.15rem 0 0.3rem; }
+    .connection-loc { font-size: 0.8rem; color: var(--gray); margin-bottom: 0.9rem; }
+    .connection-actions { display: flex; gap: 0.5rem; }
+    .connection-actions button { flex: 1; }
+
+    /* Product grid */
+    .product-card { background: var(--white); border: 1px solid var(--gray-light); border-radius: var(--radius-md); overflow: hidden; box-shadow: var(--shadow-sm); }
+    .product-thumb { height: 90px; background: linear-gradient(135deg, rgba(67,160,71,0.18), rgba(27,94,32,0.08)); display: flex; align-items: center; justify-content: center; color: var(--primary); }
+    .product-thumb svg { width: 30px; height: 30px; }
+    .product-body { padding: 0.9rem 1rem 1rem; }
+    .product-title { font-weight: 700; font-size: 0.9rem; }
+    .product-cat { font-size: 0.76rem; color: var(--gray); margin: 0.15rem 0 0.5rem; }
+    .product-price-row { display: flex; align-items: center; justify-content: space-between; }
+    .product-price { font-weight: 800; color: var(--primary); }
+    .product-stock { font-size: 0.75rem; color: var(--gray); }
+    .product-foot { display: flex; gap: 0.5rem; margin-top: 0.8rem; }
+    .product-foot button { flex: 1; }
+
+    /* Bar chart */
+    .bar-chart { display: flex; align-items: flex-end; gap: 1rem; height: 180px; padding: 1rem 1.3rem 0; }
+    .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; height: 100%; justify-content: flex-end; }
+    .bar { width: 100%; max-width: 34px; border-radius: 6px 6px 0 0; background: linear-gradient(180deg, var(--secondary), var(--primary)); transition: transform 0.2s ease; }
+    .bar:hover { transform: scaleY(1.02); }
+    .bar-label { font-size: 0.74rem; color: var(--gray); font-weight: 600; }
+
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; } }
+
+    /* ================= RESPONSIVE ================= */
+    @media (max-width: 1023px) {
+        .sidebar { transform: translateX(-100%); box-shadow: 0 0 40px rgba(0,0,0,0.3); }
+        .sidebar.open { transform: translateX(0); }
+        .sidebar-close { display: flex; }
+        .sidebar-backdrop.open { display: block; opacity: 1; }
+        .main { margin-left: 0; }
+        .hamburger { display: flex; }
+        .user-role { display: none; }
+    }
+    @media (max-width: 560px) {
+        .content { padding: 1.3rem 1rem 2.5rem; }
+        .topbar { padding: 0 1rem; }
+        .user-meta .user-name { max-width: 110px; }
+        .balance-card { flex-direction: column; align-items: flex-start; }
+    }
+</style>
+</head>
+<body>
+
+<div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+<aside class="sidebar" id="sidebar">
+    <button class="sidebar-close" id="sidebarClose" aria-label="Close menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+    <div class="sidebar-brand">
+        <div class="sidebar-brand-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M12 2c-3 2-5 5-5 8s2 4 5 4M12 2c3 2 5 5 5 8s-2 4-5 4"/></svg>
+        </div>
+        <div class="sidebar-brand-text">AgriConnect<span>Agrovet Portal</span></div>
+    </div>
+
+    <nav class="sidebar-nav" id="sidebarNav">
+        <button class="nav-item active" data-page="dashboard">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+            Dashboard
+        </button>
+        <button class="nav-item" data-page="account">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>
+            My Account
+        </button>
+        <button class="nav-item" data-page="wallet">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/><circle cx="16" cy="14.5" r="1"/></svg>
+            Wallet
+        </button>
+        <button class="nav-item" data-page="forum">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 1 1-3.2-6.4"/><path d="M21 3v6h-6"/><path d="M8 12h.01M12 12h.01M16 12h.01" stroke-width="2.5"/></svg>
+            Forum
+        </button>
+        <button class="nav-item" data-page="agreement">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 15l2 2 4-4"/></svg>
+            Agreement
+        </button>
+        <button class="nav-item" data-page="connections">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="7" r="3"/><circle cx="17" cy="17" r="3"/><path d="M9.5 9.5 14.5 14.5"/></svg>
+            Connections
+        </button>
+        <button class="nav-item" data-page="post-products">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4"/><path d="M3 6h18"/><path d="M12 11v6M9 14h6"/></svg>
+            Post Agrovet Products
+        </button>
+        <button class="nav-item" data-page="orders">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2.5 3h2l2.4 12.2a2 2 0 0 0 2 1.6h8.4a2 2 0 0 0 2-1.6L21 7H6"/></svg>
+            Orders
+        </button>
+        <button class="nav-item" data-page="payout">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></svg>
+            Payout &amp; Performance
+        </button>
+
+        <div class="nav-divider"></div>
+        <button class="nav-item logout" data-page="logout">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+            Logout
+        </button>
+    </nav>
+
+    <div class="sidebar-footer">
+        <strong>AgriConnect Agrovet</strong>
+        v1.0.0 &middot; &copy; 2026 AgriConnect
+    </div>
+</aside>
+
+<div class="main" id="main">
+    <header class="topbar">
+        <div class="topbar-left">
+            <button class="hamburger" id="hamburgerBtn" aria-label="Open menu">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+            </button>
+            <div class="user-avatar">JM</div>
+            <div class="user-meta">
+                <div class="user-name">John Mwangi</div>
+                <div class="user-role">Agrovet</div>
+            </div>
+        </div>
+        <div class="topbar-right">
+            <button class="icon-btn" aria-label="Notifications">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                <span class="badge">5</span>
+            </button>
+            <button class="icon-btn" aria-label="Orders">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2.5 3h2l2.4 12.2a2 2 0 0 0 2 1.6h8.4a2 2 0 0 0 2-1.6L21 7H6"/></svg>
+                <span class="badge danger">3</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="content" id="content">
+
+        <!-- ============ DASHBOARD ============ -->
+        <section class="page-section" id="page-dashboard">
+            <div class="content-header">
+                <div>
+                    <h1>Dashboard</h1>
+                    <p>Welcome back, John. Here's what's happening with your agrovet business.</p>
+                </div>
+            </div>
+
+            <div class="card-grid">
+                <div class="stat-card">
+                    <div class="stat-card-top">
+                        <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2.5 3h2l2.4 12.2a2 2 0 0 0 2 1.6h8.4a2 2 0 0 0 2-1.6L21 7H6"/></svg></div>
+                        <span class="stat-trend">+8 today</span>
+                    </div>
+                    <div class="stat-value">128</div>
+                    <div class="stat-label">Total Orders</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card-top">
+                        <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/><circle cx="16" cy="14.5" r="1"/></svg></div>
+                        <span class="stat-trend">+KES 4,200</span>
+                    </div>
+                    <div class="stat-value">KES 84,300</div>
+                    <div class="stat-label">Wallet Balance</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card-top">
+                        <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="7" r="3"/><circle cx="17" cy="17" r="3"/><path d="M9.5 9.5 14.5 14.5"/></svg></div>
+                        <span class="stat-trend">+3 new</span>
+                    </div>
+                    <div class="stat-value">42</div>
+                    <div class="stat-label">Active Connections</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card-top">
+                        <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></svg></div>
+                        <span class="stat-trend">vs last month</span>
+                    </div>
+                    <div class="stat-value">+12.4%</div>
+                    <div class="stat-label">Performance This Month</div>
+                </div>
+            </div>
+
+            <div class="panel section-gap">
+                <div class="panel-header">
+                    <h2>Recent Orders</h2>
+                    <button class="btn-outline btn-sm" data-goto="orders">View all</button>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Order ID</th><th>Customer</th><th>Product</th><th>Amount</th><th>Status</th></tr></thead>
+                        <tbody>
+                            <tr><td>#AG-2041</td><td>Green Valley Farmers</td><td>NPK Fertilizer 50kg</td><td>KES 6,500</td><td><span class="status-badge success">Completed</span></td></tr>
+                            <tr><td>#AG-2040</td><td>Wanjiru Kamau</td><td>Maize Seeds (Hybrid)</td><td>KES 2,300</td><td><span class="status-badge pending">Processing</span></td></tr>
+                            <tr><td>#AG-2039</td><td>Riverside Organics</td><td>Pesticide Sprayer</td><td>KES 4,800</td><td><span class="status-badge info">Shipped</span></td></tr>
+                            <tr><td>#AG-2038</td><td>Peter Otieno</td><td>Animal Feed 70kg</td><td>KES 3,150</td><td><span class="status-badge danger">Cancelled</span></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-header"><h2>This Week's Activity</h2></div>
+                <div class="bar-chart">
+                    <div class="bar-col"><div class="bar" style="height:45%"></div><span class="bar-label">Mon</span></div>
+                    <div class="bar-col"><div class="bar" style="height:65%"></div><span class="bar-label">Tue</span></div>
+                    <div class="bar-col"><div class="bar" style="height:38%"></div><span class="bar-label">Wed</span></div>
+                    <div class="bar-col"><div class="bar" style="height:80%"></div><span class="bar-label">Thu</span></div>
+                    <div class="bar-col"><div class="bar" style="height:58%"></div><span class="bar-label">Fri</span></div>
+                    <div class="bar-col"><div class="bar" style="height:92%"></div><span class="bar-label">Sat</span></div>
+                    <div class="bar-col"><div class="bar" style="height:30%"></div><span class="bar-label">Sun</span></div>
+                </div>
+                <div style="height:1.3rem"></div>
+            </div>
+        </section>
+
+        <!-- ============ MY ACCOUNT ============ -->
+        <section class="page-section" id="page-account" hidden>
+            <div class="content-header">
+                <div><h1>My Account</h1><p>Manage your profile, contact details and preferences.</p></div>
+            </div>
+
+            <div class="panel section-gap">
+                <div class="profile-header">
+                    <div class="profile-avatar-lg">JM</div>
+                    <div>
+                        <div class="profile-name">John Mwangi <span class="verified-tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Verified</span></div>
+                        <div class="profile-sub">Mwangi Agrovet Supplies &middot; Murang'a, Kenya</div>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <div class="form-grid">
+                        <div class="form-group"><label>Full Name</label><input type="text" value="John Mwangi"></div>
+                        <div class="form-group"><label>Business Name</label><input type="text" value="Mwangi Agrovet Supplies"></div>
+                        <div class="form-group"><label>Email</label><input type="email" value="john.mwangi@agriconnect.com"></div>
+                        <div class="form-group"><label>Phone Number</label><input type="tel" value="+254 712 345 678"></div>
+                        <div class="form-group"><label>County / Location</label><input type="text" value="Murang'a"></div>
+                        <div class="form-group"><label>Business Registration No.</label><input type="text" value="BN-2024-77190"></div>
+                        <div class="form-group full"><label>About / Bio</label><textarea>Trusted agrovet supplier serving farmers across Murang'a with quality seeds, fertilizers and equipment since 2016.</textarea></div>
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn-primary">Save Changes</button>
+                        <button class="btn-outline">Cancel</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-header"><h2>Security</h2></div>
+                <div class="panel-body">
+                    <div class="form-grid">
+                        <div class="form-group"><label>Current Password</label><input type="password" placeholder="••••••••"></div>
+                        <div class="form-group"></div>
+                        <div class="form-group"><label>New Password</label><input type="password" placeholder="Min 6 characters"></div>
+                        <div class="form-group"><label>Confirm New Password</label><input type="password" placeholder="Re-enter new password"></div>
+                    </div>
+                    <div class="form-actions"><button class="btn-primary">Update Password</button></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ WALLET ============ -->
+        <section class="page-section" id="page-wallet" hidden>
+            <div class="content-header">
+                <div><h1>Wallet</h1><p>Track your balance, deposits and withdrawal history.</p></div>
+            </div>
+
+            <div class="balance-card">
+                <div>
+                    <div class="balance-label">Available Balance</div>
+                    <div class="balance-amount">KES 84,300</div>
+                </div>
+                <div class="balance-actions">
+                    <button class="btn-primary">Withdraw</button>
+                    <button class="btn-outline">Deposit</button>
+                </div>
+            </div>
+
+            <div class="card-grid">
+                <div class="stat-card">
+                    <div class="stat-value">KES 312,450</div>
+                    <div class="stat-label">Total Earned</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">KES 228,150</div>
+                    <div class="stat-label">Total Withdrawn</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">KES 6,500</div>
+                    <div class="stat-label">Pending Clearance</div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-header"><h2>Transaction History</h2><button class="btn-outline btn-sm">Export</button></div>
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Date</th><th>Description</th><th>Type</th><th>Amount</th><th>Status</th></tr></thead>
+                        <tbody>
+                            <tr><td>2 Jul 2026</td><td>Order #AG-2041 payout</td><td>Credit</td><td>+KES 6,500</td><td><span class="status-badge success">Completed</span></td></tr>
+                            <tr><td>29 Jun 2026</td><td>Withdrawal to M-Pesa</td><td>Debit</td><td>-KES 20,000</td><td><span class="status-badge success">Completed</span></td></tr>
+                            <tr><td>27 Jun 2026</td><td>Order #AG-2035 payout</td><td>Credit</td><td>+KES 3,150</td><td><span class="status-badge success">Completed</span></td></tr>
+                            <tr><td>24 Jun 2026</td><td>Withdrawal to Equity Bank</td><td>Debit</td><td>-KES 15,000</td><td><span class="status-badge pending">Processing</span></td></tr>
+                            <tr><td>20 Jun 2026</td><td>Order #AG-2028 payout</td><td>Credit</td><td>+KES 9,800</td><td><span class="status-badge success">Completed</span></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ FORUM ============ -->
+        <section class="page-section" id="page-forum" hidden>
+            <div class="content-header">
+                <div><h1>Forum</h1><p>Discuss with other agrovets, farmers and organisations.</p></div>
+                <button class="btn-primary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>New Post</button>
+            </div>
+
+            <div class="panel">
+                <div class="chip-row">
+                    <span class="chip active">All</span>
+                    <span class="chip">Crop Health</span>
+                    <span class="chip">Market Prices</span>
+                    <span class="chip">Equipment</span>
+                    <span class="chip">General</span>
+                </div>
+                <div style="margin-top:0.4rem">
+                    <div class="thread-item">
+                        <div class="thread-avatar">WK</div>
+                        <div class="thread-body">
+                            <div class="thread-title">Best fertilizer for maize during dry spells?</div>
+                            <div class="thread-meta">Wanjiru Kamau &middot; 3 hours ago</div>
+                            <div class="thread-snippet">Looking for recommendations on drought-resistant fertilizer blends for maize in Murang'a this season...</div>
+                            <div class="thread-tags"><span class="status-badge info">Crop Health</span></div>
+                        </div>
+                        <div class="thread-stats"><strong>14</strong>replies</div>
+                    </div>
+                    <div class="thread-item">
+                        <div class="thread-avatar">PO</div>
+                        <div class="thread-body">
+                            <div class="thread-title">Animal feed prices rising — anyone else noticing this?</div>
+                            <div class="thread-meta">Peter Otieno &middot; Yesterday</div>
+                            <div class="thread-snippet">Feed prices have gone up almost 15% this month across three suppliers I work with. Sharing to compare notes.</div>
+                            <div class="thread-tags"><span class="status-badge pending">Market Prices</span></div>
+                        </div>
+                        <div class="thread-stats"><strong>27</strong>replies</div>
+                    </div>
+                    <div class="thread-item">
+                        <div class="thread-avatar">RO</div>
+                        <div class="thread-body">
+                            <div class="thread-title">Where to service a knapsack sprayer near Murang'a?</div>
+                            <div class="thread-meta">Riverside Organics &middot; 2 days ago</div>
+                            <div class="thread-snippet">My sprayer's pump seal is worn out. Any recommended technicians or agrovets who repair these?</div>
+                            <div class="thread-tags"><span class="status-badge neutral">Equipment</span></div>
+                        </div>
+                        <div class="thread-stats"><strong>6</strong>replies</div>
+                    </div>
+                    <div class="thread-item">
+                        <div class="thread-avatar">GV</div>
+                        <div class="thread-body">
+                            <div class="thread-title">Welcome to the AgriConnect community forum</div>
+                            <div class="thread-meta">Green Valley Farmers &middot; 5 days ago</div>
+                            <div class="thread-snippet">Introduce yourself here! Tell us where you're based and what you grow or supply.</div>
+                            <div class="thread-tags"><span class="status-badge neutral">General</span></div>
+                        </div>
+                        <div class="thread-stats"><strong>52</strong>replies</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ AGREEMENT ============ -->
+        <section class="page-section" id="page-agreement" hidden>
+            <div class="content-header">
+                <div><h1>Agreement</h1><p>View and manage your supply agreements and contracts.</p></div>
+                <button class="btn-primary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>New Agreement</button>
+            </div>
+
+            <div class="panel">
+                <div class="agreement-card">
+                    <div class="agreement-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg></div>
+                    <div class="agreement-info">
+                        <div class="agreement-title">Supply Agreement — Green Valley Farmers</div>
+                        <div class="agreement-meta">Fertilizer &amp; seed supply &middot; 1 Jan 2026 – 31 Dec 2026</div>
+                    </div>
+                    <div class="agreement-actions"><span class="status-badge success">Active</span><button class="btn-outline btn-sm">View</button></div>
+                </div>
+                <div class="agreement-card">
+                    <div class="agreement-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg></div>
+                    <div class="agreement-info">
+                        <div class="agreement-title">Bulk Purchase Agreement — Riverside Organics</div>
+                        <div class="agreement-meta">Animal feed distribution &middot; Awaiting signature</div>
+                    </div>
+                    <div class="agreement-actions"><span class="status-badge pending">Pending Signature</span><button class="btn-outline btn-sm">Review</button></div>
+                </div>
+                <div class="agreement-card">
+                    <div class="agreement-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg></div>
+                    <div class="agreement-info">
+                        <div class="agreement-title">Equipment Supply Agreement — Wanjiru Kamau</div>
+                        <div class="agreement-meta">Sprayers &amp; tools &middot; 1 Mar 2025 – 28 Feb 2026</div>
+                    </div>
+                    <div class="agreement-actions"><span class="status-badge danger">Expired</span><button class="btn-outline btn-sm">Renew</button></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ CONNECTIONS ============ -->
+        <section class="page-section" id="page-connections" hidden>
+            <div class="content-header">
+                <div><h1>Connections</h1><p>Farmers, organisations and buyers you work with.</p></div>
+            </div>
+
+            <div class="chip-row" style="padding:0 0 1.3rem">
+                <span class="chip active">All (42)</span>
+                <span class="chip">Farmers</span>
+                <span class="chip">Organisations</span>
+                <span class="chip">Consumers</span>
+            </div>
+
+            <div class="card-grid">
+                <div class="connection-card">
+                    <div class="connection-avatar">WK</div>
+                    <div class="connection-name">Wanjiru Kamau</div>
+                    <div class="connection-role">Farmer</div>
+                    <div class="connection-loc">Murang'a, Kenya</div>
+                    <div class="connection-actions"><button class="btn-outline btn-sm">Message</button><button class="btn-primary btn-sm">View</button></div>
+                </div>
+                <div class="connection-card">
+                    <div class="connection-avatar">GV</div>
+                    <div class="connection-name">Green Valley Farmers</div>
+                    <div class="connection-role">Organisation</div>
+                    <div class="connection-loc">Kiambu, Kenya</div>
+                    <div class="connection-actions"><button class="btn-outline btn-sm">Message</button><button class="btn-primary btn-sm">View</button></div>
+                </div>
+                <div class="connection-card">
+                    <div class="connection-avatar">PO</div>
+                    <div class="connection-name">Peter Otieno</div>
+                    <div class="connection-role">Farmer</div>
+                    <div class="connection-loc">Nyeri, Kenya</div>
+                    <div class="connection-actions"><button class="btn-outline btn-sm">Message</button><button class="btn-primary btn-sm">View</button></div>
+                </div>
+                <div class="connection-card">
+                    <div class="connection-avatar">RO</div>
+                    <div class="connection-name">Riverside Organics</div>
+                    <div class="connection-role">Organisation</div>
+                    <div class="connection-loc">Embu, Kenya</div>
+                    <div class="connection-actions"><button class="btn-outline btn-sm">Message</button><button class="btn-primary btn-sm">View</button></div>
+                </div>
+                <div class="connection-card">
+                    <div class="connection-avatar">MN</div>
+                    <div class="connection-name">Mary Njeri</div>
+                    <div class="connection-role">Consumer</div>
+                    <div class="connection-loc">Nairobi, Kenya</div>
+                    <div class="connection-actions"><button class="btn-outline btn-sm">Message</button><button class="btn-primary btn-sm">View</button></div>
+                </div>
+                <div class="connection-card">
+                    <div class="connection-avatar">SK</div>
+                    <div class="connection-name">Samuel Kiptoo</div>
+                    <div class="connection-role">Farmer</div>
+                    <div class="connection-loc">Nakuru, Kenya</div>
+                    <div class="connection-actions"><button class="btn-outline btn-sm">Message</button><button class="btn-primary btn-sm">View</button></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ POST AGROVET PRODUCTS ============ -->
+        <section class="page-section" id="page-post-products" hidden>
+            <div class="content-header">
+                <div><h1>Post Agrovet Products</h1><p>List new products for farmers and buyers to discover.</p></div>
+            </div>
+
+            <div class="panel section-gap">
+                <div class="panel-header"><h2>Add New Product</h2></div>
+                <div class="panel-body">
+                    <div class="form-grid">
+                        <div class="form-group"><label>Product Name</label><input type="text" placeholder="e.g. NPK Fertilizer 50kg"></div>
+                        <div class="form-group">
+                            <label>Category</label>
+                            <select>
+                                <option>Fertilizers</option>
+                                <option>Seeds</option>
+                                <option>Animal Feed</option>
+                                <option>Pesticides</option>
+                                <option>Equipment &amp; Tools</option>
+                            </select>
+                        </div>
+                        <div class="form-group"><label>Price (KES)</label><input type="number" placeholder="0.00"></div>
+                        <div class="form-group"><label>Unit</label><input type="text" placeholder="e.g. per 50kg bag"></div>
+                        <div class="form-group"><label>Stock Quantity</label><input type="number" placeholder="0"></div>
+                        <div class="form-group"><label>Delivery Area</label><input type="text" placeholder="e.g. Murang'a & surrounding"></div>
+                        <div class="form-group full"><label>Description</label><textarea placeholder="Describe the product, usage instructions and benefits..."></textarea></div>
+                        <div class="form-group full">
+                            <label>Product Image</label>
+                            <div class="upload-box">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg>
+                                Click to upload or drag and drop &middot; PNG, JPG up to 5MB
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn-primary">Publish Product</button>
+                        <button class="btn-outline">Save as Draft</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-header"><h2>Your Posted Products</h2></div>
+                <div class="panel-body">
+                    <div class="card-grid">
+                        <div class="product-card">
+                            <div class="product-thumb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 7.5 12 12l-8.5-4.5M12 12v9M3.5 7.5v9L12 21l8.5-4.5v-9L12 3z"/></svg></div>
+                            <div class="product-body">
+                                <div class="product-title">NPK Fertilizer 50kg</div>
+                                <div class="product-cat">Fertilizers</div>
+                                <div class="product-price-row"><span class="product-price">KES 3,250</span><span class="product-stock">86 in stock</span></div>
+                                <div class="product-foot"><button class="btn-outline btn-sm">Edit</button><button class="btn-ghost btn-sm">Delete</button></div>
+                            </div>
+                        </div>
+                        <div class="product-card">
+                            <div class="product-thumb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8 6 5 10 5 14a7 7 0 0 0 14 0c0-4-3-8-7-12z"/></svg></div>
+                            <div class="product-body">
+                                <div class="product-title">Hybrid Maize Seeds 2kg</div>
+                                <div class="product-cat">Seeds</div>
+                                <div class="product-price-row"><span class="product-price">KES 950</span><span class="product-stock">142 in stock</span></div>
+                                <div class="product-foot"><button class="btn-outline btn-sm">Edit</button><button class="btn-ghost btn-sm">Delete</button></div>
+                            </div>
+                        </div>
+                        <div class="product-card">
+                            <div class="product-thumb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="8" width="16" height="10" rx="1.5"/><path d="M8 8V6a4 4 0 0 1 8 0v2"/></svg></div>
+                            <div class="product-body">
+                                <div class="product-title">Knapsack Pesticide Sprayer 16L</div>
+                                <div class="product-cat">Equipment &amp; Tools</div>
+                                <div class="product-price-row"><span class="product-price">KES 4,800</span><span class="product-stock">12 in stock</span></div>
+                                <div class="product-foot"><button class="btn-outline btn-sm">Edit</button><button class="btn-ghost btn-sm">Delete</button></div>
+                            </div>
+                        </div>
+                        <div class="product-card">
+                            <div class="product-thumb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/></svg></div>
+                            <div class="product-body">
+                                <div class="product-title">Dairy Meal Animal Feed 70kg</div>
+                                <div class="product-cat">Animal Feed</div>
+                                <div class="product-price-row"><span class="product-price">KES 3,150</span><span class="product-stock" style="color:var(--danger)">Out of stock</span></div>
+                                <div class="product-foot"><button class="btn-outline btn-sm">Edit</button><button class="btn-ghost btn-sm">Delete</button></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ ORDERS ============ -->
+        <section class="page-section" id="page-orders" hidden>
+            <div class="content-header">
+                <div><h1>Orders</h1><p>Track and manage incoming and outgoing orders.</p></div>
+            </div>
+
+            <div class="panel">
+                <div class="chip-row">
+                    <span class="chip active">All</span>
+                    <span class="chip">Pending</span>
+                    <span class="chip">Processing</span>
+                    <span class="chip">Completed</span>
+                    <span class="chip">Cancelled</span>
+                </div>
+                <div class="table-wrap" style="margin-top:0.6rem">
+                    <table>
+                        <thead><tr><th>Order ID</th><th>Customer</th><th>Product</th><th>Qty</th><th>Amount</th><th>Date</th><th>Status</th><th></th></tr></thead>
+                        <tbody>
+                            <tr><td>#AG-2041</td><td>Green Valley Farmers</td><td>NPK Fertilizer 50kg</td><td>2</td><td>KES 6,500</td><td>2 Jul 2026</td><td><span class="status-badge success">Completed</span></td><td><button class="btn-outline btn-sm">View</button></td></tr>
+                            <tr><td>#AG-2040</td><td>Wanjiru Kamau</td><td>Hybrid Maize Seeds</td><td>3</td><td>KES 2,300</td><td>1 Jul 2026</td><td><span class="status-badge pending">Processing</span></td><td><button class="btn-outline btn-sm">View</button></td></tr>
+                            <tr><td>#AG-2039</td><td>Riverside Organics</td><td>Pesticide Sprayer</td><td>1</td><td>KES 4,800</td><td>30 Jun 2026</td><td><span class="status-badge info">Shipped</span></td><td><button class="btn-outline btn-sm">View</button></td></tr>
+                            <tr><td>#AG-2038</td><td>Peter Otieno</td><td>Dairy Meal 70kg</td><td>1</td><td>KES 3,150</td><td>29 Jun 2026</td><td><span class="status-badge danger">Cancelled</span></td><td><button class="btn-outline btn-sm">View</button></td></tr>
+                            <tr><td>#AG-2037</td><td>Mary Njeri</td><td>NPK Fertilizer 50kg</td><td>1</td><td>KES 3,250</td><td>27 Jun 2026</td><td><span class="status-badge pending">Pending</span></td><td><button class="btn-outline btn-sm">View</button></td></tr>
+                            <tr><td>#AG-2036</td><td>Samuel Kiptoo</td><td>Hybrid Maize Seeds</td><td>5</td><td>KES 4,750</td><td>25 Jun 2026</td><td><span class="status-badge success">Completed</span></td><td><button class="btn-outline btn-sm">View</button></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ PAYOUT & PERFORMANCE ============ -->
+        <section class="page-section" id="page-payout" hidden>
+            <div class="content-header">
+                <div><h1>Payout &amp; Performance</h1><p>Review payouts and monitor your business performance.</p></div>
+            </div>
+
+            <div class="card-grid">
+                <div class="stat-card">
+                    <div class="stat-value">KES 84,300</div>
+                    <div class="stat-label">Available for Payout</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">15 Jul 2026</div>
+                    <div class="stat-label">Next Payout Date</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">KES 228,150</div>
+                    <div class="stat-label">Total Paid Out</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">4.8 / 5</div>
+                    <div class="stat-label">Buyer Satisfaction</div>
+                </div>
+            </div>
+
+            <div class="panel section-gap">
+                <div class="panel-header"><h2>Sales Performance — Last 6 Months</h2></div>
+                <div class="bar-chart">
+                    <div class="bar-col"><div class="bar" style="height:40%"></div><span class="bar-label">Feb</span></div>
+                    <div class="bar-col"><div class="bar" style="height:55%"></div><span class="bar-label">Mar</span></div>
+                    <div class="bar-col"><div class="bar" style="height:48%"></div><span class="bar-label">Apr</span></div>
+                    <div class="bar-col"><div class="bar" style="height:70%"></div><span class="bar-label">May</span></div>
+                    <div class="bar-col"><div class="bar" style="height:64%"></div><span class="bar-label">Jun</span></div>
+                    <div class="bar-col"><div class="bar" style="height:88%"></div><span class="bar-label">Jul</span></div>
+                </div>
+                <div style="height:1.3rem"></div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-header"><h2>Payout History</h2><button class="btn-outline btn-sm">Export</button></div>
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Date</th><th>Amount</th><th>Method</th><th>Status</th></tr></thead>
+                        <tbody>
+                            <tr><td>15 Jun 2026</td><td>KES 32,400</td><td>M-Pesa</td><td><span class="status-badge success">Paid</span></td></tr>
+                            <tr><td>15 May 2026</td><td>KES 28,900</td><td>Equity Bank</td><td><span class="status-badge success">Paid</span></td></tr>
+                            <tr><td>15 Apr 2026</td><td>KES 19,750</td><td>M-Pesa</td><td><span class="status-badge success">Paid</span></td></tr>
+                            <tr><td>15 Mar 2026</td><td>KES 24,600</td><td>Equity Bank</td><td><span class="status-badge success">Paid</span></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </main>
+</div>
+
+<script>
+    const sidebar = document.getElementById('sidebar');
+    const backdrop = document.getElementById('sidebarBackdrop');
+    const hamburgerBtn = document.getElementById('hamburgerBtn');
+    const sidebarClose = document.getElementById('sidebarClose');
+    const navItems = document.querySelectorAll('.nav-item');
+    const sections = document.querySelectorAll('.page-section');
+
+    function openSidebar() { sidebar.classList.add('open'); backdrop.classList.add('open'); }
+    function closeSidebar() { sidebar.classList.remove('open'); backdrop.classList.remove('open'); }
+    hamburgerBtn.addEventListener('click', openSidebar);
+    sidebarClose.addEventListener('click', closeSidebar);
+    backdrop.addEventListener('click', closeSidebar);
+
+    function goToPage(page) {
+        navItems.forEach(i => i.classList.toggle('active', i.dataset.page === page));
+        sections.forEach(s => { s.hidden = s.id !== 'page-' + page; });
+        document.getElementById('content').scrollTo({ top: 0, behavior: 'smooth' });
+        if (window.innerWidth <= 1023) closeSidebar();
+    }
+
+    navItems.forEach(item => {
+        item.addEventListener('click', () => {
+            const page = item.dataset.page;
+            if (page === 'logout') {
+                if (confirm('Are you sure you want to log out?')) {
+                    window.location.href = 'login';
+                }
+                return;
+            }
+            goToPage(page);
+        });
+    });
+
+    // Quick "View all" style links inside panels (e.g. Dashboard -> Orders)
+    document.querySelectorAll('[data-goto]').forEach(btn => {
+        btn.addEventListener('click', () => goToPage(btn.dataset.goto));
+    });
+
+    // Chip filters (visual only demo)
+    document.querySelectorAll('.chip-row').forEach(row => {
+        row.querySelectorAll('.chip').forEach(chip => {
+            chip.addEventListener('click', () => {
+                row.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+                chip.classList.add('active');
+            });
+        });
+    });
+</script>
+</body>
+</html>

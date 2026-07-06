@@ -1,83 +1,124 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+        <link rel="manifest" href="/manifest.json" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/icons/Assets.xcassets/AppIcon.appiconset/_/32.png" />
+        <link rel="apple-touch-icon" href="/icons/Assets.xcassets/AppIcon.appiconset/_/180.png" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="theme-color" content="#1B5E20" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Contact Us – AgriConnect</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #1B5E20;
-            --primary-light: #2E7D32;
-            --secondary: #43A047;
-            --accent: #FFB300;
-            --accent-dark: #FF8F00;
-            --dark: #1a1a2e;
-            --dark-2: #16213e;
-            --light: #f8f9fa;
-            --gray: #6c757d;
-            --gray-light: #e9ecef;
+            --canopy: #0f2818;
+            --canopy-2: #17371f;
+            --moss: #1f5c3a;
+            --fern: #3f8a5c;
+            --sprout: #8bc34a;
+            --sprout-deep: #6ba336;
+            --harvest: #e2982f;
+            --harvest-dark: #c97a1a;
+            --cream: #f7f2e6;
+            --cream-2: #efe6d2;
+            --soil: #26201a;
+            --gray: #6d6558;
+            --gray-light: #e4dcc9;
             --white: #ffffff;
-            --shadow-sm: 0 2px 8px rgba(0,0,0,0.06);
-            --shadow-md: 0 8px 30px rgba(0,0,0,0.12);
-            --shadow-lg: 0 20px 60px rgba(0,0,0,0.15);
-            --radius-sm: 8px;
-            --radius-md: 16px;
-            --radius-lg: 24px;
+            --line: rgba(38, 32, 26, 0.1);
+            --shadow-sm: 0 2px 10px rgba(20, 30, 20, 0.06);
+            --shadow-md: 0 14px 40px rgba(15, 40, 24, 0.14);
+            --shadow-lg: 0 26px 70px rgba(15, 40, 24, 0.22);
+            --radius-sm: 10px;
+            --radius-md: 18px;
+            --radius-lg: 28px;
             --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --font-display: 'Fraunces', serif;
+            --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'IBM Plex Mono', monospace;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html { scroll-behavior: smooth; }
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background-color: var(--light);
-            color: var(--dark);
+            font-family: var(--font-body);
+            background-color: var(--cream);
+            color: var(--soil);
             line-height: 1.6;
             overflow-x: hidden;
         }
         a { text-decoration: none; color: inherit; }
         img { max-width: 100%; display: block; }
+        ::selection { background: var(--sprout); color: var(--canopy); }
+        a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible {
+            outline: 2px solid var(--sprout);
+            outline-offset: 2px;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
+            }
+        }
 
         @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(30px); }
+            from { opacity: 0; transform: translateY(24px); }
             to { opacity: 1; transform: translateY(0); }
+        }
+        .reveal { opacity: 0; transform: translateY(24px); }
+        .reveal.visible { animation: fadeInUp 0.7s cubic-bezier(0.2,0.7,0.3,1) forwards; }
+
+        .furrow {
+            position: absolute;
+            inset: 0;
+            background-image: repeating-linear-gradient(115deg, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 1px, transparent 1px, transparent 34px);
+            pointer-events: none;
         }
 
         .btn {
             display: inline-flex;
             align-items: center;
+            justify-content: center;
             gap: 0.5rem;
-            padding: 0.75rem 1.75rem;
-            border-radius: 50px;
-            font-weight: 600;
+            padding: 0.85rem 1.9rem;
+            min-height: 48px;
+            border-radius: 100px;
+            font-weight: 700;
             font-size: 0.95rem;
             border: none;
             cursor: pointer;
             transition: var(--transition);
-            font-family: inherit;
+            font-family: var(--font-body);
         }
         .btn-primary {
-            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
-            color: var(--dark);
-            box-shadow: 0 4px 20px rgba(255, 179, 0, 0.35);
+            background: var(--harvest);
+            color: var(--canopy);
+            box-shadow: 0 10px 26px rgba(226, 152, 47, 0.32);
         }
         .btn-primary:hover {
+            background: var(--harvest-dark);
             transform: translateY(-2px);
-            box-shadow: 0 8px 30px rgba(255, 179, 0, 0.45);
+            box-shadow: 0 14px 32px rgba(201, 122, 26, 0.4);
+        }
+        .btn-primary:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
         }
 
+        /* Nav */
         nav {
             position: fixed;
             top: 0; left: 0; right: 0;
             z-index: 1000;
-            padding: 0 2rem;
-            transition: var(--transition);
-            background: rgba(255,255,255,0.95);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            box-shadow: 0 2px 20px rgba(0,0,0,0.08);
+            padding: 0 1.5rem;
+            background: rgba(15, 40, 24, 0.94);
+            backdrop-filter: blur(16px);
+            box-shadow: 0 2px 24px rgba(0,0,0,0.18);
         }
         .nav-inner {
             max-width: 1200px;
@@ -85,22 +126,24 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            height: 72px;
+            height: 70px;
         }
         .nav-logo {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
-            font-weight: 800;
-            font-size: 1.4rem;
-            color: var(--dark);
-            transition: var(--transition);
+            gap: 0.7rem;
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 1.3rem;
+            color: var(--white);
+            letter-spacing: -0.01em;
         }
         .nav-logo-icon {
             width: 36px;
             height: 36px;
-            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
-            border-radius: var(--radius-sm);
+            background: var(--moss);
+            color: var(--sprout);
+            border-radius: 9px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -112,239 +155,25 @@
             list-style: none;
         }
         .nav-links a {
-            font-size: 0.9rem;
+            font-size: 0.92rem;
             font-weight: 500;
-            color: var(--gray);
+            color: rgba(255,255,255,0.75);
             transition: var(--transition);
             position: relative;
         }
         .nav-links a::after {
             content: '';
             position: absolute;
-            bottom: -4px;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: var(--primary);
+            bottom: -4px; left: 0;
+            width: 0; height: 2px;
+            background: var(--sprout);
             transition: var(--transition);
         }
         .nav-links a:hover::after { width: 100%; }
-        .nav-links a:hover { color: var(--primary); }
-
-        .page-header {
-            padding: 140px 2rem 4rem;
-            background: linear-gradient(135deg, var(--primary), var(--dark-2));
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-        .page-header::before {
-            content: '';
-            position: absolute;
-            width: 500px;
-            height: 500px;
-            background: rgba(255,179,0,0.06);
-            border-radius: 50%;
-            top: -150px;
-            right: -100px;
-        }
-        .page-header h1 {
-            font-size: 3rem;
-            font-weight: 900;
-            color: var(--white);
-            margin-bottom: 0.75rem;
-            position: relative;
-            z-index: 1;
-        }
-        .page-header p {
-            font-size: 1.15rem;
-            color: rgba(255,255,255,0.75);
-            max-width: 600px;
-            margin: 0 auto;
-            position: relative;
-            z-index: 1;
-        }
-
-        .content-section {
-            padding: 4rem 2rem 6rem;
-        }
-        .content-container {
-            max-width: 860px;
-            margin: 0 auto;
-        }
-
-        .contact-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 3rem;
-            align-items: start;
-        }
-
-        .contact-info h2 {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--dark);
-            margin-bottom: 1.5rem;
-        }
-        .contact-info p {
-            color: var(--gray);
-            font-size: 0.95rem;
-            line-height: 1.8;
-            margin-bottom: 2rem;
-        }
-        .info-item {
-            display: flex;
-            gap: 1rem;
-            align-items: flex-start;
-            margin-bottom: 1.5rem;
-        }
-        .info-item .icon-box {
-            width: 48px;
-            height: 48px;
-            min-width: 48px;
-            background: linear-gradient(135deg, rgba(46,125,50,0.1), rgba(102,187,106,0.1));
-            border-radius: var(--radius-sm);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .info-item h4 {
-            font-size: 1rem;
+        .nav-links a:hover { color: var(--white); }
+        .nav-links a.active {
+            color: var(--sprout) !important;
             font-weight: 600;
-            color: var(--dark);
-            margin-bottom: 0.25rem;
-        }
-        .info-item span {
-            font-size: 0.9rem;
-            color: var(--gray);
-        }
-
-        .contact-form {
-            background: var(--white);
-            border-radius: var(--radius-md);
-            border: 1px solid var(--gray-light);
-            padding: 2.5rem;
-        }
-        .contact-form h3 {
-            font-size: 1.2rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-        }
-        .contact-form > p {
-            color: var(--gray);
-            font-size: 0.9rem;
-            margin-bottom: 1.5rem;
-        }
-        .form-group {
-            margin-bottom: 1.25rem;
-        }
-        .form-group label {
-            display: block;
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: var(--dark);
-            margin-bottom: 0.4rem;
-        }
-        .form-group input,
-        .form-group textarea,
-        .form-group select {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            border: 2px solid var(--gray-light);
-            border-radius: var(--radius-sm);
-            font-size: 0.95rem;
-            font-family: inherit;
-            color: var(--dark);
-            background: var(--light);
-            transition: var(--transition);
-            outline: none;
-        }
-        .form-group input:focus,
-        .form-group textarea:focus,
-        .form-group select:focus {
-            border-color: var(--secondary);
-            background: var(--white);
-        }
-        .form-group textarea {
-            min-height: 120px;
-            resize: vertical;
-        }
-
-        .toast {
-            position: fixed;
-            bottom: 2rem;
-            right: 2rem;
-            background: var(--white);
-            border-radius: var(--radius-sm);
-            padding: 1rem 1.5rem;
-            box-shadow: var(--shadow-lg);
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            font-size: 0.9rem;
-            font-weight: 500;
-            transform: translateY(120px);
-            opacity: 0;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 9999;
-            border-left: 4px solid var(--secondary);
-        }
-        .toast.show {
-            transform: translateY(0);
-            opacity: 1;
-        }
-
-        footer {
-            background: var(--dark);
-            color: rgba(255,255,255,0.7);
-            padding: 3rem 2rem 2rem;
-        }
-        .footer-inner {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: 2fr 1fr 1fr 1fr;
-            gap: 3rem;
-        }
-        .footer-brand h3 { font-size: 1.3rem; font-weight: 800; color: var(--white); margin-bottom: 0.75rem; }
-        .footer-brand p { font-size: 0.9rem; line-height: 1.7; max-width: 300px; }
-        .footer-col h4 { font-size: 0.9rem; font-weight: 700; color: var(--white); margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 1px; }
-        .footer-col a { display: block; font-size: 0.9rem; color: rgba(255,255,255,0.6); margin-bottom: 0.6rem; transition: var(--transition); }
-        .footer-col a:hover { color: var(--accent); }
-        .footer-bottom {
-            max-width: 1200px;
-            margin: 2rem auto 0;
-            padding-top: 2rem;
-            border-top: 1px solid rgba(255,255,255,0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.85rem;
-        }
-
-        @media (max-width: 768px) {
-            nav { padding: 0 1rem; }
-            .nav-links {
-                position: fixed;
-                top: 0; right: -100%;
-                width: 280px;
-                height: 100vh;
-                background: var(--white);
-                flex-direction: column;
-                padding: 5rem 2rem 2rem;
-                gap: 1.5rem;
-                box-shadow: -10px 0 40px rgba(0,0,0,0.1);
-                transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-                z-index: 1000;
-            }
-            .nav-links.open { right: 0; }
-            .nav-links a { color: var(--dark) !important; font-size: 1.1rem; }
-            .nav-links a::after { background: var(--primary); }
-            .hamburger { display: flex; }
-            .page-header h1 { font-size: 2rem; }
-            .contact-grid { grid-template-columns: 1fr; }
-            .footer-inner { grid-template-columns: 1fr; gap: 2rem; }
-            .footer-bottom { flex-direction: column; gap: 0.5rem; text-align: center; }
         }
 
         .hamburger {
@@ -354,19 +183,367 @@
             background: none;
             border: none;
             cursor: pointer;
-            padding: 4px;
+            padding: 8px;
             z-index: 1001;
+            min-width: 44px;
+            min-height: 44px;
+            align-items: center;
+            justify-content: center;
         }
         .hamburger span {
-            width: 24px;
+            width: 22px;
             height: 2px;
-            background: var(--dark);
+            background: var(--white);
             border-radius: 2px;
             transition: var(--transition);
         }
         .hamburger.active span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
         .hamburger.active span:nth-child(2) { opacity: 0; }
         .hamburger.active span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
+
+        /* Page header */
+        .page-header {
+            padding: 150px 1.5rem 5rem;
+            background: linear-gradient(160deg, var(--canopy) 0%, var(--canopy-2) 100%);
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+        }
+        .page-header-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+        .page-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-family: var(--font-mono);
+            font-size: 0.78rem;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--sprout);
+            background: rgba(139,195,74,0.14);
+            border: 1px solid rgba(139,195,74,0.3);
+            padding: 0.45rem 1rem;
+            border-radius: 100px;
+            margin-bottom: 1.5rem;
+        }
+        .page-header h1 {
+            font-family: var(--font-display);
+            font-size: 3rem;
+            font-weight: 600;
+            color: var(--white);
+            margin-bottom: 0.75rem;
+            letter-spacing: -0.02em;
+        }
+        .page-header h1 em {
+            font-style: italic;
+            font-weight: 500;
+            color: var(--sprout);
+        }
+        .page-header p {
+            font-size: 1.12rem;
+            color: rgba(255,255,255,0.68);
+            max-width: 560px;
+        }
+
+        .content-section {
+            padding: 5rem 1.5rem 6rem;
+        }
+        .content-container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .contact-grid {
+            display: grid;
+            grid-template-columns: 0.85fr 1.15fr;
+            gap: 3.5rem;
+            align-items: start;
+        }
+
+        .contact-info .section-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-family: var(--font-mono);
+            color: var(--moss);
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            margin-bottom: 1rem;
+        }
+        .contact-info .section-tag::before {
+            content: '';
+            width: 20px;
+            height: 1.5px;
+            background: var(--sprout-deep);
+            display: inline-block;
+        }
+        .contact-info h2 {
+            font-family: var(--font-display);
+            font-size: 1.9rem;
+            font-weight: 600;
+            color: var(--soil);
+            margin-bottom: 1.1rem;
+            letter-spacing: -0.01em;
+        }
+        .contact-info > p {
+            color: var(--gray);
+            font-size: 0.98rem;
+            line-height: 1.8;
+            margin-bottom: 2.25rem;
+            max-width: 440px;
+        }
+        .info-item {
+            display: flex;
+            gap: 1.1rem;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--line);
+        }
+        .info-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        .info-item .icon-box {
+            width: 46px;
+            height: 46px;
+            min-width: 46px;
+            background: var(--canopy);
+            color: var(--sprout);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .info-item h4 {
+            font-size: 0.98rem;
+            font-weight: 700;
+            color: var(--soil);
+            margin-bottom: 0.25rem;
+            font-family: var(--font-display);
+        }
+        .info-item span {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        .contact-form {
+            background: var(--white);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--line);
+            padding: 2.75rem;
+            box-shadow: var(--shadow-sm);
+        }
+        .contact-form h3 {
+            font-family: var(--font-display);
+            font-size: 1.35rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--soil);
+        }
+        .contact-form > p {
+            color: var(--gray);
+            font-size: 0.92rem;
+            margin-bottom: 1.75rem;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.25rem;
+        }
+        .form-group { margin-bottom: 1.25rem; }
+        .form-group label {
+            display: block;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--soil);
+            margin-bottom: 0.45rem;
+        }
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 1.5px solid var(--gray-light);
+            border-radius: var(--radius-sm);
+            font-size: 0.95rem;
+            font-family: inherit;
+            color: var(--soil);
+            background: var(--cream);
+            transition: var(--transition);
+            outline: none;
+        }
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            border-color: var(--fern);
+            background: var(--white);
+        }
+        .form-group textarea {
+            min-height: 130px;
+            resize: vertical;
+        }
+        .form-group select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236d6558' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            padding-right: 2.5rem;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            left: auto;
+            background: var(--white);
+            border-radius: var(--radius-sm);
+            padding: 1rem 1.5rem;
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--soil);
+            transform: translateY(140px);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 9999;
+            border-left: 4px solid var(--fern);
+            max-width: calc(100vw - 2rem);
+        }
+        .toast.error { border-left-color: var(--harvest-dark); }
+        .toast.show { transform: translateY(0); opacity: 1; }
+
+        footer {
+            background: var(--canopy);
+            color: rgba(255,255,255,0.65);
+            padding: 4rem 1.5rem 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .footer-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 3rem;
+            position: relative;
+            z-index: 1;
+        }
+        .footer-brand h3 {
+            font-family: var(--font-display);
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--white);
+            margin-bottom: 0.85rem;
+        }
+        .footer-brand p { font-size: 0.92rem; line-height: 1.7; max-width: 300px; }
+        .footer-col h4 {
+            font-family: var(--font-mono);
+            font-size: 0.78rem;
+            font-weight: 500;
+            color: var(--white);
+            margin-bottom: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+        .footer-col a {
+            display: block;
+            font-size: 0.92rem;
+            color: rgba(255,255,255,0.55);
+            margin-bottom: 0.65rem;
+            transition: var(--transition);
+        }
+        .footer-col a:hover { color: var(--sprout); transform: translateX(4px); }
+        .footer-bottom {
+            max-width: 1200px;
+            margin: 2rem auto 0;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        @media (max-width: 900px) {
+            .contact-grid { grid-template-columns: 1fr; }
+            .contact-info { order: 2; }
+            .contact-form { order: 1; }
+        }
+
+        @media (max-width: 768px) {
+            nav { padding: 0 1rem; }
+            .nav-inner { height: 60px; }
+            .nav-links {
+                position: fixed;
+                top: 0; right: -100%;
+                width: min(300px, 84vw);
+                height: 100vh;
+                background: var(--canopy);
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 90px 2rem 2rem;
+                gap: 0.25rem;
+                box-shadow: -20px 0 60px rgba(0,0,0,0.3);
+                transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                z-index: 1000;
+            }
+            .nav-links.open { right: 0; }
+            .nav-links li { width: 100%; }
+            .nav-links a {
+                display: block;
+                color: rgba(255,255,255,0.85) !important;
+                font-size: 1.1rem;
+                font-weight: 600;
+                padding: 0.85rem 0;
+                border-bottom: 1px solid rgba(255,255,255,0.08);
+            }
+            .nav-links a::after { display: none; }
+            .nav-links li:last-child { margin-top: 1rem; }
+            .nav-links li:last-child a {
+                border-bottom: none;
+                background: var(--harvest);
+                color: var(--canopy) !important;
+                border-radius: 100px;
+                text-align: center;
+                padding: 0.85rem 1.5rem;
+            }
+            .hamburger { display: flex; }
+
+            .page-header { padding: 96px 1.25rem 3rem; text-align: left; }
+            .page-header h1 { font-size: 2rem; }
+            .page-header p { font-size: 1rem; }
+
+            .content-section { padding: 3rem 1.25rem 4rem; }
+            .form-row { grid-template-columns: 1fr; gap: 0; }
+            .contact-form { padding: 1.75rem; }
+
+            .toast {
+                left: 1rem;
+                right: 1rem;
+                bottom: 1rem;
+                bottom: calc(1rem + env(safe-area-inset-bottom));
+                max-width: none;
+            }
+
+            .footer-inner { grid-template-columns: 1fr; gap: 2rem; }
+            .footer-bottom { flex-direction: column; gap: 0.5rem; text-align: center; }
+        }
     </style>
 </head>
 <body>
@@ -375,15 +552,18 @@
         <div class="nav-inner">
             <a href="landing-page" class="nav-logo">
                 <div class="nav-logo-icon">
-                    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 6c-3.3 0-6 2.7-6 6h12c0-3.3-2.7-6-6-6z"/><path d="M4 14c0 2 1.5 3 4 4l1 2M20 14c0 2-1.5 3-4 4l-1 2"/><path d="M8 18h8"/></svg>
-                </div>
+                        <img
+                            src="icons/Assets.xcassets/AppIcon.appiconset/_/64.png"
+                            alt="AgriConnect Logo"
+                        />
+                    </div>
                 AgriConnect
             </a>
             <ul class="nav-links" id="navLinks">
                 <li><a href="landing-page">Home</a></li>
                 <li><a href="help-center">Help Center</a></li>
-                <li><a href="contact-us" style="color:var(--primary);font-weight:600">Contact</a></li>
-                <li><a href="login" class="btn btn-primary" style="padding:0.6rem 1.5rem;font-size:0.85rem;box-shadow:none">Log In</a></li>
+                <li><a href="contact-us" class="active">Contact</a></li>
+                <li><a href="login" class="btn btn-primary" style="padding:0.6rem 1.4rem;font-size:0.85rem;min-height:auto;box-shadow:none">Log In</a></li>
             </ul>
             <button class="hamburger" id="hamburger" aria-label="Toggle menu">
                 <span></span>
@@ -394,22 +574,24 @@
     </nav>
 
     <section class="page-header">
-        <h1>
-            <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:8px"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-            Contact Us
-        </h1>
-        <p>We'd love to hear from you. Get in touch with our team.</p>
+        <div class="furrow"></div>
+        <div class="page-header-inner">
+            <div class="page-tag">Get in touch</div>
+            <h1>Let's <em>talk</em> agriculture</h1>
+            <p>We'd love to hear from you — questions, feedback, or partnership ideas, our team reads every message.</p>
+        </div>
     </section>
 
     <section class="content-section">
         <div class="content-container">
             <div class="contact-grid">
-                <div class="contact-info">
-                    <h2>Get in Touch</h2>
-                    <p>Have a question, feedback, or need assistance? Reach out to us using any of the channels below, or fill out the form and we'll respond within 24 hours.</p>
+                <div class="contact-info reveal">
+                    <div class="section-tag">Contact details</div>
+                    <h2>Reach us directly</h2>
+                    <p>Have a question, feedback, or need assistance? Reach out using any of the channels below, or fill out the form and we'll respond within 24 hours.</p>
                     <div class="info-item">
                         <div class="icon-box">
-                            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
                         </div>
                         <div>
                             <h4>Email</h4>
@@ -418,7 +600,7 @@
                     </div>
                     <div class="info-item">
                         <div class="icon-box">
-                            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
                         </div>
                         <div>
                             <h4>Phone</h4>
@@ -427,7 +609,7 @@
                     </div>
                     <div class="info-item">
                         <div class="icon-box">
-                            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
                         </div>
                         <div>
                             <h4>Location</h4>
@@ -436,26 +618,28 @@
                     </div>
                     <div class="info-item">
                         <div class="icon-box">
-                            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                         </div>
                         <div>
-                            <h4>Business Hours</h4>
+                            <h4>Business hours</h4>
                             <span>Mon – Fri, 8:00 AM – 6:00 PM</span>
                         </div>
                     </div>
                 </div>
 
-                <div class="contact-form">
-                    <h3>Send Us a Message</h3>
+                <div class="contact-form reveal">
+                    <h3>Send us a message</h3>
                     <p>Fill out the form below and we'll get back to you as soon as possible.</p>
                     <form id="contactForm">
-                        <div class="form-group">
-                            <label for="name">Full Name</label>
-                            <input type="text" id="name" name="name" placeholder="Your name" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="email">Email Address</label>
-                            <input type="email" id="email" name="email" placeholder="your@email.com" required>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="name">Full name</label>
+                                <input type="text" id="name" name="name" placeholder="Your name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="email">Email address</label>
+                                <input type="email" id="email" name="email" placeholder="your@email.com" required>
+                            </div>
                         </div>
                         <div class="form-group">
                             <label for="subject">Subject</label>
@@ -473,8 +657,8 @@
                             <label for="message">Message</label>
                             <textarea id="message" name="message" placeholder="How can we help you?" required></textarea>
                         </div>
-                        <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center" id="submitBtn">
-                            Send Message
+                        <button type="submit" class="btn btn-primary" style="width:100%" id="submitBtn">
+                            Send message
                         </button>
                     </form>
                 </div>
@@ -483,17 +667,16 @@
     </section>
 
     <div class="toast" id="toast">
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="var(--secondary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="var(--fern)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
         <span id="toastMsg">Message sent successfully!</span>
     </div>
 
     <footer>
+        <div class="furrow"></div>
         <div class="footer-inner">
             <div class="footer-brand">
-                <h3>
-                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px"><path d="M12 2v4M12 6c-3.3 0-6 2.7-6 6h12c0-3.3-2.7-6-6-6z"/><path d="M4 14c0 2 1.5 3 4 4l1 2M20 14c0 2-1.5 3-4 4l-1 2"/><path d="M8 18h8"/></svg> AgriConnect
-                </h3>
-                <p>Connecting Farmers, Consumers, Agro-Vets & Industries – Earn Commission on Every Transaction.</p>
+                <h3>AgriConnect</h3>
+                <p>Connecting farmers, consumers, agro-vets & industries – earn commission on every transaction.</p>
             </div>
             <div class="footer-col">
                 <h4>Platform</h4>
@@ -508,6 +691,7 @@
                 <a href="privacy-policy">Privacy Policy</a>
                 <a href="terms-of-service">Terms of Service</a>
                 <a href="contact-us">Contact Us</a>
+                <a href="about-us">About Us</a>
             </div>
             <div class="footer-col">
                 <h4>Connect</h4>
@@ -519,9 +703,7 @@
         </div>
         <div class="footer-bottom">
             <span>&copy; 2026 AgriConnect. All rights reserved.</span>
-            <span>Built with 
-                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle"><path d="M12 2v4M12 6c-3.3 0-6 2.7-6 6h12c0-3.3-2.7-6-6-6z"/><path d="M4 14c0 2 1.5 3 4 4l1 2M20 14c0 2-1.5 3-4 4l-1 2"/><path d="M8 18h8"/></svg> for a sustainable future
-            </span>
+            <span>Built with care for a sustainable future</span>
         </div>
     </footer>
 
@@ -539,11 +721,22 @@
             });
         });
 
+        // Reveal on scroll
+        const revealEls = document.querySelectorAll('.reveal');
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) entry.target.classList.add('visible');
+            });
+        }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+        revealEls.forEach(el => revealObserver.observe(el));
+
         document.getElementById('contactForm').addEventListener('submit', handleContact);
 
-        function showToast(msg) {
+        function showToast(msg, type = 'success') {
             const toast = document.getElementById('toast');
             document.getElementById('toastMsg').textContent = msg;
+            toast.classList.remove('error');
+            if (type === 'error') toast.classList.add('error');
             toast.classList.add('show');
             setTimeout(() => toast.classList.remove('show'), 4000);
         }
@@ -551,6 +744,7 @@
         async function handleContact(e) {
             e.preventDefault();
             const btn = document.getElementById('submitBtn');
+            const originalText = btn.textContent;
             btn.textContent = 'Sending...';
             btn.disabled = true;
             const form = document.getElementById('contactForm');
@@ -573,10 +767,10 @@
                 } else {
                     showToast(result.error || 'Failed to send message. Please try again.', 'error');
                 }
-            } catch (e) {
+            } catch (err) {
                 showToast('Network error. Please try again.', 'error');
             }
-            btn.textContent = 'Send Message';
+            btn.textContent = originalText;
             btn.disabled = false;
         }
     </script>

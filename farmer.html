@@ -1172,70 +1172,69 @@
                 box-shadow: 0 2px 8px rgba(46, 125, 50, 0.15);
             }
 
-            /* Refresh Button */
-            .refresh-btn {
-                position: fixed; top: 1rem; right: 4rem; z-index: 300;
+            /* Desktop top bar */
+            .topbar { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 0 1.5rem; height: 56px; background: var(--white); border-bottom: 1px solid var(--gray-light); box-shadow: 0 1px 4px rgba(0,0,0,0.05); }
+            .topbar-left { display: flex; align-items: center; gap: 0.5rem; }
+            .topbar-left span { font-weight: 700; font-size: 0.95rem; color: var(--dark); }
+            .topbar-role-badge { font-size: 0.7rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 50px; background: rgba(27, 94, 32, 0.12); color: var(--primary); }
+            .topbar-right { display: flex; align-items: center; gap: 0.75rem; }
+
+            /* Orders badge button in topbar */
+            .topbar-orders-btn {
+                position: relative;
                 width: 40px; height: 40px; border-radius: 50%;
                 background: var(--white); border: 1.5px solid var(--gray-light);
                 display: flex; align-items: center; justify-content: center;
                 cursor: pointer; box-shadow: var(--shadow-sm);
-                transition: var(--transition); color: var(--gray);
+                transition: var(--transition); flex-shrink: 0; color: var(--gray);
             }
-            .refresh-btn:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); color: var(--primary); }
+            .topbar-orders-btn:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); background: #f0fdf4; border-color: var(--secondary); color: var(--primary); }
+            .topbar-orders-btn svg { width: 20px; height: 20px; transition: color 0.2s; }
+            .topbar-orders-btn .orders-badge {
+                position: absolute; top: -4px; right: -4px;
+                background: #f97316; color: #fff; font-size: 0.6rem; font-weight: 700;
+                min-width: 18px; height: 18px; border-radius: 9px;
+                display: none; align-items: center; justify-content: center;
+                padding: 0 4px; border: 2px solid var(--white);
+                animation: badgePop 0.3s cubic-bezier(0.34,1.56,0.64,1);
+            }
+            .topbar-orders-btn .orders-badge.show { display: flex; }
+
+            /* Refresh Button */
+            .refresh-btn {
+                width: 36px; height: 36px; border-radius: 50%;
+                background: var(--white); border: 1.5px solid var(--gray-light);
+                display: flex; align-items: center; justify-content: center;
+                cursor: pointer; box-shadow: var(--shadow-sm);
+                transition: var(--transition); color: var(--gray); flex-shrink: 0;
+            }
+            .refresh-btn:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); color: var(--primary); background: #f0fdf4; border-color: var(--secondary); }
             .refresh-btn.spinning svg { animation: spin 0.6s linear; }
             @keyframes spin { to { transform: rotate(360deg); } }
 
-            /* Notification Bell */
+            /* Notification Bell — lives inside .topbar on desktop */
             .notif-bell {
-                position: fixed;
-                top: 1rem;
-                right: 1.5rem;
-                z-index: 300;
-                width: 40px;
-                height: 40px;
-                border-radius: 50%;
-                background: var(--white);
-                border: 1.5px solid var(--gray-light);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                cursor: pointer;
-                box-shadow: var(--shadow-sm);
-                transition: var(--transition);
+                position: relative;
+                width: 40px; height: 40px; border-radius: 50%;
+                background: var(--white); border: 1.5px solid var(--gray-light);
+                display: flex; align-items: center; justify-content: center;
+                cursor: pointer; box-shadow: var(--shadow-sm);
+                transition: var(--transition); flex-shrink: 0;
             }
-            .notif-bell:hover {
-                box-shadow: var(--shadow-md);
-                transform: translateY(-1px);
-            }
-            .notif-bell svg {
-                width: 20px;
-                height: 20px;
-                color: var(--gray);
-            }
+            .notif-bell:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); background: #f0fdf4; border-color: var(--secondary); }
+            .notif-bell svg { width: 20px; height: 20px; color: var(--gray); transition: color 0.2s; }
+            .notif-bell:hover svg { color: var(--primary); }
             .notif-bell .badge {
-                position: absolute;
-                top: -4px;
-                right: -4px;
-                background: #ef4444;
-                color: #fff;
-                font-size: 0.6rem;
-                font-weight: 700;
-                min-width: 18px;
-                height: 18px;
-                border-radius: 9px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                padding: 0 4px;
-                border: 2px solid var(--white);
-                display: none;
+                position: absolute; top: -4px; right: -4px;
+                background: #ef4444; color: #fff; font-size: 0.6rem; font-weight: 700;
+                min-width: 18px; height: 18px; border-radius: 9px;
+                display: flex; align-items: center; justify-content: center;
+                padding: 0 4px; border: 2px solid var(--white); display: none;
             }
-            .notif-bell .badge.show {
-                display: flex;
-            }
+            .notif-bell .badge.show { display: flex; }
             .notif-panel {
                 position: fixed;
-                top: 4rem;
+                top: 56px;
                 right: 1.5rem;
                 z-index: 299;
                 width: 360px;
@@ -1907,8 +1906,10 @@
             @keyframes badgePop { 0% { transform: scale(0); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
             .mobile-notif-bell.has-new svg { animation: bellRing 0.5s ease 2; }
             @keyframes bellRing { 0%, 100% { transform: rotate(0deg); } 10%, 30%, 50%, 70%, 90% { transform: rotate(-10deg); } 20%, 40%, 60%, 80% { transform: rotate(10deg); } }
-            @media (max-width: 768px) { .mobile-header { display: flex; } .notif-bell { display: none !important; } .mobile-menu-btn { display: none !important; } .main { margin-top: 60px; margin-left: 0; } .sidebar { transform: translateX(-100%); padding-top: 60px; } .sidebar.open { transform: translateX(0); } .content { padding: 1.25rem; padding-top: 1.5rem; } .page-header h1 { font-size: 1.4rem; } .stat-card h4 { font-size: 1.5rem; } }
-            @media (max-width: 480px) { .mobile-header { height: 56px; padding: 0 0.75rem; } .mobile-hamburger, .mobile-notif-bell { width: 40px; height: 40px; } .mobile-header-brand { font-size: 1rem; } .main { margin-top: 56px; } .sidebar { padding-top: 56px; } .content { padding: 1rem; } }
+            @media (max-width: 768px) { .mobile-header { display: flex; } .topbar { display: none !important; } .mobile-menu-btn { display: none !important; } .main { margin-top: 60px; margin-left: 0; } .sidebar { transform: translateX(-100%); padding-top: 60px; } .sidebar.open { transform: translateX(0); } .content { padding: 1.25rem; padding-top: 1.5rem; } .page-header h1 { font-size: 1.4rem; } .stat-card h4 { font-size: 1.5rem; } .notif-panel { z-index: 500; top: 60px; right: 0.5rem; width: calc(100% - 1rem); max-width: 360px; } .notif-overlay { z-index: 499; } }
+            @media (max-width: 768px) { #dashChartsGrid { grid-template-columns: 1fr !important; } }
+            @media (min-width: 769px) { .topbar { display: flex; } }
+            @media (max-width: 480px) { .mobile-header { height: 56px; padding: 0 0.75rem; } .mobile-hamburger, .mobile-notif-bell { width: 40px; height: 40px; } .mobile-header-brand { font-size: 1rem; } .main { margin-top: 56px; } .sidebar { padding-top: 56px; } .content { padding: 1rem; } .notif-panel { top: 56px; } }
             @media (min-width: 769px) and (max-width: 1024px) { .mobile-header { display: none; } .sidebar { transform: translateX(-100%); } .main { margin-left: 0; } .mobile-menu-btn { display: flex !important; } }
             @media (hover: none) and (pointer: coarse) { .mobile-hamburger, .mobile-notif-bell { min-width: 48px; min-height: 48px; } }
         </style>
@@ -1951,7 +1952,7 @@
                 <div class="sidebar-brand-icon">
                     <img src="icons/Assets.xcassets/AppIcon.appiconset/_/64.png" alt="AgriConnect Logo">
                 </div>
-                <span>AgriConnect</span>
+              <a href="landing-page.html">  <span>AgriConnect</span></a>
             </div>
             <nav class="sidebar-nav">
                 <div class="sidebar-nav-label">Main</div>
@@ -2216,24 +2217,32 @@
 
         <!-- Main -->
         <div class="main">
-            <!-- Refresh Button -->
-            <button class="refresh-btn" id="refreshBtn" onclick="refreshData()" title="Refresh data">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-            </button>
-            <!-- Notification Bell -->
-            <div class="notif-bell" id="notifBell">
-                <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                >
-                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-                    <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-                </svg>
-                <span class="badge" id="notifBadge">0</span>
+            <!-- Desktop Top Bar (hidden on mobile — mobile header takes over) -->
+            <div class="topbar">
+                <div class="topbar-left">
+                    <span id="topbarAcctName">Farmer</span>
+                    <span class="topbar-role-badge">Farmer</span>
+                </div>
+                <div class="topbar-right">
+                    <button class="refresh-btn" id="refreshBtn" onclick="refreshData()" title="Refresh data" aria-label="Refresh">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                    </button>
+                    <button class="topbar-orders-btn" id="topbarOrdersBtn" onclick="switchSection('orders')" title="Pending orders" aria-label="Pending orders">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+                            <line x1="3" y1="6" x2="21" y2="6"/>
+                            <path d="M16 10a4 4 0 0 1-8 0"/>
+                        </svg>
+                        <span class="orders-badge" id="topbarOrdersBadge">0</span>
+                    </button>
+                    <button class="notif-bell" id="notifBell" aria-label="Notifications">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                            <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                        </svg>
+                        <span class="badge" id="notifBadge">0</span>
+                    </button>
+                </div>
             </div>
             <div class="notif-overlay" id="notifOverlay"></div>
             <div class="notif-panel" id="notifPanel">
@@ -2308,174 +2317,66 @@
                             <p>Rating</p>
                         </div>
                     </div>
-                    <div class="dashboard-grid cols-2">
-                        <div class="section-card">
-                            <div class="section-card-header">
-                                <h3><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10"/></svg> Recent Activity</h3>
-                                <span
-                                    style="
-                                        font-size: 0.8rem;
-                                        color: var(--gray);
-                                    "
-                                    >Today</span
-                                >
+
+                    <!-- ===== Analytics Charts ===== -->
+                    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:1.5rem;margin-top:0.25rem" id="dashChartsGrid">
+
+                        <!-- Sales Over Time — Line -->
+                        <div class="section-card" style="padding:0;overflow:hidden">
+                            <div class="section-card-header" style="padding:1rem 1.25rem">
+                                <h3 style="font-size:0.92rem">
+                                    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px;color:var(--primary)"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+                                    Sales Over Time
+                                </h3>
+                                <span id="dashSalesTotalBadge" style="font-size:0.72rem;font-weight:700;padding:2px 8px;background:rgba(27,94,32,.1);color:var(--primary);border-radius:20px">—</span>
                             </div>
-                            <div class="section-card-body">
-                                <div class="info-row">
-                                    <span class="info-label"
-                                        >Account created</span
-                                    >
-                                    <span class="info-value">Just now</span>
-                                </div>
-                                <div class="info-row">
-                                    <span class="info-label"
-                                        >Profile updated</span
-                                    >
-                                    <span class="info-value">--</span>
-                                </div>
-                                <div class="info-row">
-                                    <span class="info-label"
-                                        >First listing</span
-                                    >
-                                    <span class="info-value">--</span>
-                                </div>
-                                <div
-                                    class="info-row"
-                                    style="border: none; padding-bottom: 0"
-                                >
-                                    <span class="info-label"
-                                        >Wallet funded</span
-                                    >
-                                    <span class="info-value">--</span>
-                                </div>
+                            <div style="padding:0.5rem 1rem 1rem">
+                                <canvas id="chartSales" height="170"></canvas>
                             </div>
                         </div>
-                        <div class="section-card">
-                            <div class="section-card-header">
-                                <h3><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg> Quick Actions</h3>
+
+                        <!-- Order Statuses — Doughnut -->
+                        <div class="section-card" style="padding:0;overflow:hidden">
+                            <div class="section-card-header" style="padding:1rem 1.25rem">
+                                <h3 style="font-size:0.92rem">
+                                    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px;color:#f97316"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                    Order Breakdown
+                                </h3>
+                                <span id="dashOrdersTotalBadge" style="font-size:0.72rem;font-weight:700;padding:2px 8px;background:rgba(249,115,22,.1);color:#f97316;border-radius:20px">—</span>
                             </div>
-                            <div
-                                class="section-card-body"
-                                style="
-                                    display: grid;
-                                    grid-template-columns: 1fr 1fr;
-                                    gap: 0.75rem;
-                                "
-                            >
-                                <div
-                                    style="
-                                        padding: 0.75rem;
-                                        background: var(--light);
-                                        border-radius: var(--radius-sm);
-                                        text-align: center;
-                                        cursor: pointer;
-                                        transition: var(--transition);
-                                    "
-                                    onclick="switchSection('account')"
-                                >
-                                    <div
-                                        style="
-                                            font-size: 1.3rem;
-                                            margin-bottom: 0.25rem;
-                                        "
-                                    >
-                                        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                                    </div>
-                                    <div
-                                        style="
-                                            font-size: 0.8rem;
-                                            font-weight: 600;
-                                        "
-                                    >
-                                        My Account
-                                    </div>
-                                </div>
-                                <div
-                                    style="
-                                        padding: 0.75rem;
-                                        background: var(--light);
-                                        border-radius: var(--radius-sm);
-                                        text-align: center;
-                                        cursor: pointer;
-                                        transition: var(--transition);
-                                    "
-                                    onclick="switchSection('wallet')"
-                                >
-                                    <div
-                                        style="
-                                            font-size: 1.3rem;
-                                            margin-bottom: 0.25rem;
-                                        "
-                                    >
-                                        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
-                                    </div>
-                                    <div
-                                        style="
-                                            font-size: 0.8rem;
-                                            font-weight: 600;
-                                        "
-                                    >
-                                        My Wallet
-                                    </div>
-                                </div>
-                                <div
-                                    style="
-                                        padding: 0.75rem;
-                                        background: var(--light);
-                                        border-radius: var(--radius-sm);
-                                        text-align: center;
-                                        cursor: pointer;
-                                        transition: var(--transition);
-                                    "
-                                    onclick="switchSection('connections')"
-                                >
-                                    <div
-                                        style="
-                                            font-size: 1.3rem;
-                                            margin-bottom: 0.25rem;
-                                        "
-                                    >
-                                        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-                                    </div>
-                                    <div
-                                        style="
-                                            font-size: 0.8rem;
-                                            font-weight: 600;
-                                        "
-                                    >
-                                        Connections
-                                    </div>
-                                </div>
-                                <div
-                                    style="
-                                        padding: 0.75rem;
-                                        background: var(--light);
-                                        border-radius: var(--radius-sm);
-                                        text-align: center;
-                                        cursor: pointer;
-                                        transition: var(--transition);
-                                    "
-                                    onclick="switchSection('performance')"
-                                >
-                                    <div
-                                        style="
-                                            font-size: 1.3rem;
-                                            margin-bottom: 0.25rem;
-                                        "
-                                    >
-                                        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
-                                    </div>
-                                    <div
-                                        style="
-                                            font-size: 0.8rem;
-                                            font-weight: 600;
-                                        "
-                                    >
-                                        Performance
-                                    </div>
-                                </div>
+                            <div style="padding:0.5rem 1rem 1rem;display:flex;align-items:center;justify-content:center">
+                                <canvas id="chartOrders"></canvas>
                             </div>
                         </div>
+
+                        <!-- Earnings — Bar -->
+                        <div class="section-card" style="padding:0;overflow:hidden">
+                            <div class="section-card-header" style="padding:1rem 1.25rem">
+                                <h3 style="font-size:0.92rem">
+                                    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px;color:#2563eb"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                                    Earnings (KES)
+                                </h3>
+                                <span id="dashEarningsBadge" style="font-size:0.72rem;font-weight:700;padding:2px 8px;background:rgba(37,99,235,.1);color:#2563eb;border-radius:20px">—</span>
+                            </div>
+                            <div style="padding:0.5rem 1rem 1rem">
+                                <canvas id="chartEarnings" height="170"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Orders Volume — Line -->
+                        <div class="section-card" style="padding:0;overflow:hidden">
+                            <div class="section-card-header" style="padding:1rem 1.25rem">
+                                <h3 style="font-size:0.92rem">
+                                    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px;color:#7c3aed"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                                    Orders Volume
+                                </h3>
+                                <span id="dashOrdersVolBadge" style="font-size:0.72rem;font-weight:700;padding:2px 8px;background:rgba(124,58,237,.1);color:#7c3aed;border-radius:20px">—</span>
+                            </div>
+                            <div style="padding:0.5rem 1rem 1rem">
+                                <canvas id="chartOrdersVol" height="170"></canvas>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
 
@@ -2593,18 +2494,12 @@
                                     <span class="info-label">Timezone</span>
                                     <span class="info-value">UTC</span>
                                 </div>
-                                <div
-                                    class="info-row"
-                                    style="border: none; padding-bottom: 0"
-                                >
-                                    <span class="info-label"
-                                        >Two-Factor Auth</span
-                                    >
-                                    <span
-                                        class="info-value"
-                                        style="color: var(--gray)"
-                                        >Disabled</span
-                                    >
+                                <div class="info-row">
+                                    <span class="info-label">Two-Factor Auth</span>
+                                    <span class="info-value" id="twoFactorStatus" style="color:var(--gray)">Disabled</span>
+                                </div>
+                                <div class="info-row" style="border:none;padding-bottom:0">
+                                    <button id="twoFactorToggleBtn" class="btn-small" onclick="twoFactorToggleClick()" style="padding:0.4rem 0.8rem;border-radius:50px;border:1px solid var(--gray-light);background:none;cursor:pointer;font-size:0.8rem;font-family:inherit;transition:var(--transition)">Enable 2FA</button>
                                 </div>
                             </div>
                         </div>
@@ -2890,16 +2785,71 @@
                 </div>
 
                 <!-- Deposit Modal -->
-                <div class="modal-overlay" id="depositModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:10001;align-items:center;justify-content:center">
-                    <div style="background:#fff;border-radius:16px;padding:28px;width:90%;max-width:460px;box-shadow:0 20px 60px rgba(0,0,0,0.2);position:relative;max-height:90vh;overflow-y:auto">
-                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-                            <h2 style="margin:0;font-size:20px;color:#1a1a2e">Deposit via M-Pesa</h2>
-                            <button onclick="closeDepositModal()" style="background:none;border:none;font-size:24px;cursor:pointer;color:#999;padding:0;line-height:1">&times;</button>
+                <div class="modal-overlay" id="depositModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.55);z-index:10001;align-items:center;justify-content:center;backdrop-filter:blur(3px)">
+                    <div style="background:#fff;border-radius:24px;width:90%;max-width:420px;box-shadow:0 24px 80px rgba(0,0,0,0.2);position:relative;overflow:hidden;animation:_cmIn .25s cubic-bezier(0.16,1,0.3,1)">
+                        <!-- Header strip -->
+                        <div style="background:linear-gradient(135deg,var(--primary),var(--secondary));padding:28px 24px 20px;position:relative">
+                            <button onclick="closeDepositModal()" style="position:absolute;top:14px;right:14px;width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,0.2);border:none;color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;transition:background .2s" onmouseover="this.style.background='rgba(255,255,255,0.35)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'">&times;</button>
+                            <div style="display:flex;align-items:center;gap:12px">
+                                <div style="width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                                </div>
+                                <div>
+                                    <div style="font-size:1.1rem;font-weight:800;color:#fff;line-height:1.2">Deposit via M-Pesa</div>
+                                    <div style="font-size:0.78rem;color:rgba(255,255,255,0.8);margin-top:2px">STK Push · Funds arrive instantly</div>
+                                </div>
+                            </div>
                         </div>
-                        <p style="margin:0 0 20px;font-size:14px;color:#666">Fund your wallet via M-Pesa STK Push. Minimum KES 10.</p>
-                        <input type="text" id="depositPhone" placeholder="M-Pesa Phone" style="width:100%;padding:12px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:15px;font-family:inherit;margin-bottom:12px;box-sizing:border-box;outline:none">
-                        <input type="number" id="depositAmount" min="10" step="0.01" placeholder="Amount (KES)" style="width:100%;padding:12px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:15px;font-family:inherit;margin-bottom:20px;box-sizing:border-box;outline:none">
-                        <button id="depositBtn" class="btn btn-primary" style="width:100%" onclick="processDeposit()"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg> Pay with M-Pesa</button>
+
+                        <!-- Body -->
+                        <div style="padding:24px">
+                            <!-- Phone field -->
+                            <div style="margin-bottom:16px">
+                                <label style="display:block;font-size:0.78rem;font-weight:700;color:#374151;margin-bottom:6px;letter-spacing:.3px;text-transform:uppercase">M-Pesa Number</label>
+                                <div style="display:flex;align-items:center;border:1.5px solid #e5e7eb;border-radius:12px;overflow:hidden;transition:border-color .2s;background:#fafafa" id="depositPhoneWrap">
+                                    <span style="padding:0 12px;font-size:0.9rem;font-weight:600;color:#6b7280;white-space:nowrap;border-right:1.5px solid #e5e7eb;height:100%;display:flex;align-items:center;background:#f3f4f6">🇰🇪 +254</span>
+                                    <input type="tel" id="depositPhone" placeholder="7XX XXX XXX" maxlength="9"
+                                        style="flex:1;border:none;background:transparent;padding:13px 12px;font-size:0.95rem;font-family:inherit;outline:none;color:#1f2937"
+                                        onfocus="document.getElementById('depositPhoneWrap').style.borderColor='var(--primary)';document.getElementById('depositPhoneWrap').style.background='#fff'"
+                                        onblur="document.getElementById('depositPhoneWrap').style.borderColor='#e5e7eb';document.getElementById('depositPhoneWrap').style.background='#fafafa'">
+                                </div>
+                                <div style="font-size:0.72rem;color:#9ca3af;margin-top:4px">Enter without leading 0 or +254 — e.g. 712345678</div>
+                            </div>
+
+                            <!-- Amount field -->
+                            <div style="margin-bottom:20px">
+                                <label style="display:block;font-size:0.78rem;font-weight:700;color:#374151;margin-bottom:6px;letter-spacing:.3px;text-transform:uppercase">Amount (KES)</label>
+                                <div style="display:flex;align-items:center;border:1.5px solid #e5e7eb;border-radius:12px;overflow:hidden;transition:border-color .2s;background:#fafafa" id="depositAmountWrap">
+                                    <span style="padding:0 14px;font-size:0.9rem;font-weight:700;color:#6b7280;border-right:1.5px solid #e5e7eb;display:flex;align-items:center;background:#f3f4f6;height:100%">KES</span>
+                                    <input type="number" id="depositAmount" min="10" step="1" placeholder="0"
+                                        style="flex:1;border:none;background:transparent;padding:13px 12px;font-size:1.1rem;font-weight:700;font-family:inherit;outline:none;color:#1f2937"
+                                        onfocus="document.getElementById('depositAmountWrap').style.borderColor='var(--primary)';document.getElementById('depositAmountWrap').style.background='#fff'"
+                                        onblur="document.getElementById('depositAmountWrap').style.borderColor='#e5e7eb';document.getElementById('depositAmountWrap').style.background='#fafafa'">
+                                </div>
+                                <!-- Quick-amount chips -->
+                                <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">
+                                    <button type="button" onclick="document.getElementById('depositAmount').value=100" style="padding:4px 12px;border:1px solid #e5e7eb;border-radius:20px;background:#f9fafb;font-size:0.75rem;font-weight:600;color:#374151;cursor:pointer;font-family:inherit;transition:all .15s" onmouseover="this.style.borderColor='var(--primary)';this.style.color='var(--primary)'" onmouseout="this.style.borderColor='#e5e7eb';this.style.color='#374151'">KES 100</button>
+                                    <button type="button" onclick="document.getElementById('depositAmount').value=500" style="padding:4px 12px;border:1px solid #e5e7eb;border-radius:20px;background:#f9fafb;font-size:0.75rem;font-weight:600;color:#374151;cursor:pointer;font-family:inherit;transition:all .15s" onmouseover="this.style.borderColor='var(--primary)';this.style.color='var(--primary)'" onmouseout="this.style.borderColor='#e5e7eb';this.style.color='#374151'">KES 500</button>
+                                    <button type="button" onclick="document.getElementById('depositAmount').value=1000" style="padding:4px 12px;border:1px solid #e5e7eb;border-radius:20px;background:#f9fafb;font-size:0.75rem;font-weight:600;color:#374151;cursor:pointer;font-family:inherit;transition:all .15s" onmouseover="this.style.borderColor='var(--primary)';this.style.color='var(--primary)'" onmouseout="this.style.borderColor='#e5e7eb';this.style.color='#374151'">KES 1,000</button>
+                                    <button type="button" onclick="document.getElementById('depositAmount').value=5000" style="padding:4px 12px;border:1px solid #e5e7eb;border-radius:20px;background:#f9fafb;font-size:0.75rem;font-weight:600;color:#374151;cursor:pointer;font-family:inherit;transition:all .15s" onmouseover="this.style.borderColor='var(--primary)';this.style.color='var(--primary)'" onmouseout="this.style.borderColor='#e5e7eb';this.style.color='#374151'">KES 5,000</button>
+                                </div>
+                            </div>
+
+                            <!-- Pay button -->
+                            <button id="depositBtn" onclick="processDeposit()"
+                                style="width:100%;padding:15px;border:none;border-radius:14px;background:linear-gradient(135deg,#4caf50,#1b5e20);color:#fff;font-size:1rem;font-weight:700;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 6px 20px rgba(27,94,32,0.35);transition:all .2s;letter-spacing:.01em"
+                                onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 10px 28px rgba(27,94,32,0.4)'"
+                                onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 6px 20px rgba(27,94,32,0.35)'">
+                                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                                Pay with M-Pesa
+                            </button>
+
+                            <!-- Security note -->
+                            <div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-top:14px">
+                                <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                                <span style="font-size:0.72rem;color:#9ca3af">Secured by Safaricom M-Pesa · Funds arrive instantly</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -2970,139 +2920,24 @@
                 <!-- ==================== CONNECTIONS ==================== -->
                 <div class="page-section" id="section-connections">
                     <div class="page-header">
-                        <h1>My Connections</h1>
-                        <p>
-                            Your network of farmers, buyers, suppliers, and
-                            partners.
-                        </p>
+                        <h1>Organisations</h1>
+                        <p>Find organisations to partner with and send agreement requests.</p>
                     </div>
-                    <div class="dashboard-grid cols-2">
-                        <div class="section-card">
-                            <div class="section-card-header">
-                                <h3><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg> Active Connections</h3>
-                                <span
-                                    style="
-                                        font-size: 0.8rem;
-                                        color: var(--gray);
-                                    "
-                                    >0 total</span
-                                >
-                            </div>
-                            <div class="section-card-body">
-                                <div class="connection-item">
-                                    <div class="connection-avatar"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 20h10M12 20v-8M12 12l-3-3a4 4 0 0 1 6 0l-3 3z"/><circle cx="12" cy="4" r="2"/></svg></div>
-                                    <div class="connection-info">
-                                        <div class="connection-name">
-                                            No connections yet
-                                        </div>
-                                        <div class="connection-role">
-                                            Start building your network
-                                        </div>
-                                    </div>
-                                    <span class="connection-status offline"
-                                        >--</span
-                                    >
+                    <div class="section-card">
+                        <div class="section-card-header" style="gap:12px;flex-wrap:wrap">
+                            <h3><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg> All Organisations</h3>
+                            <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:200px">
+                                <div style="position:relative;flex:1">
+                                    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--gray);pointer-events:none"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                                    <input type="text" id="orgSearchInput" placeholder="Search by name, email or location…"
+                                        style="width:100%;padding:0.55rem 0.75rem 0.55rem 2rem;border:1.5px solid var(--gray-light);border-radius:var(--radius-sm);font-family:inherit;font-size:0.85rem;box-sizing:border-box;outline:none;transition:border-color .2s"
+                                        onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--gray-light)'">
                                 </div>
+                                <span id="orgCount" style="font-size:0.8rem;color:var(--gray);white-space:nowrap">0 found</span>
                             </div>
                         </div>
-                        <div class="section-card">
-                            <div class="section-card-header">
-                                <h3><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Pending Requests</h3>
-                                <span
-                                    style="
-                                        font-size: 0.8rem;
-                                        color: var(--gray);
-                                    "
-                                    >0 pending</span
-                                >
-                            </div>
-                            <div class="section-card-body">
-                                <div
-                                    style="
-                                        text-align: center;
-                                        padding: 1rem;
-                                        color: var(--gray);
-                                        font-size: 0.9rem;
-                                    "
-                                >
-                                    No pending connection requests.
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="section-card" style="margin-top: 1.5rem">
-                        <div class="section-card-header">
-                            <h3><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Find New Connections</h3>
-                        </div>
-                        <div class="section-card-body">
-                            <div
-                                style="
-                                    display: flex;
-                                    gap: 0.75rem;
-                                    flex-wrap: wrap;
-                                "
-                            >
-                                <span
-                                    style="
-                                        padding: 0.4rem 0.8rem;
-                                        background: var(--light);
-                                        border-radius: 50px;
-                                        font-size: 0.85rem;
-                                        font-weight: 500;
-                                        cursor: pointer;
-                                        transition: var(--transition);
-                                    "
-                                    onclick="
-                                        showToast('Filter coming soon', 'info')
-                                    "
-                                    ><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:3px"><path d="M7 20h10M12 20v-8M12 12l-3-3a4 4 0 0 1 6 0l-3 3z"/><circle cx="12" cy="4" r="2"/></svg> Farmers</span
-                                >
-                                <span
-                                    style="
-                                        padding: 0.4rem 0.8rem;
-                                        background: var(--light);
-                                        border-radius: 50px;
-                                        font-size: 0.85rem;
-                                        font-weight: 500;
-                                        cursor: pointer;
-                                        transition: var(--transition);
-                                    "
-                                    onclick="
-                                        showToast('Filter coming soon', 'info')
-                                    "
-                                    ><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:3px"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg> Industries</span
-                                >
-                                <span
-                                    style="
-                                        padding: 0.4rem 0.8rem;
-                                        background: var(--light);
-                                        border-radius: 50px;
-                                        font-size: 0.85rem;
-                                        font-weight: 500;
-                                        cursor: pointer;
-                                        transition: var(--transition);
-                                    "
-                                    onclick="
-                                        showToast('Filter coming soon', 'info')
-                                    "
-                                    ><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:3px"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg> Agro-Vets</span
-                                >
-                                <span
-                                    style="
-                                        padding: 0.4rem 0.8rem;
-                                        background: var(--light);
-                                        border-radius: 50px;
-                                        font-size: 0.85rem;
-                                        font-weight: 500;
-                                        cursor: pointer;
-                                        transition: var(--transition);
-                                    "
-                                    onclick="
-                                        showToast('Filter coming soon', 'info')
-                                    "
-                                    ><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:3px"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Consumers</span
-                                >
-                            </div>
+                        <div class="section-card-body" id="orgListContainer">
+                            <div class="entity-empty">Loading organisations…</div>
                         </div>
                     </div>
                 </div>
@@ -3110,41 +2945,36 @@
                 <div class="page-section" id="section-performance">
                     <div class="page-header">
                         <h1>Performance</h1>
-                        <p>
-                            Track your metrics, growth, and platform activity.
-                        </p>
+                        <p>Track your metrics, growth, and platform activity.</p>
                     </div>
-                    <div
-                        class="dashboard-grid cols-4"
-                        style="margin-bottom: 1.5rem"
-                    >
+                    <div class="dashboard-grid cols-4" style="margin-bottom: 1.5rem">
                         <div class="stat-card">
                             <div class="stat-card-top">
                                 <div class="stat-card-icon green"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div>
                             </div>
-                            <h4>0</h4>
-                            <p>Total Sales</p>
+                            <h4 id="perfTotalSales">—</h4>
+                            <p>Completed Sales</p>
                         </div>
                         <div class="stat-card">
                             <div class="stat-card-top">
-                                <div class="stat-card-icon amber"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div>
+                                <div class="stat-card-icon amber"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
                             </div>
-                            <h4>0</h4>
-                            <p>Profile Views</p>
+                            <h4 id="perfRevenue">—</h4>
+                            <p>Total Revenue (KES)</p>
                         </div>
                         <div class="stat-card">
                             <div class="stat-card-top">
                                 <div class="stat-card-icon blue"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg></div>
                             </div>
-                            <h4>0</h4>
-                            <p>Listings</p>
+                            <h4 id="perfListings">—</h4>
+                            <p>Active Listings</p>
                         </div>
                         <div class="stat-card">
                             <div class="stat-card-top">
-                                <div class="stat-card-icon purple"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+                                <div class="stat-card-icon purple"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></div>
                             </div>
-                            <h4>0</h4>
-                            <p>Inquiries</p>
+                            <h4 id="perfAgreements">—</h4>
+                            <p>Active Agreements</p>
                         </div>
                     </div>
                     <div class="dashboard-grid cols-2">
@@ -3154,85 +2984,30 @@
                             </div>
                             <div class="section-card-body">
                                 <div style="margin-bottom: 1rem">
-                                    <div
-                                        style="
-                                            display: flex;
-                                            justify-content: space-between;
-                                            font-size: 0.85rem;
-                                            margin-bottom: 0.25rem;
-                                        "
-                                    >
+                                    <div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:0.25rem">
                                         <span>Profile Completion</span>
-                                        <span style="font-weight: 700"
-                                            >30%</span
-                                        >
+                                        <span id="perfProfilePct" style="font-weight:700">—</span>
                                     </div>
                                     <div class="perf-bar">
-                                        <div
-                                            class="perf-bar-fill"
-                                            style="
-                                                width: 30%;
-                                                background: linear-gradient(
-                                                    90deg,
-                                                    var(--secondary),
-                                                    var(--primary)
-                                                );
-                                            "
-                                        ></div>
+                                        <div id="perfProfileBar" class="perf-bar-fill" style="width:0%;background:linear-gradient(90deg,var(--secondary),var(--primary))"></div>
                                     </div>
                                 </div>
                                 <div style="margin-bottom: 1rem">
-                                    <div
-                                        style="
-                                            display: flex;
-                                            justify-content: space-between;
-                                            font-size: 0.85rem;
-                                            margin-bottom: 0.25rem;
-                                        "
-                                    >
+                                    <div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:0.25rem">
                                         <span>Engagement Score</span>
-                                        <span style="font-weight: 700">0%</span>
+                                        <span id="perfEngagementPct" style="font-weight:700">—</span>
                                     </div>
                                     <div class="perf-bar">
-                                        <div
-                                            class="perf-bar-fill"
-                                            style="
-                                                width: 0%;
-                                                background: linear-gradient(
-                                                    90deg,
-                                                    var(--accent),
-                                                    var(--accent-dark)
-                                                );
-                                            "
-                                        ></div>
+                                        <div id="perfEngagementBar" class="perf-bar-fill" style="width:0%;background:linear-gradient(90deg,var(--accent),var(--accent-dark))"></div>
                                     </div>
                                 </div>
                                 <div>
-                                    <div
-                                        style="
-                                            display: flex;
-                                            justify-content: space-between;
-                                            font-size: 0.85rem;
-                                            margin-bottom: 0.25rem;
-                                        "
-                                    >
+                                    <div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:0.25rem">
                                         <span>Trust Score</span>
-                                        <span style="font-weight: 700"
-                                            >100%</span
-                                        >
+                                        <span id="perfTrustPct" style="font-weight:700">—</span>
                                     </div>
                                     <div class="perf-bar">
-                                        <div
-                                            class="perf-bar-fill"
-                                            style="
-                                                width: 100%;
-                                                background: linear-gradient(
-                                                    90deg,
-                                                    #16a34a,
-                                                    #22c55e
-                                                );
-                                            "
-                                        ></div>
+                                        <div id="perfTrustBar" class="perf-bar-fill" style="width:0%;background:linear-gradient(90deg,#16a34a,#22c55e)"></div>
                                     </div>
                                 </div>
                             </div>
@@ -3241,50 +3016,8 @@
                             <div class="section-card-header">
                                 <h3><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5C7 4 7 2 11 2c2 0 3 1.5 3 2 0-.5 1-2 3-2 4 0 4 2 6.5 2a2.5 2.5 0 0 1 0 5H18"/><path d="M6 9v10a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V9"/><path d="M4 14h16"/></svg> Achievements</h3>
                             </div>
-                            <div class="section-card-body">
-                                <div class="info-row">
-                                    <span class="info-label"
-                                        ><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:4px"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> First Login</span
-                                    >
-                                    <span
-                                        class="info-value"
-                                        style="color: #16a34a"
-                                        >Unlocked</span
-                                    >
-                                </div>
-                                <div class="info-row">
-                                    <span class="info-label"
-                                        ><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:4px"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg> First Listing</span
-                                    >
-                                    <span
-                                        class="info-value"
-                                        style="color: var(--gray)"
-                                        >Locked</span
-                                    >
-                                </div>
-                                <div class="info-row">
-                                    <span class="info-label"
-                                        ><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:4px"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg> First Sale</span
-                                    >
-                                    <span
-                                        class="info-value"
-                                        style="color: var(--gray)"
-                                        >Locked</span
-                                    >
-                                </div>
-                                <div
-                                    class="info-row"
-                                    style="border: none; padding-bottom: 0"
-                                >
-                                    <span class="info-label"
-                                        ><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:4px"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg> First Connection</span
-                                    >
-                                    <span
-                                        class="info-value"
-                                        style="color: var(--gray)"
-                                        >Locked</span
-                                    >
-                                </div>
+                            <div class="section-card-body" id="perfAchievements">
+                                <div class="entity-empty">Loading…</div>
                             </div>
                         </div>
                     </div>
@@ -3562,25 +3295,32 @@
                     </div>
                 </div>
 
-                <div class="modal-overlay" id="orgInfoModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:10001;align-items:center;justify-content:center" onclick="if(event.target===this)closeOrgInfoModal()">
-                    <div style="background:var(--white);border-radius:var(--radius);max-width:480px;width:90%;max-height:90vh;overflow-y:auto;padding:1.5rem">
-                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
-                            <h3 style="margin:0" id="orgInfoModalTitle"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg> Organisation Info</h3>
-                            <button onclick="closeOrgInfoModal()" style="background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--gray);padding:0">&times;</button>
-                        </div>
-                            <div id="orgInfoBody">
-                            <div style="text-align:center;padding:1rem 0">
-                                <div id="orgInfoAvatar" style="width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--secondary));color:white;display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:700;margin:0 auto 0.75rem">?</div>
-                                <div id="orgInfoName" style="font-size:1.1rem;font-weight:700;margin-bottom:0.25rem"></div>
-                                <div id="orgInfoEmail" style="font-size:0.85rem;color:var(--gray);margin-bottom:0.25rem"></div>
-                                <div id="orgInfoLocation" style="font-size:0.85rem;color:var(--gray);margin-bottom:0.25rem"></div>
-                                <div id="orgInfoExtra" style="text-align:left;margin-top:0.75rem;padding:0.75rem;background:var(--light);border-radius:var(--radius-sm)"></div>
+                <div class="modal-overlay" id="orgInfoModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:10001;align-items:center;justify-content:center;backdrop-filter:blur(3px)" onclick="if(event.target===this)closeOrgInfoModal()">
+                    <div style="background:#fff;border-radius:20px;width:90%;max-width:500px;max-height:90vh;overflow-y:auto;box-shadow:0 24px 80px rgba(0,0,0,0.2);animation:_cmIn .25s ease">
+                        <!-- Gradient header -->
+                        <div style="background:linear-gradient(135deg,var(--primary),var(--secondary));padding:24px 20px 18px;border-radius:20px 20px 0 0;position:relative">
+                            <button onclick="closeOrgInfoModal()" style="position:absolute;top:12px;right:14px;width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,0.2);border:none;color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;transition:background .2s" onmouseover="this.style.background='rgba(255,255,255,0.35)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'">&times;</button>
+                            <div style="display:flex;align-items:center;gap:14px">
+                                <div id="orgInfoAvatar" style="width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:1.6rem;font-weight:700;color:#fff;flex-shrink:0">?</div>
+                                <div>
+                                    <div id="orgInfoName" style="font-size:1.05rem;font-weight:800;color:#fff;line-height:1.2"></div>
+                                    <div id="orgInfoEmail" style="font-size:0.78rem;color:rgba(255,255,255,0.85);margin-top:3px"></div>
+                                    <div id="orgInfoLocation" style="font-size:0.75rem;color:rgba(255,255,255,0.75);margin-top:2px"></div>
+                                </div>
                             </div>
-                            <hr style="border:none;border-top:1px solid var(--gray-light);margin:1rem 0">
-                            <label style="display:block;margin-bottom:0.4rem;font-weight:600;font-size:0.85rem">Agreement Message</label>
-                            <textarea id="orgAgreementMessage" placeholder="Describe the partnership terms..." style="width:100%;padding:0.6rem 0.8rem;border:1.5px solid var(--gray-light);border-radius:var(--radius-sm);font-family:inherit;font-size:0.85rem;min-height:100px;resize:vertical;margin-bottom:0.75rem;box-sizing:border-box"></textarea>
-                            <button id="sendAgreementBtn" onclick="sendAgreementFromModal()" style="width:100%;padding:0.7rem 1.5rem;background:linear-gradient(135deg,var(--primary),var(--secondary));color:var(--white);border:none;border-radius:var(--radius-sm);font-size:0.9rem;font-weight:600;cursor:pointer;font-family:inherit">
-                                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg> Send Agreement Request
+                        </div>
+                        <!-- Body -->
+                        <div style="padding:20px">
+                            <div id="orgInfoExtra" style="background:#f9fafb;border-radius:12px;padding:14px;margin-bottom:16px;font-size:0.85rem;display:none"></div>
+                            <div style="margin-bottom:14px">
+                                <label style="display:block;font-size:0.72rem;font-weight:700;color:var(--gray);margin-bottom:6px;text-transform:uppercase;letter-spacing:.3px">Agreement Terms</label>
+                                <textarea id="orgAgreementMessage" placeholder="Describe the partnership terms, deliverables, and expectations…" style="width:100%;padding:0.65rem 0.8rem;border:1.5px solid var(--gray-light);border-radius:10px;font-family:inherit;font-size:0.875rem;min-height:110px;resize:vertical;box-sizing:border-box;outline:none;transition:border-color .2s;line-height:1.5" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--gray-light)'"></textarea>
+                            </div>
+                            <button id="sendAgreementBtn" type="button" onclick="sendAgreementFromModal()"
+                                style="width:100%;padding:13px;border:none;border-radius:12px;background:linear-gradient(135deg,var(--primary),var(--secondary));color:#fff;font-size:0.95rem;font-weight:700;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 14px rgba(27,94,32,0.3);transition:all .2s"
+                                onmouseover="this.style.opacity='.88'" onmouseout="this.style.opacity='1'">
+                                <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                                Send Agreement Request
                             </button>
                         </div>
                     </div>
@@ -3650,20 +3390,43 @@
                 <div class="page-section" id="section-forum">
                     <div class="page-header">
                         <h1><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Forum</h1>
-                        <p id="forumSubtitle">
-                            Browse product requests from organizations and reply
-                        </p>
+                        <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap">
+                            <p style="margin:0">Share ideas, ask questions, and connect with the community</p>
+                            <button class="btn btn-primary" onclick="openNewPostModal()" style="padding:8px 18px;font-size:0.85rem;white-space:nowrap">+ New Post</button>
+                        </div>
                     </div>
                     <div class="section-card">
                         <div class="section-card-header">
-                            <h3><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg> Open Requests</h3>
-                            <span style="font-size:0.8rem;color:var(--gray)" id="requestCount">0</span>
+                            <h3><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg> Recent Posts</h3>
+                            <span style="font-size:0.8rem;color:var(--gray)" id="forumPostCount">0</span>
                         </div>
-                        <div class="section-card-body" id="requestListContainer">
-                            <div class="entity-empty">Loading requests...</div>
+                        <div class="section-card-body" id="forumPostContainer">
+                            <div class="entity-empty">Loading posts...</div>
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <!-- New Post Modal -->
+        <div class="modal-overlay" id="newPostModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:10000;align-items:center;justify-content:center" onclick="if(event.target===this)closeNewPostModal()">
+            <div style="background:#fff;border-radius:16px;padding:28px;width:90%;max-width:520px;box-shadow:0 20px 60px rgba(0,0,0,0.2);position:relative;max-height:90vh;overflow-y:auto">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+                    <h2 style="margin:0;font-size:20px;color:#1a1a2e">Create Post</h2>
+                    <button onclick="closeNewPostModal()" style="background:none;border:none;font-size:24px;cursor:pointer;color:#999;padding:0;line-height:1">&times;</button>
+                </div>
+                <input type="text" id="postTitle" placeholder="Post title..." style="width:100%;padding:12px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:15px;font-family:inherit;outline:none;transition:border-color.2s;box-sizing:border-box;margin-bottom:12px">
+                <textarea id="postContent" placeholder="What's on your mind?" style="width:100%;min-height:120px;padding:12px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;font-family:inherit;outline:none;transition:border-color.2s;box-sizing:border-box;resize:vertical;margin-bottom:12px"></textarea>
+                <div style="margin-bottom:12px">
+                    <label style="display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:#374151">Banner Image (optional)</label>
+                    <input type="file" id="postBannerInput" accept="image/*" style="font-size:13px;font-family:inherit" onchange="previewPostBanner(event)">
+                    <div id="postBannerPreview" style="display:none;margin-top:8px;position:relative;border-radius:8px;overflow:hidden;max-height:180px">
+                        <img id="postBannerImg" style="width:100%;height:auto;display:block;border-radius:8px">
+                        <button type="button" onclick="removePostBanner()" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,0.6);color:#fff;border:none;border-radius:50%;width:24px;height:24px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center">&times;</button>
+                    </div>
+                    <input type="hidden" id="postBannerData" value="">
+                </div>
+                <button id="submitPostBtn" class="btn btn-primary" style="width:100%;padding:12px;font-size:15px;border:none;cursor:pointer" onclick="submitForumPost()">Post</button>
             </div>
         </div>
 
@@ -3720,24 +3483,105 @@
                 return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
             }
 
-            // Auth check
-            const user = sessionStorage.getItem("user");
-            const idToken = sessionStorage.getItem("idToken");
-            if (!user || !idToken) {
-                window.location.href = "login";
+            function showConfirmModal(opts) {
+              return new Promise(function(resolve) {
+                var existing = document.getElementById('_confirmModal');
+                if (!existing) {
+                  existing = document.createElement('div');
+                  existing.id = '_confirmModal';
+                  existing.style.cssText = 'display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center;backdrop-filter:blur(2px)';
+                  existing.innerHTML = '<div style="background:#fff;border-radius:16px;width:90%;max-width:420px;box-shadow:0 20px 60px rgba(0,0,0,0.18);overflow:hidden;animation:_cmIn .2s ease"><div id="_cmIconWrap" style="display:flex;align-items:center;justify-content:center;padding:24px 24px 0"><div id="_cmIcon" style="width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px"></div></div><div style="padding:16px 24px 8px;text-align:center"><h3 id="_cmTitle" style="font-size:1.1rem;font-weight:700;margin:0 0 6px;color:#1f2937"></h3><p id="_cmMsg" style="font-size:0.875rem;color:#6b7280;margin:0;line-height:1.5"></p></div><div style="padding:16px 24px 24px;display:flex;gap:10px"><button id="_cmCancel" style="flex:1;padding:12px;border:1.5px solid #e5e7eb;border-radius:10px;background:#fff;color:#374151;font-weight:600;font-size:0.875rem;font-family:inherit;cursor:pointer">Cancel</button><button id="_cmOk" style="flex:1;padding:12px;border:none;border-radius:10px;color:#fff;font-weight:700;font-size:0.875rem;font-family:inherit;cursor:pointer"></button></div></div>';
+                  var style = document.createElement('style');
+                  style.textContent = '@keyframes _cmIn{from{opacity:0;transform:scale(.93) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}}';
+                  document.head.appendChild(style);
+                  document.body.appendChild(existing);
+                }
+                var colorMap = { danger:'#dc2626', warning:'#d97706', primary:'#1b5e20', info:'#2563eb' };
+                var iconMap = {
+                  danger: '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>',
+                  warning: '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+                  primary: '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
+                  info: '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>'
+                };
+                var type = opts.type || 'warning';
+                var color = colorMap[type] || '#d97706';
+                document.getElementById('_cmTitle').textContent = opts.title || 'Confirm';
+                document.getElementById('_cmMsg').textContent = opts.message || 'Are you sure?';
+                var ok = document.getElementById('_cmOk');
+                ok.textContent = opts.confirmText || 'Confirm';
+                ok.style.background = color;
+                var icon = document.getElementById('_cmIcon');
+                icon.style.background = color + '18';
+                icon.style.color = color;
+                icon.innerHTML = iconMap[type] || iconMap.warning;
+                existing.style.display = 'flex';
+                function cleanup() {
+                  existing.style.display = 'none';
+                  ok.onclick = null;
+                  document.getElementById('_cmCancel').onclick = null;
+                  existing.onclick = null;
+                  document.onkeydown = null;
+                }
+                ok.onclick = function() { cleanup(); resolve(true); };
+                document.getElementById('_cmCancel').onclick = function() { cleanup(); resolve(false); };
+                existing.onclick = function(e) { if (e.target === existing) { cleanup(); resolve(false); } };
+                document.onkeydown = function(e) { if (e.key === 'Escape') { cleanup(); resolve(false); } };
+              });
             }
-            // Sync token to cookie for server-side route protection
-            document.cookie =
-                "idToken=" + idToken + ";path=/;max-age=3600;SameSite=Strict";
-            let userData = {};
-            try {
-                userData = JSON.parse(user);
-            } catch (e) {}
-            const displayName = userData.displayName || "User";
-            const email = userData.email || "";
 
-            document.getElementById("acctName").textContent = displayName;
-            document.getElementById("acctEmail").textContent = email;
+            // Auth check — read from localStorage first (persists on reload), sessionStorage as fallback
+            const _storedUser    = localStorage.getItem("user")    || sessionStorage.getItem("user");
+            const _storedToken   = localStorage.getItem("idToken") || sessionStorage.getItem("idToken");
+
+            if (!_storedUser || !_storedToken) {
+                window.location.replace("/login");
+            }
+
+            // Keep both storages in sync and write a 7-day cookie for server-side guards
+            if (_storedToken) {
+                localStorage.setItem("idToken", _storedToken);
+                sessionStorage.setItem("idToken", _storedToken);
+                document.cookie = "idToken=" + _storedToken + ";path=/;max-age=604800;SameSite=Strict";
+            }
+            if (_storedUser) {
+                localStorage.setItem("user", _storedUser);
+                sessionStorage.setItem("user", _storedUser);
+            }
+
+            let userData = {};
+            try { userData = JSON.parse(_storedUser); } catch (e) {}
+
+            // Apply immediately from cached data, then refresh from server
+            (function applyUserData(ud) {
+                const dn = ud.display_name || ud.displayName || ud.email || "";
+                const em = ud.email || "";
+                const el = document.getElementById("acctName");
+                const ee = document.getElementById("acctEmail");
+                if (el) el.textContent = dn;
+                const tb = document.getElementById("topbarAcctName");
+                if (tb) tb.textContent = dn;
+                if (ee) ee.textContent = em;
+            })(userData);
+
+            (async () => {
+                try {
+                    const fresh = await api("/api/users/" + userData.uid);
+                    userData = fresh;
+                    // Persist fresh data to both storages
+                    localStorage.setItem("user", JSON.stringify(fresh));
+                    sessionStorage.setItem("user", JSON.stringify(fresh));
+                    // Update UI with server-fresh data
+                    const dn = fresh.display_name || fresh.displayName || fresh.email || "";
+                    const el = document.getElementById("acctName");
+                    const ee = document.getElementById("acctEmail");
+                    if (el) el.textContent = dn;
+                    const tb = document.getElementById("topbarAcctName");
+                    if (tb) tb.textContent = dn;
+                    if (ee) ee.textContent = fresh.email || "";
+                } catch (e) {}
+                // Init forum module with current user
+                initForum(userData, api);
+            })();
 
             // ---------- Onboarding: profile completeness check ----------
             // Inject modal HTML first so elements exist
@@ -3754,7 +3598,7 @@
                     "</div></div>",
             );
             function checkProfileCompleteness() {
-                const stored = sessionStorage.getItem("user");
+                const stored = localStorage.getItem("user") || sessionStorage.getItem("user");
                 if (!stored) return;
                 const ud = JSON.parse(stored);
                 if (
@@ -3841,11 +3685,12 @@
 
             // ---------- API Helper ----------
             async function api(path, options) {
+                const token = localStorage.getItem("idToken") || sessionStorage.getItem("idToken");
                 const res = await fetch(path, {
                     cache: "no-store",
                     headers: {
                         "Content-Type": "application/json",
-                        Authorization: "Bearer " + idToken,
+                        Authorization: "Bearer " + token,
                     },
                     ...options,
                 });
@@ -3859,10 +3704,15 @@
 
             // ---------- Logout ----------
             window.logout = function () {
+                localStorage.removeItem("user");
+                localStorage.removeItem("idToken");
+                localStorage.removeItem("role");
                 sessionStorage.removeItem("user");
                 sessionStorage.removeItem("idToken");
+                sessionStorage.removeItem("role");
                 document.cookie = "idToken=;path=/;max-age=0";
-                window.location.href = "login";
+                document.cookie = "authToken=;path=/;max-age=0";
+                window.location.replace("/login");
             };
             document
                 .getElementById("logoutBtn")
@@ -3940,26 +3790,38 @@
                 if (!org) return showToast("Organisation not found", "error");
                 const p = org.profile && typeof org.profile === 'object' ? org.profile : {};
                 const initial = (p.businessName || org.displayName || "?").charAt(0).toUpperCase();
-                const name = escHtml(p.businessName || org.displayName || "Unknown");
-                const email = escHtml(org.email || "");
-                const loc = escHtml(p.location || "");
-                const prod = escHtml(p.manufacture || p.produce || "");
-                const bio = escHtml(p.bio || "");
-                const category = escHtml(p.category || "");
+                const name = p.businessName || org.displayName || "Unknown";
+                const email = org.email || "";
+                const loc = p.location || org.location || "";
+                const prod = p.manufacture || p.produce || "";
+                const bio = p.bio || "";
+                const category = p.category || "";
+                const phone = org.phone_number || "";
+
                 document.getElementById("orgInfoAvatar").textContent = initial;
                 document.getElementById("orgInfoName").textContent = name;
                 document.getElementById("orgInfoEmail").textContent = email;
                 const locEl = document.getElementById("orgInfoLocation");
-                locEl.innerHTML = (loc ? '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:3px"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> ' + loc : "");
+                locEl.textContent = loc ? "📍 " + loc : "";
+
+                // Extra details card
                 const extraEl = document.getElementById("orgInfoExtra");
-                let extraHtml = "";
-                if (category) extraHtml += '<div style="margin-bottom:0.25rem"><strong style="font-size:0.8rem">Category:</strong> <span style="font-size:0.85rem">' + category + '</span></div>';
-                if (prod) extraHtml += '<div style="margin-bottom:0.25rem"><strong style="font-size:0.8rem">Products:</strong> <span style="font-size:0.85rem">' + prod + '</span></div>';
-                if (bio) extraHtml += '<div style="margin-top:0.5rem"><strong style="font-size:0.8rem">About:</strong><p style="font-size:0.85rem;margin:0.25rem 0;line-height:1.5">' + bio + '</p></div>';
-                extraEl.innerHTML = extraHtml;
+                let extraRows = "";
+                if (phone)    extraRows += `<div style="display:flex;gap:8px;margin-bottom:5px"><span style="color:var(--gray);width:80px;flex-shrink:0">Phone</span><span style="font-weight:600">${escHtml(phone)}</span></div>`;
+                if (category) extraRows += `<div style="display:flex;gap:8px;margin-bottom:5px"><span style="color:var(--gray);width:80px;flex-shrink:0">Category</span><span style="font-weight:600">${escHtml(category)}</span></div>`;
+                if (prod)     extraRows += `<div style="display:flex;gap:8px;margin-bottom:5px"><span style="color:var(--gray);width:80px;flex-shrink:0">Products</span><span style="font-weight:600">${escHtml(prod)}</span></div>`;
+                if (bio)      extraRows += `<div style="margin-top:6px;font-size:0.82rem;color:var(--gray);line-height:1.5">${escHtml(bio)}</div>`;
+                if (extraRows) {
+                    extraEl.innerHTML = '<div style="font-weight:700;font-size:0.78rem;text-transform:uppercase;letter-spacing:.4px;color:var(--dark);margin-bottom:8px">Organisation Details</div>' + extraRows;
+                    extraEl.style.display = "block";
+                } else {
+                    extraEl.style.display = "none";
+                }
+
                 document.getElementById("orgAgreementMessage").value = "";
-                document.getElementById("sendAgreementBtn").disabled = false;
-                document.getElementById("sendAgreementBtn").innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg> Send Agreement Request';
+                const btn = document.getElementById("sendAgreementBtn");
+                btn.disabled = false;
+                btn.innerHTML = '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Send Agreement Request';
                 document.getElementById("orgInfoModal").style.display = "flex";
             };
 
@@ -4051,9 +3913,120 @@
                         loadAgreements();
                     if (document.getElementById("agrListContainer"))
                         loadAllAgreements();
+                    // Close detail modal if open
+                    const dm = document.getElementById("_agreementDetailModal");
+                    if (dm) dm.style.display = "none";
                 } catch (e) {
+                    showToast(e.message || "Failed to update", "error");
                 } finally {
                     if (btn) setLoading(btn, false);
+                }
+            };
+
+            // ---------- Agreement Detail Modal ----------
+            window.openAgreementDetail = async function(id) {
+                // Ensure modal exists
+                let modal = document.getElementById("_agreementDetailModal");
+                if (!modal) {
+                    modal = document.createElement("div");
+                    modal.id = "_agreementDetailModal";
+                    modal.style.cssText = "display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:10002;align-items:center;justify-content:center;backdrop-filter:blur(2px)";
+                    modal.innerHTML = '<div style="background:#fff;border-radius:20px;width:90%;max-width:500px;max-height:90vh;overflow-y:auto;box-shadow:0 24px 80px rgba(0,0,0,0.2);animation:_cmIn .2s ease"><div id="_agrDetailContent"></div></div>';
+                    modal.addEventListener("click", function(e) { if (e.target === modal) modal.style.display = "none"; });
+                    document.addEventListener("keydown", function(e) { if (e.key === "Escape") { const m = document.getElementById("_agreementDetailModal"); if (m) m.style.display = "none"; }});
+                    document.body.appendChild(modal);
+                }
+                const content = document.getElementById("_agrDetailContent");
+                content.innerHTML = '<div style="padding:2rem;text-align:center;color:var(--gray)">Loading…</div>';
+                modal.style.display = "flex";
+                try {
+                    const a = await api("/api/agreements/" + id);
+                    const myUid = userData.uid;
+                    // The recipient is whoever did NOT initiate the agreement — they get Accept/Reject
+                    // Fallback: if initiated_by missing (old row), assume org initiated
+                    const initiatedBy = a.initiated_by || a.org_uid;
+                    const isRecipient = myUid !== initiatedBy;
+                    const isOrg = a.org_uid === myUid;
+                    // Show partner info (the other party)
+                    const partnerName = isOrg ? (a.farmer_name || a.farmer_uid) : (a.org_name || a.org_uid);
+                    const partnerEmail = isOrg ? (a.farmer_email || "") : (a.org_email || "");
+                    const partnerPhone = isOrg ? (a.farmer_phone || "") : (a.org_phone || "");
+                    const partnerLocation = isOrg ? (a.farmer_location || "") : (a.org_location || "");
+                    const partnerBiz = isOrg ? (a.farmer_business || "") : (a.org_business || "");
+                    const partnerProduce = isOrg ? (a.farmer_produce || "") : "";
+                    const partnerBio = isOrg ? (a.farmer_bio || "") : "";
+                    const partnerRole = isOrg ? "Farmer" : "Organisation";
+                    const initial = (partnerName || "?")[0].toUpperCase();
+
+                    const statusColors = { pending:"#f97316", active:"#16a34a", rejected:"#dc2626", cancelled:"#6b7280", terminated:"#6b7280" };
+                    const statusColor = statusColors[a.status] || "#6b7280";
+                    const created = a.created_at ? new Date(Number(a.created_at)).toLocaleString("en-KE", {dateStyle:"medium",timeStyle:"short"}) : "—";
+                    const updated = a.updated_at ? new Date(Number(a.updated_at)).toLocaleString("en-KE", {dateStyle:"medium",timeStyle:"short"}) : "—";
+
+                    // Action buttons: recipient gets Accept/Decline; initiator gets Cancel; active → Terminate
+                    let actions = "";
+                    if (a.status === "pending") {
+                        if (isRecipient) {
+                            actions += `<button onclick="updateAgreement('${a.id}','active',this)" style="flex:1;padding:10px;background:#16a34a;color:#fff;border:none;border-radius:10px;font-weight:700;font-size:0.875rem;font-family:inherit;cursor:pointer">✓ Accept Agreement</button>`;
+                            actions += `<button onclick="updateAgreement('${a.id}','rejected',this)" style="flex:1;padding:10px;background:#dc2626;color:#fff;border:none;border-radius:10px;font-weight:700;font-size:0.875rem;font-family:inherit;cursor:pointer">✗ Decline Agreement</button>`;
+                        } else {
+                            actions += `<button onclick="updateAgreement('${a.id}','cancelled',this)" style="flex:1;padding:10px;background:#6b7280;color:#fff;border:none;border-radius:10px;font-weight:700;font-size:0.875rem;font-family:inherit;cursor:pointer">Cancel Request</button>`;
+                        }
+                    } else if (a.status === "active") {
+                        actions += `<button onclick="updateAgreement('${a.id}','terminated',this)" style="flex:1;padding:10px;background:#dc2626;color:#fff;border:none;border-radius:10px;font-weight:700;font-size:0.875rem;font-family:inherit;cursor:pointer">Terminate Agreement</button>`;
+                    }
+
+                    content.innerHTML = `
+                        <!-- Header -->
+                        <div style="background:linear-gradient(135deg,var(--primary),var(--secondary));padding:24px 20px 18px;border-radius:20px 20px 0 0;position:relative">
+                            <button onclick="document.getElementById('_agreementDetailModal').style.display='none'" style="position:absolute;top:12px;right:14px;width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,0.2);border:none;color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1">&times;</button>
+                            <div style="display:flex;align-items:center;gap:14px">
+                                <div style="width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:700;color:#fff;flex-shrink:0">${escHtml(initial)}</div>
+                                <div>
+                                    <div style="font-size:1.05rem;font-weight:800;color:#fff">${escHtml(partnerName || "Unknown")}</div>
+                                    <div style="font-size:0.78rem;color:rgba(255,255,255,0.8);margin-top:2px">${escHtml(partnerRole)}${partnerEmail ? " · " + escHtml(partnerEmail) : ""}</div>
+                                </div>
+                            </div>
+                            <div style="margin-top:12px;display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:20px;background:rgba(255,255,255,0.2);font-size:0.75rem;font-weight:700;color:#fff">
+                                <span style="width:8px;height:8px;border-radius:50%;background:${statusColor};display:inline-block"></span>
+                                ${a.status.toUpperCase()}
+                            </div>
+                        </div>
+
+                        <!-- Body -->
+                        <div style="padding:20px">
+                            <!-- Partner details -->
+                            <div style="background:#f9fafb;border-radius:12px;padding:14px;margin-bottom:16px;font-size:0.85rem">
+                                <div style="font-weight:700;color:var(--dark);margin-bottom:10px;font-size:0.8rem;text-transform:uppercase;letter-spacing:.5px">Partner Details</div>
+                                ${partnerPhone ? `<div style="display:flex;gap:8px;margin-bottom:6px"><span style="color:var(--gray);width:80px">Phone</span><span style="font-weight:600">${escHtml(partnerPhone)}</span></div>` : ""}
+                                ${partnerLocation ? `<div style="display:flex;gap:8px;margin-bottom:6px"><span style="color:var(--gray);width:80px">Location</span><span style="font-weight:600">${escHtml(partnerLocation)}</span></div>` : ""}
+                                ${partnerBiz ? `<div style="display:flex;gap:8px;margin-bottom:6px"><span style="color:var(--gray);width:80px">Business</span><span style="font-weight:600">${escHtml(partnerBiz)}</span></div>` : ""}
+                                ${partnerProduce ? `<div style="display:flex;gap:8px;margin-bottom:6px"><span style="color:var(--gray);width:80px">Produces</span><span style="font-weight:600">${escHtml(partnerProduce)}</span></div>` : ""}
+                                ${partnerBio ? `<div style="margin-top:8px;color:var(--gray);line-height:1.5;font-size:0.82rem">${escHtml(partnerBio)}</div>` : ""}
+                            </div>
+
+                            <!-- Agreement terms -->
+                            <div style="margin-bottom:16px">
+                                <div style="font-weight:700;color:var(--dark);margin-bottom:8px;font-size:0.8rem;text-transform:uppercase;letter-spacing:.5px">Agreement Terms</div>
+                                <div style="background:#fff;border:1.5px solid var(--gray-light);border-radius:10px;padding:12px;font-size:0.875rem;color:var(--dark);line-height:1.6;white-space:pre-wrap;word-break:break-word">${escHtml(a.terms || "No terms specified")}</div>
+                            </div>
+
+                            <!-- Timeline -->
+                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:${actions ? "16px" : "0"};font-size:0.8rem">
+                                <div style="background:#f9fafb;border-radius:10px;padding:10px">
+                                    <div style="color:var(--gray);margin-bottom:3px">Created</div>
+                                    <div style="font-weight:600;color:var(--dark)">${created}</div>
+                                </div>
+                                <div style="background:#f9fafb;border-radius:10px;padding:10px">
+                                    <div style="color:var(--gray);margin-bottom:3px">Last Updated</div>
+                                    <div style="font-weight:600;color:var(--dark)">${updated}</div>
+                                </div>
+                            </div>
+
+                            ${actions ? `<div style="display:flex;gap:10px">${actions}</div>` : ""}
+                        </div>`;
+                } catch(e) {
+                    content.innerHTML = `<div style="padding:2rem;text-align:center;color:var(--danger)">Failed to load: ${escHtml(e.message)}</div>`;
                 }
             };
 
@@ -4062,133 +4035,195 @@
                 const container = document.getElementById("agrListContainer");
                 try {
                     const list = await api("/api/agreements");
-                    document.getElementById("agrCount").textContent =
-                        list.length;
+                    document.getElementById("agrCount").textContent = list.length;
                     if (!list.length) {
-                        container.innerHTML =
-                            '<div class="entity-empty">No agreements yet.</div>';
+                        container.innerHTML = '<div class="entity-empty">No agreements yet.</div>';
                         return;
                     }
-                    container.innerHTML = list
-                        .map((a) => {
-                            let actions = "";
-                            if (a.status === "pending") {
-                                actions +=
-                                    '<button class="btn-xs red" onclick="updateAgreement(\'' +
-                                    a.id +
-                                    "','cancelled', this)\">Cancel</button>";
-                            } else if (a.status === "active") {
-                                actions +=
-                                    '<button class="btn-xs red" onclick="updateAgreement(\'' +
-                                    a.id +
-                                    "','cancelled', this)\">Terminate</button>";
+                    const statusColors = { pending:"#f97316", active:"#16a34a", rejected:"#dc2626", cancelled:"#6b7280", terminated:"#6b7280" };
+                    container.innerHTML = list.map((a) => {
+                        const partnerName = escHtml(a.org_name || a.org_uid || "Unknown");
+                        const partnerDetail = escHtml(a.org_email || "");
+                        const created = a.created_at ? new Date(Number(a.created_at)).toLocaleDateString("en-KE") : "—";
+                        const sc = statusColors[a.status] || "#6b7280";
+                        const termsPreview = (a.terms || "No terms").substring(0, 60) + (a.terms && a.terms.length > 60 ? "…" : "");
+                        const initiatedBy = a.initiated_by || a.org_uid;
+                        const isRecipient = userData.uid !== initiatedBy;
+                        let quickBtns = "";
+                        if (a.status === "pending") {
+                            if (isRecipient) {
+                                quickBtns = `<button class="btn-xs green" onclick="event.stopPropagation();updateAgreement('${a.id}','active',this)" title="Accept">Accept</button>`;
+                                quickBtns += `<button class="btn-xs red" onclick="event.stopPropagation();updateAgreement('${a.id}','rejected',this)" title="Decline">Decline</button>`;
+                            } else {
+                                quickBtns = `<button class="btn-xs red" onclick="event.stopPropagation();updateAgreement('${a.id}','cancelled',this)" title="Cancel">Cancel</button>`;
                             }
-                            return (
-                                '<div class="entity-item">' +
-                                '<div class="entity-avatar"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></div>' +
-                                '<div class="entity-info">' +
-                                '<div class="entity-name">' +
-                                (a.terms || "Agreement") +
-                                "</div>" +
-                                '<div class="entity-detail">' +
-                                (a.org_name || a.org_uid || "").slice(0, 20) +
-                                "</div>" +
-                                "</div>" +
-                                '<span class="status-badge ' +
-                                a.status +
-                                '">' +
-                                a.status +
-                                "</span>" +
-                                actions +
-                                "</div>"
-                            );
-                        })
-                        .join("");
+                        } else if (a.status === "active") {
+                            quickBtns = `<button class="btn-xs red" onclick="event.stopPropagation();updateAgreement('${a.id}','terminated',this)" title="Terminate">End</button>`;
+                        }
+                        return `<div class="entity-item" style="cursor:pointer" onclick="openAgreementDetail('${a.id}')">
+                            <div class="entity-avatar" style="background:${sc}22;color:${sc}">
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                            </div>
+                            <div class="entity-info" style="min-width:0">
+                                <div class="entity-name" style="display:flex;align-items:center;gap:6px">
+                                    ${partnerName}
+                                    <span style="font-size:0.65rem;font-weight:700;padding:1px 7px;border-radius:20px;background:${sc}18;color:${sc};text-transform:uppercase;flex-shrink:0">${a.status}</span>
+                                </div>
+                                <div class="entity-detail" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${partnerDetail ? partnerDetail + " · " : ""}${escHtml(termsPreview)}</div>
+                                <div class="entity-detail" style="margin-top:1px;font-size:0.72rem;color:#9ca3af">${created}</div>
+                            </div>
+                            <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
+                                ${quickBtns}
+                                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--gray);flex-shrink:0"><polyline points="9 18 15 12 9 6"/></svg>
+                            </div>
+                        </div>`;
+                    }).join("");
                 } catch (e) {
-                    container.innerHTML =
-                        '<div class="entity-empty">Failed to load agreements.</div>';
+                    container.innerHTML = '<div class="entity-empty">Failed to load agreements.</div>';
                 }
             }
 
             // ---------- Profile Setup ----------
-            function initProfileForm() {
+            async function initProfileForm() {
+                try {
+                    const fresh = await api("/api/users/" + userData.uid);
+                    userData = fresh;
+                    localStorage.setItem("user", JSON.stringify(fresh));
+                    sessionStorage.setItem("user", JSON.stringify(fresh));
+                } catch (e) {}
                 const container = document.getElementById("profileForm");
-                document.getElementById("profileFields").style.display =
-                    "block";
+                if (!container) return;
+                document.getElementById("profileFields").style.display = "block";
                 const prof = typeof userData.profile === 'string' ? JSON.parse(userData.profile || '{}') : (userData.profile || {});
+                const photoUrl = userData.photo_url || userData.photoUrl || "";
+                const initials = (userData.display_name || userData.displayName || "U")[0].toUpperCase();
+                const iStyle = 'width:100%;padding:0.6rem 0.75rem;border:1.5px solid var(--gray-light);border-radius:var(--radius-sm);font-family:inherit;font-size:0.85rem;box-sizing:border-box;outline:none;transition:border-color .2s';
+                const lStyle = 'display:block;font-size:0.72rem;font-weight:700;color:var(--gray);margin-bottom:4px;text-transform:uppercase;letter-spacing:.3px';
+                const fa = 'onfocus="this.style.borderColor=\'var(--primary)\'" onblur="this.style.borderColor=\'var(--gray-light)\'"';
                 let html = "";
-                html +=
-                    '<div style="margin-bottom:0.5rem"><input id="pfDisplayName" placeholder="Full Name *" value="' +
-                    escHtml(userData.displayName || "") +
-                    '" required style="width:100%;padding:0.5rem 0.6rem;border:1.5px solid var(--gray-light);border-radius:var(--radius-sm);font-family:inherit;font-size:0.8rem;margin-bottom:0.4rem"></div>';
-                html +=
-                    '<div style="margin-bottom:0.5rem"><input id="pfPhone" placeholder="Phone Number * (e.g. +2547XX)" value="' +
-                    escHtml(userData.phoneNumber || "") +
-                    '" required style="width:100%;padding:0.5rem 0.6rem;border:1.5px solid var(--gray-light);border-radius:var(--radius-sm);font-family:inherit;font-size:0.8rem;margin-bottom:0.4rem"></div>';
-                html +=
-                    '<div style="margin-bottom:0.5rem"><input id="pfBusinessName" placeholder="Farm/Business Name" value="' +
-                    escHtml(prof.businessName || "") +
-                    '" style="width:100%;padding:0.5rem 0.6rem;border:1.5px solid var(--gray-light);border-radius:var(--radius-sm);font-family:inherit;font-size:0.8rem;margin-bottom:0.4rem"></div>';
-                html +=
-                    '<div style="margin-bottom:0.5rem"><input id="pfProduce" placeholder="What do you produce? (e.g. Tomatoes, Maize)" value="' +
-                    escHtml(prof.produce || "") +
-                    '" style="width:100%;padding:0.5rem 0.6rem;border:1.5px solid var(--gray-light);border-radius:var(--radius-sm);font-family:inherit;font-size:0.8rem;margin-bottom:0.4rem"></div>';
-                html +=
-                    '<div style="margin-bottom:0.5rem"><input id="pfLocation" placeholder="Farm Location" value="' +
-                    escHtml(prof.location || "") +
-                    '" style="width:100%;padding:0.5rem 0.6rem;border:1.5px solid var(--gray-light);border-radius:var(--radius-sm);font-family:inherit;font-size:0.8rem;margin-bottom:0.4rem"></div>';
-                html +=
-                    '<div style="margin-bottom:0.5rem"><textarea id="pfImages" placeholder="Image URLs (one per line)" style="width:100%;padding:0.5rem 0.6rem;border:1.5px solid var(--gray-light);border-radius:var(--radius-sm);font-family:inherit;font-size:0.8rem;min-height:40px">' +
-                    escHtml((prof.imageUrls || []).join("\n")) +
-                    '</textarea></div>';
-                html +=
-                    '<div style="margin-bottom:0.5rem"><textarea id="pfBio" placeholder="Brief bio about your farm" style="width:100%;padding:0.5rem 0.6rem;border:1.5px solid var(--gray-light);border-radius:var(--radius-sm);font-family:inherit;font-size:0.8rem;min-height:40px">' +
-                    escHtml(prof.bio || "") +
-                    '</textarea></div>';
-                html +=
-                    '<button id="saveProfileBtn" style="padding:0.4rem 0.8rem;background:linear-gradient(135deg,var(--primary),var(--secondary));color:var(--white);border:none;border-radius:var(--radius-sm);font-size:0.8rem;font-weight:600;cursor:pointer;font-family:inherit"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:4px"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Save Profile</button>';
+                // Profile photo
+                html += '<div style="display:flex;flex-direction:column;align-items:center;margin-bottom:1rem">'
+                    + '<div style="position:relative;width:80px;height:80px;cursor:pointer" onclick="document.getElementById(\'pfPhotoInput\').click()">'
+                    + '<div id="pfAvatarCircle" style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--secondary));display:flex;align-items:center;justify-content:center;font-size:1.8rem;font-weight:700;color:#fff;overflow:hidden;border:3px solid var(--gray-light)">'
+                    + (photoUrl ? '<img id="pfAvatarImg" src="' + escHtml(photoUrl) + '" style="width:100%;height:100%;object-fit:cover">' : '<span>' + initials + '</span>')
+                    + '</div>'
+                    + '<div style="position:absolute;bottom:0;right:0;width:26px;height:26px;border-radius:50%;background:var(--primary);border:2px solid #fff;display:flex;align-items:center;justify-content:center">'
+                    + '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>'
+                    + '</div></div>'
+                    + '<input type="file" id="pfPhotoInput" accept="image/*" style="display:none" onchange="previewProfilePhoto(this)">'
+                    + '<span style="font-size:0.72rem;color:var(--gray);margin-top:6px">Tap photo to change</span></div>';
+                html += '<div style="margin-bottom:0.75rem"><label style="' + lStyle + '">Full Name</label><input value="' + escHtml(userData.display_name || userData.displayName || '') + '" readonly style="' + iStyle + ';background:var(--light);color:var(--gray);cursor:not-allowed"></div>';
+                html += '<div style="margin-bottom:0.75rem"><label style="' + lStyle + '">Phone Number</label><input id="pfPhone" placeholder="+2547XXXXXXXX" value="' + escHtml(userData.phone_number || userData.phoneNumber || '') + '" style="' + iStyle + '" ' + fa + '></div>';
+                html += '<div style="margin-bottom:0.75rem"><label style="' + lStyle + '">Farm / Business Name</label><input id="pfBusinessName" placeholder="e.g. Kamau Farm" value="' + escHtml(prof.businessName || userData.business_name || '') + '" style="' + iStyle + '" ' + fa + '></div>';
+                html += '<div style="margin-bottom:0.75rem"><label style="' + lStyle + '">What do you produce?</label><input id="pfProduce" placeholder="e.g. Tomatoes, Maize, Milk" value="' + escHtml(prof.produce || userData.produce || '') + '" style="' + iStyle + '" ' + fa + '></div>';
+                html += '<div style="margin-bottom:0.75rem"><label style="' + lStyle + '">Farm Location</label><input id="pfLocation" placeholder="City / County" value="' + escHtml(prof.location || userData.location || '') + '" style="' + iStyle + '" ' + fa + '></div>';
+                html += '<div style="margin-bottom:0.75rem"><label style="' + lStyle + '">About Your Farm</label><textarea id="pfBio" placeholder="Brief description of your farm..." style="' + iStyle + ';min-height:60px;resize:vertical" ' + fa + '>' + escHtml(prof.bio || userData.bio || '') + '</textarea></div>';
+                html += '<div style="margin-bottom:0.75rem"><label style="' + lStyle + '">Farm Images</label>'
+                    + '<div style="display:flex;gap:8px;align-items:center;margin-bottom:6px">'
+                    + '<input type="file" id="pfImageUpload" accept="image/*" style="flex:1;font-size:0.8rem">'
+                    + '<button id="pfUploadImageBtn" type="button" style="padding:0.4rem 0.8rem;background:var(--primary);color:#fff;border:none;border-radius:var(--radius-sm);font-size:0.75rem;font-weight:600;cursor:pointer;font-family:inherit">Add</button></div>'
+                    + '<div id="pfImagePreview" style="display:flex;flex-wrap:wrap;gap:6px">'
+                    + (Array.isArray(prof.imageUrls) ? prof.imageUrls.map(function(url) { return '<div style="position:relative;width:60px;height:60px;border:1px solid var(--gray-light);border-radius:6px;overflow:hidden"><img src="' + escHtml(url) + '" style="width:100%;height:100%;object-fit:cover"><span class="pfImgRemove" data-url="' + escHtml(url) + '" style="position:absolute;top:-4px;right:-4px;width:18px;height:18px;background:#dc2626;color:#fff;border-radius:50%;font-size:12px;line-height:18px;text-align:center;cursor:pointer;z-index:2">&times;</span></div>'; }).join('') : '')
+                    + '</div><input type="hidden" id="pfImageData" value="' + escHtml(JSON.stringify(prof.imageUrls || [])) + '"></div>';
+                html += '<button type="button" id="saveProfileBtn" style="width:100%;padding:0.7rem;background:linear-gradient(135deg,var(--primary),var(--secondary));color:#fff;border:none;border-radius:var(--radius-sm);font-size:0.875rem;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px;transition:opacity .2s" onmouseover="this.style.opacity=\'.88\'" onmouseout="this.style.opacity=\'1\'">'
+                    + '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>'
+                    + ' Save Profile</button>';
                 container.innerHTML = html;
             }
 
             document
                 .getElementById("profileForm")
                 ?.addEventListener("click", function (e) {
-                    if (e.target.id === "saveProfileBtn") saveProfile(e.target);
+                    const btn = e.target.id === "saveProfileBtn" ? e.target : e.target.closest("#saveProfileBtn");
+                    if (btn) saveProfile(btn);
                 });
+
+            document.addEventListener("click", function(e) {
+                if (e.target.id === "pfUploadImageBtn") uploadProfileImage();
+                if (e.target.classList.contains("pfImgRemove")) {
+                    const url = e.target.dataset.url;
+                    const hidden = document.getElementById("pfImageData");
+                    if (hidden) {
+                        try {
+                            let urls = JSON.parse(hidden.value || "[]");
+                            urls = urls.filter(function(u) { return u !== url; });
+                            hidden.value = JSON.stringify(urls);
+                        } catch(ex) {}
+                    }
+                    e.target.parentElement.remove();
+                }
+            });
+
+            function previewProfilePhoto(input) {
+                const file = input && input.files && input.files[0];
+                if (!file) return;
+                if (file.size > 3 * 1024 * 1024) { showToast("Image too large (max 3MB)", "error"); input.value = ""; return; }
+                const reader = new FileReader();
+                reader.onload = function(ev) {
+                    const circle = document.getElementById("pfAvatarCircle");
+                    if (circle) circle.innerHTML = '<img id="pfAvatarImg" src="' + ev.target.result + '" style="width:100%;height:100%;object-fit:cover">';
+                };
+                reader.readAsDataURL(file);
+            }
+            window.previewProfilePhoto = previewProfilePhoto;
+
+            window.uploadProfileImage = function() {
+                const input = document.getElementById("pfImageUpload");
+                const file = input && input.files && input.files[0];
+                if (!file) { showToast("Select an image first", "error"); return; }
+                if (file.size > 2 * 1024 * 1024) { showToast("Image too large (max 2MB)", "error"); return; }
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const dataUrl = e.target.result;
+                    const preview = document.getElementById("pfImagePreview");
+                    const hidden = document.getElementById("pfImageData");
+                    if (preview && hidden) {
+                        preview.insertAdjacentHTML("beforeend", '<div style="position:relative;width:60px;height:60px;border:1px solid var(--gray-light);border-radius:6px;overflow:hidden"><img src="' + dataUrl + '" style="width:100%;height:100%;object-fit:cover"><span class="pfImgRemove" data-url="' + dataUrl.replace(/"/g, "&quot;") + '" style="position:absolute;top:-4px;right:-4px;width:18px;height:18px;background:#dc2626;color:#fff;border-radius:50%;font-size:12px;line-height:18px;text-align:center;cursor:pointer;z-index:2">&times;</span></div>');
+                        try {
+                            let urls = JSON.parse(hidden.value || "[]");
+                            urls.push(dataUrl);
+                            hidden.value = JSON.stringify(urls);
+                        } catch(ex) {}
+                    }
+                    input.value = "";
+                };
+                reader.readAsDataURL(file);
+            };
 
             window.saveProfile = async function (btn) {
                 const body = {};
-                const dn = document.getElementById("pfDisplayName");
-                if (dn && dn.value.trim()) body.displayName = dn.value.trim();
                 const ph = document.getElementById("pfPhone");
                 if (ph && ph.value.trim()) body.phoneNumber = ph.value.trim();
-                                const bn = document.getElementById("pfBusinessName");
-                                if (bn && bn.value.trim()) body.businessName = bn.value.trim();
-                                const pr = document.getElementById("pfProduce");
-                                if (pr && pr.value.trim()) body.produce = pr.value.trim();
-                                const loc = document.getElementById("pfLocation");
-                                if (loc && loc.value.trim()) body.location = loc.value.trim();
-                const imgs = document.getElementById("pfImages");
-                if (imgs)
-                    body.imageUrls = imgs.value
-                        .split("\n")
-                        .filter((s) => s.trim())
-                        .map((s) => s.trim());
-                                const bio = document.getElementById("pfBio");
-                                if (bio && bio.value.trim()) body.bio = bio.value.trim();
+                const bn = document.getElementById("pfBusinessName");
+                if (bn && bn.value.trim()) body.businessName = bn.value.trim();
+                const pr = document.getElementById("pfProduce");
+                if (pr && pr.value.trim()) body.produce = pr.value.trim();
+                const loc = document.getElementById("pfLocation");
+                if (loc && loc.value.trim()) body.location = loc.value.trim();
+                const bio = document.getElementById("pfBio");
+                if (bio && bio.value.trim()) body.bio = bio.value.trim();
+                const imgData = document.getElementById("pfImageData");
+                if (imgData) { try { body.imageUrls = JSON.parse(imgData.value); } catch(e) { body.imageUrls = []; } }
+                // Profile photo
+                const img = document.getElementById("pfAvatarImg");
+                if (img && img.src && img.src.startsWith("data:")) body.photoUrl = img.src;
                 if (btn) setLoading(btn, true);
                 try {
                     const result = await api("/api/users/profile", {
                         method: "PUT",
                         body: JSON.stringify(body),
                     });
-                    showToast("Profile saved!", "success");
                     userData = result;
+                    localStorage.setItem("user", JSON.stringify(result));
                     sessionStorage.setItem("user", JSON.stringify(result));
-                    document.getElementById("acctName").textContent =
-                        result.displayName || "User";
+                    const _dn = result.display_name || result.displayName || "User";
+                    const nameEl = document.getElementById("acctName"); if (nameEl) nameEl.textContent = _dn;
+                    const tbEl = document.getElementById("topbarAcctName"); if (tbEl) tbEl.textContent = _dn;
+                    showToast("Profile saved!", "success");
+                    await initProfileForm();
                     checkProfileCompleteness();
                 } catch (e) {
+                    showToast(e.message || "Failed to save profile", "error");
                 } finally {
                     if (btn) setLoading(btn, false);
                 }
@@ -4316,7 +4351,8 @@
             }
 
             window.deleteProduct = async function (id, btn) {
-                if (!confirm("Delete this product?")) return;
+                const confirmed = await showConfirmModal({ title: 'Delete Product', message: 'Delete this product? This cannot be undone.', confirmText: 'Delete', type: 'danger' });
+                if (!confirmed) return;
                 if (btn) btn.disabled = true;
                 try {
                     await api("/api/listings/" + id, { method: "DELETE" });
@@ -4409,97 +4445,8 @@
             });
 
 
-            // ---------- Forum / Requests ----------
-            async function loadRequests() {
-                const container = document.getElementById(
-                    "requestListContainer",
-                );
-                if (!container) return;
-                try {
-                    const list = await api("/api/requests");
-                    document.getElementById("requestCount").textContent =
-                        list.length;
-                    if (!list.length) {
-                        container.innerHTML =
-                            '<div class="entity-empty">No open requests from organizations.</div>';
-                        return;
-                    }
-                    container.innerHTML = list
-                        .map((r) => {
-                            const replyForm =
-                                '<div style="display:flex;gap:0.5rem;margin-top:0.5rem">' +
-                                '<input id="replyInput_' +
-                                r.id +
-                                '" placeholder="Reply to this request..." style="flex:1;padding:0.4rem 0.6rem;border:1.5px solid var(--gray-light);border-radius:var(--radius-sm);font-family:inherit;font-size:0.8rem">' +
-                                '<button class="btn-xs green replyBtn" data-request-id="' +
-                                r.id +
-                                '">Reply</button>' +
-                                "</div>";
-                            return (
-                                '<div class="entity-item" style="flex-wrap:wrap;flex-direction:column;align-items:stretch">' +
-                                '<div style="display:flex;align-items:center;gap:1rem;width:100%">' +
-                                '<div class="entity-avatar"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>' +
-                                '<div class="entity-info" style="min-width:0;flex:1">' +
-                                '<div class="entity-name">' +
-                                (r.title || "") +
-                                "</div>" +
-                                '<div class="entity-detail">' +
-                                (r.description || "").substring(0, 200) +
-                                (r.description && r.description.length > 200
-                                    ? "..."
-                                    : "") +
-                                "</div>" +
-                                '<div style="font-size:0.75rem;color:var(--gray);margin-top:0.2rem">' +
-                                "Posted by " +
-                                (r.displayName || r.display_name || "Unknown") +
-                                (r.quantity ? " • Qty: " + r.quantity : "") +
-                                (r.location ? " • <svg viewBox=\"0 0 24 24\" width=\"12\" height=\"12\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" style=\"vertical-align:middle;margin-right:2px\"><path d=\"M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z\"/><circle cx=\"12\" cy=\"10\" r=\"3\"/></svg>" + r.location : "") +
-                                (r.reply_count > 0 ? " • " + r.reply_count + " repl" + (r.reply_count > 1 ? "ies" : "y") : "") +
-                                "</div>" +
-                                "</div>" +
-                                "</div>" +
-                                '<div style="padding-left:3.5rem;margin-top:0.25rem">' +
-                                replyForm +
-                                "</div>" +
-                                "</div>"
-                            );
-                        })
-                        .join("");
-                } catch (e) {
-                    container.innerHTML =
-                        '<div class="entity-empty">Failed to load requests.</div>';
-                }
-            }
-
-            // Reply button handler via event delegation
-            document
-                .getElementById("requestListContainer")
-                .addEventListener("click", async function (e) {
-                    const btn = e.target.closest(".replyBtn");
-                    if (!btn) return;
-                    const requestId = btn.dataset.requestId;
-                    const input = document.getElementById(
-                        "replyInput_" + requestId,
-                    );
-                    if (!input || !input.value.trim()) {
-                        showToast("Please enter a message", "error");
-                        return;
-                    }
-                    setLoading(btn, true);
-                    try {
-                        await api("/api/requests/" + requestId + "/reply", {
-                            method: "POST",
-                            body: JSON.stringify({
-                                message: input.value.trim(),
-                            }),
-                        });
-                        showToast("Reply sent!", "success");
-                        loadRequests();
-                    } catch (e) {
-                    } finally {
-                        setLoading(btn, false);
-                    }
-                });
+            // ---------- Forum — handled by /js/forum.js ----------
+            // initForum is called after userData is ready (see below)
 
             // Auto-load data when section is switched
             const origSwitch = switchSection;
@@ -4507,10 +4454,10 @@
                 origSwitch(sectionId);
                 if (sectionId === "account") {
                     initProfileForm();
+                    check2faStatus();
                 }
-                if (sectionId === "organizations") {
+                if (sectionId === "connections") {
                     loadOrganizations();
-                    loadAgreements();
                     // wire search listener once
                     const inp = document.getElementById("orgSearchInput");
                     if (inp && !inp._wired) { inp._wired = true; inp.addEventListener("input", applyOrgFilter); }
@@ -4527,7 +4474,10 @@
                     if (df && !df._wired) { df._wired = true; df.addEventListener("change", applyProductFilter); }
                 }
                 if (sectionId === "forum") {
-                    loadRequests();
+                    loadForumPosts();
+                }
+                if (sectionId === "performance") {
+                    loadPerformance();
                 }
             };
             window.switchSection = switchSection;
@@ -4613,8 +4563,8 @@
             async function loadDashboardStats() {
                 try {
                     const [walletRes, listingsRes] = await Promise.all([
-                        fetch("/api/wallet", { cache: "no-store", headers: { Authorization: "Bearer " + idToken } }),
-                        fetch("/api/listings/mine", { cache: "no-store", headers: { Authorization: "Bearer " + idToken } })
+                        fetch("/api/wallet", { cache: "no-store", headers: { Authorization: "Bearer " + (localStorage.getItem("idToken") || sessionStorage.getItem("idToken")) } }),
+                        fetch("/api/listings/mine", { cache: "no-store", headers: { Authorization: "Bearer " + (localStorage.getItem("idToken") || sessionStorage.getItem("idToken")) } })
                     ]);
                     if (walletRes.ok) {
                         const w = await walletRes.json();
@@ -4630,14 +4580,270 @@
                     }
                 } catch (e) { console.error('[DASHBOARD] stats load error:', e); }
             }
+
+            // ---------- Dashboard Charts ----------
+            let _dashCharts = {};
+
+            function _destroyChart(id) {
+                if (_dashCharts[id]) { _dashCharts[id].destroy(); delete _dashCharts[id]; }
+            }
+
+            const _chartDefaults = {
+                font: { family: "'Inter', sans-serif", size: 11 },
+                color: '#6c757d',
+            };
+
+            async function loadDashboardCharts() {
+                try {
+                    const data = await api("/api/farmer/charts");
+                    const { labels, salesData, revenueData, ordersData, statusData } = data;
+
+                    // ── shared gradient helper ──────────────────────────────
+                    function makeGradient(ctx, color1, color2) {
+                        const g = ctx.createLinearGradient(0, 0, 0, 200);
+                        g.addColorStop(0, color1);
+                        g.addColorStop(1, color2);
+                        return g;
+                    }
+
+                    const totalSales = salesData.reduce((a, b) => a + b, 0);
+                    const totalRev   = revenueData.reduce((a, b) => a + b, 0);
+                    const totalOrds  = ordersData.reduce((a, b) => a + b, 0);
+
+                    const el = (id) => document.getElementById(id);
+                    if (el('dashSalesTotalBadge'))  el('dashSalesTotalBadge').textContent  = totalSales + ' sales';
+                    if (el('dashEarningsBadge'))    el('dashEarningsBadge').textContent    = 'KES ' + Number(totalRev).toLocaleString('en-KE', {maximumFractionDigits:0});
+                    if (el('dashOrdersVolBadge'))   el('dashOrdersVolBadge').textContent   = totalOrds + ' orders';
+
+                    // ── Status counts for doughnut badge ───────────────────
+                    const totalStatus = Object.values(statusData).reduce((a, b) => a + b, 0);
+                    if (el('dashOrdersTotalBadge')) el('dashOrdersTotalBadge').textContent = totalStatus + ' total';
+
+                    // ── 1. Sales line chart ─────────────────────────────────
+                    _destroyChart('sales');
+                    const ctxS = el('chartSales').getContext('2d');
+                    _dashCharts.sales = new Chart(ctxS, {
+                        type: 'line',
+                        data: {
+                            labels,
+                            datasets: [{
+                                label: 'Completed Sales',
+                                data: salesData,
+                                borderColor: '#1b5e20',
+                                backgroundColor: makeGradient(ctxS, 'rgba(27,94,32,0.18)', 'rgba(27,94,32,0.01)'),
+                                fill: true,
+                                tension: 0.42,
+                                pointBackgroundColor: '#1b5e20',
+                                pointRadius: 4,
+                                pointHoverRadius: 6,
+                                borderWidth: 2.5,
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: { display: false },
+                                tooltip: {
+                                    backgroundColor: '#1a1a2e', titleColor: '#fff', bodyColor: '#e2e8f0',
+                                    padding: 10, cornerRadius: 8,
+                                    callbacks: { label: ctx => ' ' + ctx.parsed.y + ' sale(s)' }
+                                }
+                            },
+                            scales: {
+                                x: { grid: { display: false }, ticks: _chartDefaults },
+                                y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { ..._chartDefaults, stepSize: 1, precision: 0 } }
+                            }
+                        }
+                    });
+
+                    // ── 2. Order status doughnut ────────────────────────────
+                    _destroyChart('orders');
+                    const statusLabels = Object.keys(statusData).map(s => s === 'in_escrow' ? 'Pending' : s.charAt(0).toUpperCase() + s.slice(1));
+                    const statusValues = Object.values(statusData);
+                    const statusColors = {
+                        in_escrow:   '#f97316', completed: '#16a34a', cancelled: '#dc2626',
+                        refunded:    '#6366f1', dispatched: '#7c3aed', processing: '#2563eb',
+                        delivering:  '#d97706', delivered:  '#14b8a6', disputed: '#ef4444',
+                        verified:    '#22c55e',
+                    };
+                    const dColors = Object.keys(statusData).map(s => statusColors[s] || '#94a3b8');
+
+                    _dashCharts.orders = new Chart(el('chartOrders').getContext('2d'), {
+                        type: 'doughnut',
+                        data: {
+                            labels: statusLabels,
+                            datasets: [{
+                                data: statusValues,
+                                backgroundColor: dColors,
+                                borderColor: '#fff',
+                                borderWidth: 3,
+                                hoverOffset: 8,
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: true,
+                            aspectRatio: 1.4,
+                            cutout: '62%',
+                            plugins: {
+                                legend: {
+                                    position: 'bottom',
+                                    labels: { ..._chartDefaults, padding: 12, boxWidth: 10, boxHeight: 10, borderRadius: 3 }
+                                },
+                                tooltip: {
+                                    backgroundColor: '#1a1a2e', titleColor: '#fff', bodyColor: '#e2e8f0',
+                                    padding: 10, cornerRadius: 8,
+                                    callbacks: {
+                                        label: ctx => {
+                                            const pct = totalStatus > 0 ? ((ctx.parsed / totalStatus) * 100).toFixed(1) : 0;
+                                            return '  ' + ctx.parsed + ' (' + pct + '%)';
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+
+                    // ── 3. Earnings bar chart ───────────────────────────────
+                    _destroyChart('earnings');
+                    const ctxE = el('chartEarnings').getContext('2d');
+                    _dashCharts.earnings = new Chart(ctxE, {
+                        type: 'bar',
+                        data: {
+                            labels,
+                            datasets: [{
+                                label: 'Earnings (KES)',
+                                data: revenueData,
+                                backgroundColor: makeGradient(ctxE, 'rgba(37,99,235,0.75)', 'rgba(37,99,235,0.25)'),
+                                borderColor: '#2563eb',
+                                borderWidth: 0,
+                                borderRadius: 6,
+                                borderSkipped: false,
+                                hoverBackgroundColor: '#2563eb',
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: { display: false },
+                                tooltip: {
+                                    backgroundColor: '#1a1a2e', titleColor: '#fff', bodyColor: '#e2e8f0',
+                                    padding: 10, cornerRadius: 8,
+                                    callbacks: { label: ctx => ' KES ' + Number(ctx.parsed.y).toLocaleString('en-KE', {maximumFractionDigits:2}) }
+                                }
+                            },
+                            scales: {
+                                x: { grid: { display: false }, ticks: _chartDefaults },
+                                y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { ..._chartDefaults, callback: v => 'KES ' + (v >= 1000 ? (v/1000).toFixed(0)+'k' : v) } }
+                            }
+                        }
+                    });
+
+                    // ── 4. Orders volume line chart ─────────────────────────
+                    _destroyChart('ordersVol');
+                    const ctxO = el('chartOrdersVol').getContext('2d');
+                    _dashCharts.ordersVol = new Chart(ctxO, {
+                        type: 'line',
+                        data: {
+                            labels,
+                            datasets: [{
+                                label: 'Orders',
+                                data: ordersData,
+                                borderColor: '#7c3aed',
+                                backgroundColor: makeGradient(ctxO, 'rgba(124,58,237,0.18)', 'rgba(124,58,237,0.01)'),
+                                fill: true,
+                                tension: 0.42,
+                                pointBackgroundColor: '#7c3aed',
+                                pointRadius: 4,
+                                pointHoverRadius: 6,
+                                borderWidth: 2.5,
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: { display: false },
+                                tooltip: {
+                                    backgroundColor: '#1a1a2e', titleColor: '#fff', bodyColor: '#e2e8f0',
+                                    padding: 10, cornerRadius: 8,
+                                    callbacks: { label: ctx => ' ' + ctx.parsed.y + ' order(s)' }
+                                }
+                            },
+                            scales: {
+                                x: { grid: { display: false }, ticks: _chartDefaults },
+                                y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { ..._chartDefaults, stepSize: 1, precision: 0 } }
+                            }
+                        }
+                    });
+
+                } catch (e) { console.error('[DASHBOARD CHARTS]', e); }
+            }
+
             loadDashboardStats();
+            loadDashboardCharts();
+            // Pre-fetch orders on load so the topbar pending badge shows immediately
+            loadFarmerOrders();
+
+            // ---------- Performance Stats ----------
+            async function loadPerformance() {
+                try {
+                    const s = await api("/api/farmer/stats");
+
+                    // Stat cards
+                    document.getElementById("perfTotalSales").textContent = s.totalSales;
+                    document.getElementById("perfRevenue").textContent = "KES " + Number(s.totalRevenue).toLocaleString("en-KE", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                    document.getElementById("perfListings").textContent = s.activeListings;
+                    document.getElementById("perfAgreements").textContent = s.activeAgreements;
+
+                    // Progress bars — animate after a tick so the transition plays
+                    requestAnimationFrame(() => {
+                        const setBar = (barId, pctId, value) => {
+                            const bar = document.getElementById(barId);
+                            const lbl = document.getElementById(pctId);
+                            if (bar) { bar.style.transition = "width 0.9s ease"; bar.style.width = value + "%"; }
+                            if (lbl) lbl.textContent = value + "%";
+                        };
+                        setBar("perfProfileBar",    "perfProfilePct",    s.profileCompletion);
+                        setBar("perfEngagementBar", "perfEngagementPct", s.engagementScore);
+                        setBar("perfTrustBar",      "perfTrustPct",      s.trustScore);
+                    });
+
+                    // Achievements
+                    const a = s.achievements || {};
+                    const allAchievements = [
+                        { key: "firstLogin",      label: "First Login",            icon: "⭐", desc: "Welcome aboard!" },
+                        { key: "profileComplete", label: "Profile Complete",        icon: "✅", desc: "Profile ≥ 80% filled" },
+                        { key: "firstListing",    label: "First Listing",           icon: "📦", desc: "Posted your first product" },
+                        { key: "firstSale",       label: "First Sale",              icon: "💰", desc: "Completed first order" },
+                        { key: "firstConnection", label: "First Agreement",         icon: "🤝", desc: "Active partnership signed" },
+                        { key: "tenSales",        label: "10 Sales Milestone",      icon: "🏆", desc: "Completed 10 orders" },
+                        { key: "verified",        label: "Verified Farmer",         icon: "🏅", desc: "Account verified by AgriConnect" },
+                        { key: "veteran",         label: "Veteran (90 days)",       icon: "🌱", desc: "Active for 90+ days" },
+                    ];
+                    const achEl = document.getElementById("perfAchievements");
+                    achEl.innerHTML = allAchievements.map((ach, i) => {
+                        const unlocked = !!a[ach.key];
+                        const border = i === allAchievements.length - 1 ? "none;padding-bottom:0" : "";
+                        return `<div class="info-row" style="${border}">
+                            <span class="info-label" title="${escHtml(ach.desc)}" style="display:flex;align-items:center;gap:6px;${unlocked ? '' : 'opacity:.45'}">
+                                <span style="font-size:1.05rem">${ach.icon}</span> ${escHtml(ach.label)}
+                            </span>
+                            <span class="info-value" style="color:${unlocked ? '#16a34a' : 'var(--gray)'}">
+                                ${unlocked ? '✓ Unlocked' : 'Locked'}
+                            </span>
+                        </div>`;
+                    }).join("");
+                } catch (e) {
+                    console.error("[PERFORMANCE]", e);
+                }
+            }
 
             // ---------- Orders ----------
             let farmerOrdersCache = [];
 
             async function loadFarmerOrders() {
                 try {
-                    const res = await fetch("/api/orders", { cache: "no-store", headers: { Authorization: "Bearer " + idToken } });
+                    const res = await fetch("/api/orders", { cache: "no-store", headers: { Authorization: "Bearer " + (localStorage.getItem("idToken") || sessionStorage.getItem("idToken")) } });
                     if (!res.ok) throw new Error(await res.text());
                     const orders = await res.json();
                     const myOrders = orders.filter(o => o.seller_uid === userData.uid);
@@ -4648,6 +4854,24 @@
 
             function renderFarmerOrders(orders) {
                 const container = document.getElementById("farmerOrderListContainer");
+
+                // Update topbar pending orders badge
+                const pendingCount = orders.filter(o => o.status === 'in_escrow').length;
+                const topbarBadge = document.getElementById("topbarOrdersBadge");
+                if (topbarBadge) {
+                    topbarBadge.textContent = pendingCount;
+                    topbarBadge.classList.toggle("show", pendingCount > 0);
+                    // Pulse the button if there are new pending orders
+                    const btn = document.getElementById("topbarOrdersBtn");
+                    if (pendingCount > 0 && btn) {
+                        btn.style.borderColor = "#f97316";
+                        btn.style.color = "#f97316";
+                    } else if (btn) {
+                        btn.style.borderColor = "";
+                        btn.style.color = "";
+                    }
+                }
+
                 if (!orders.length) { container.innerHTML = '<div class="entity-empty">No orders received yet.</div>'; document.getElementById("farmerOrderCount").textContent = '0'; return; }
                 document.getElementById("farmerOrderCount").textContent = orders.length;
                 let html = '<div style="display:flex;flex-direction:column;gap:0.75rem">';
@@ -4668,7 +4892,7 @@
             // ---------- Deliveries ----------
             async function loadFarmerDeliveries() {
                 try {
-                    const res = await fetch("/api/orders", { cache: "no-store", headers: { Authorization: "Bearer " + idToken } });
+                    const res = await fetch("/api/orders", { cache: "no-store", headers: { Authorization: "Bearer " + (localStorage.getItem("idToken") || sessionStorage.getItem("idToken")) } });
                     if (!res.ok) throw new Error(await res.text());
                     const orders = await res.json();
                     const deliveries = orders.filter(o => o.seller_uid === userData.uid && (o.status === 'processing' || o.status === 'delivering' || o.status === 'delivered' || o.status === 'dispatched'));
@@ -4720,7 +4944,7 @@
                 const content = document.getElementById("orderModalContent");
                 content.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--gray)">Loading...</div>';
                 try {
-                    const res = await fetch("/api/orders/" + orderId, { cache: "no-store", headers: { Authorization: "Bearer " + idToken } });
+                    const res = await fetch("/api/orders/" + orderId, { cache: "no-store", headers: { Authorization: "Bearer " + (localStorage.getItem("idToken") || sessionStorage.getItem("idToken")) } });
                     if (!res.ok) throw new Error(await res.text());
                     const o = await res.json();
                     renderOrderModal(o);
@@ -4768,6 +4992,12 @@
                     if (nextStatus) {
                         html += '<button onclick="updateDeliveryStatus(\'' + o.id + '\',\'' + nextStatus + '\')" style="width:100%;padding:11px;background:#1a73e8;color:#fff;border:none;border-radius:10px;cursor:pointer;font-weight:600;font-size:0.85rem;font-family:inherit">Mark as ' + nextStatus.charAt(0).toUpperCase() + nextStatus.slice(1) + '</button>';
                     }
+                } else if (o.status === 'completed') {
+                    const shortId = o.id.substring(0, 8).toUpperCase();
+                    html += '<div style="display:flex;gap:8px;margin-top:4px">';
+                    html += '<a href="/api/orders/' + o.id + '/receipt?type=receipt" download="Receipt-' + shortId + '.pdf" style="flex:1;padding:11px;background:linear-gradient(135deg,#1B5E20,#2E7D32);color:#fff;border:none;border-radius:10px;cursor:pointer;font-weight:600;font-size:0.85rem;font-family:inherit;text-decoration:none;text-align:center;display:block"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:5px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Receipt</a>';
+                    html += '<a href="/api/orders/' + o.id + '/receipt?type=invoice" download="Invoice-' + shortId + '.pdf" style="flex:1;padding:11px;background:#374151;color:#fff;border:none;border-radius:10px;cursor:pointer;font-weight:600;font-size:0.85rem;font-family:inherit;text-decoration:none;text-align:center;display:block"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:5px"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Invoice</a>';
+                    html += '</div>';
                 }
                 content.innerHTML = html;
             }
@@ -4775,7 +5005,7 @@
             // ---------- Order Actions ----------
             async function acceptOrder(orderId) {
                 try {
-                    const res = await fetch("/api/orders/" + orderId + "/accept", { method: "POST", headers: { Authorization: "Bearer " + idToken } });
+                    const res = await fetch("/api/orders/" + orderId + "/accept", { method: "POST", headers: { Authorization: "Bearer " + (localStorage.getItem("idToken") || sessionStorage.getItem("idToken")) } });
                     const data = await res.json();
                     if (!res.ok) { showToast(data.error || 'Failed to accept order', 'error'); return; }
                     showToast('Order accepted!', 'success');
@@ -4786,9 +5016,10 @@
             }
 
             async function declineOrder(orderId) {
-                if (!confirm('Decline this order? This will cancel it.')) return;
+                const confirmed = await showConfirmModal({ title: 'Decline Order', message: 'Decline this order? It will be cancelled and funds returned to the buyer.', confirmText: 'Decline', type: 'danger' });
+                if (!confirmed) return;
                 try {
-                    const res = await fetch("/api/orders/" + orderId + "/decline", { method: "POST", headers: { Authorization: "Bearer " + idToken } });
+                    const res = await fetch("/api/orders/" + orderId + "/decline", { method: "POST", headers: { Authorization: "Bearer " + (localStorage.getItem("idToken") || sessionStorage.getItem("idToken")) } });
                     const data = await res.json();
                     if (!res.ok) { showToast(data.error || 'Failed to decline order', 'error'); return; }
                     showToast('Order declined and refunded', 'success');
@@ -4799,7 +5030,7 @@
 
             async function updateDeliveryStatus(orderId, newStatus) {
                 try {
-                    const res = await fetch("/api/orders/" + orderId + "/delivery-status", { method: "PATCH", headers: { Authorization: "Bearer " + idToken, "Content-Type": "application/json" }, body: JSON.stringify({ status: newStatus }) });
+                    const res = await fetch("/api/orders/" + orderId + "/delivery-status", { method: "PATCH", headers: { Authorization: "Bearer " + (localStorage.getItem("idToken") || sessionStorage.getItem("idToken")), "Content-Type": "application/json" }, body: JSON.stringify({ status: newStatus }) });
                     const data = await res.json();
                     if (!res.ok) { showToast(data.error || 'Failed to update status', 'error'); return; }
                     showToast('Status updated to ' + newStatus, 'success');
@@ -4817,8 +5048,8 @@
             async function loadWallet() {
                 try {
                     const [walletRes, idRes] = await Promise.all([
-                        fetch("/api/wallet", { cache: "no-store", headers: { Authorization: "Bearer " + idToken } }),
-                        fetch("/api/wallet/id", { cache: "no-store", headers: { Authorization: "Bearer " + idToken } })
+                        fetch("/api/wallet", { cache: "no-store", headers: { Authorization: "Bearer " + (localStorage.getItem("idToken") || sessionStorage.getItem("idToken")) } }),
+                        fetch("/api/wallet/id", { cache: "no-store", headers: { Authorization: "Bearer " + (localStorage.getItem("idToken") || sessionStorage.getItem("idToken")) } })
                     ]);
                     if (walletRes.ok) walletData = await walletRes.json();
                     if (idRes.ok) { const idData = await idRes.json(); myWalletId = idData.walletId || ""; }
@@ -4901,7 +5132,7 @@
                 _recipientData = null; confirmCard.style.display = "none";
                 try {
                     const res = await fetch("/api/wallet/lookup?walletId=" + encodeURIComponent(walletId), {
-                        headers: { Authorization: "Bearer " + idToken },
+                        headers: { Authorization: "Bearer " + (localStorage.getItem("idToken") || sessionStorage.getItem("idToken")) },
                     });
                     if (!res.ok) { const err = await res.json(); info.innerHTML = '<span style="color:#ef4444">' + escHtml(err.error || "Not found") + "</span>"; return; }
                     const u = await res.json();
@@ -4933,7 +5164,7 @@
                 try {
                     const res = await fetch("/api/wallet/transfer", {
                         method: "POST",
-                        headers: { "Content-Type": "application/json", Authorization: "Bearer " + idToken },
+                        headers: { "Content-Type": "application/json", Authorization: "Bearer " + (localStorage.getItem("idToken") || sessionStorage.getItem("idToken")) },
                         body: JSON.stringify({ walletId: _recipientData.walletId, amount, description, idempotencyKey: Date.now().toString() + Math.random().toString(36).substr(2, 9) }),
                     });
                     const data = await res.json();
@@ -4955,22 +5186,29 @@
             }
 
             window.processDeposit = async function () {
-                const phone = document.getElementById("depositPhone").value.trim();
+                const rawPhone = document.getElementById("depositPhone").value.trim();
+                // Normalize: accept "07XX", "7XX", "254XX", "+254XX" → always send as "2547XX..."
+                const phone = rawPhone.replace(/^\+?254/, '').replace(/^0/, '');
+                const normalizedPhone = '254' + phone;
                 const amount = parseFloat(document.getElementById("depositAmount").value);
-                if (!phone || !amount || amount < 10) { showToast("Enter valid phone and amount (min KES 10)", "warning"); return; }
+                if (!phone || phone.length < 9 || !amount || amount < 10) {
+                    showToast("Enter a valid M-Pesa number and amount (min KES 10)", "warning"); return;
+                }
                 const btn = document.getElementById("depositBtn");
-                btn.disabled = true; btn.textContent = "Processing...";
+                const origContent = btn.innerHTML;
+                btn.disabled = true;
+                btn.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" style="animation:spin .8s linear infinite"><circle cx="12" cy="12" r="10" stroke-dasharray="31.4 31.4" stroke-linecap="round"/></svg> Sending STK Push…';
                 try {
                     const res = await fetch("/api/mpesa/stkpush", {
                         method: "POST",
-                        headers: { "Content-Type": "application/json", Authorization: "Bearer " + idToken },
-                        body: JSON.stringify({ phoneNumber: phone, amount, idempotencyKey: Date.now().toString() + Math.random().toString(36).substr(2, 9) }),
+                        headers: { "Content-Type": "application/json", Authorization: "Bearer " + (localStorage.getItem("idToken") || sessionStorage.getItem("idToken")) },
+                        body: JSON.stringify({ phoneNumber: normalizedPhone, amount, idempotencyKey: Date.now().toString() + Math.random().toString(36).substr(2, 9) }),
                     });
                     const data = await res.json();
-                    if (!res.ok) { showToast(data.error || "STK push failed", "error"); btn.disabled = false; btn.textContent = "Pay with M-Pesa"; return; }
-                    window.location.href = '/wallet-callback.html?type=deposit&amount=' + encodeURIComponent(amount) + '&phone=' + encodeURIComponent(phone) + '&checkoutRequestId=' + encodeURIComponent(data.checkoutRequestId || '');
-                } catch (e) { showToast("STK push failed", "error"); }
-                btn.disabled = false; btn.textContent = "Pay with M-Pesa";
+                    if (!res.ok) { showToast(data.error || "STK push failed", "error"); btn.disabled = false; btn.innerHTML = origContent; return; }
+                    window.location.href = '/wallet-callback.html?type=deposit&amount=' + encodeURIComponent(amount) + '&phone=' + encodeURIComponent(normalizedPhone) + '&checkoutRequestId=' + encodeURIComponent(data.checkoutRequestId || '');
+                } catch (e) { showToast("STK push failed. Please try again.", "error"); }
+                btn.disabled = false; btn.innerHTML = origContent;
             };
 
             loadWallet();
@@ -5014,7 +5252,7 @@
                 try {
                     const res = await fetch("/api/payout/history", {
                         cache: "no-store",
-                        headers: { Authorization: "Bearer " + idToken },
+                        headers: { Authorization: "Bearer " + (localStorage.getItem("idToken") || sessionStorage.getItem("idToken")) },
                     });
                     if (!res.ok) {
                         document.getElementById(
@@ -5080,7 +5318,7 @@
                     try {
                         const res = await fetch("/api/wallet/withdraw", {
                             method: "POST",
-                            headers: { "Content-Type": "application/json", Authorization: "Bearer " + idToken },
+                            headers: { "Content-Type": "application/json", Authorization: "Bearer " + (localStorage.getItem("idToken") || sessionStorage.getItem("idToken")) },
                             body: JSON.stringify({ phoneNumber: phone, amount, idempotencyKey: Date.now().toString() + Math.random().toString(36).substr(2, 9) }),
                         });
                         const data = await res.json();
@@ -5139,13 +5377,15 @@
                 const active = document.querySelector(".page-section.active");
                 const id = active ? active.id.replace("section-", "") : "dashboard";
                 if (id === "dashboard") await loadDashboardStats();
+                if (id === "dashboard") await loadDashboardCharts();
                 if (id === "wallet" || id === "payout") await loadWallet();
                 if (id === "postproducts") await loadMyProducts();
-                if (id === "organizations") await loadOrganizations();
+                if (id === "connections") await loadOrganizations();
                 if (id === "orders") { await loadFarmerOrders(); await loadFarmerDeliveries(); }
                 if (id === "deliveries") await loadFarmerDeliveries();
                 if (id === "agreements") await loadAgreements();
-                if (id === "forum") { await loadRequests(); }
+                if (id === "forum") { await loadForumPosts(); }
+                if (id === "performance") await loadPerformance();
                 setTimeout(() => btn.classList.remove("spinning"), 600);
             }
 
@@ -5153,7 +5393,7 @@
                 try {
                     const res = await fetch("/api/notifications", {
                         cache: "no-store",
-                        headers: { Authorization: "Bearer " + idToken },
+                        headers: { Authorization: "Bearer " + (localStorage.getItem("idToken") || sessionStorage.getItem("idToken")) },
                     });
                     notifs = (await res.json()) || [];
                     renderNotifs();
@@ -5229,7 +5469,7 @@
                     await fetch("/api/notifications/read", {
                         method: "POST",
                         headers: {
-                            Authorization: "Bearer " + idToken,
+                            Authorization: "Bearer " + (localStorage.getItem("idToken") || sessionStorage.getItem("idToken")),
                             "Content-Type": "application/json",
                         },
                     });
@@ -5285,7 +5525,7 @@
                 try {
                     await fetch("/api/notifications/read/" + encodeURIComponent(activeNotifId), {
                         method: "POST",
-                        headers: { Authorization: "Bearer " + idToken },
+                        headers: { Authorization: "Bearer " + (localStorage.getItem("idToken") || sessionStorage.getItem("idToken")) },
                     });
                     const n = notifs.find((n) => n.id === activeNotifId);
                     if (n) n.read = true;
@@ -5338,7 +5578,7 @@
             async function aiApiFetch(url, opts) {
                 const res = await fetch(url, {
                     cache: 'no-store',
-                    headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + idToken },
+                    headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + (localStorage.getItem('idToken') || sessionStorage.getItem('idToken')) },
                     ...opts,
                 });
                 if (res.status === 401) { sessionStorage.clear(); window.location.href = 'login'; return null; }
@@ -5520,7 +5760,7 @@
                 try {
                     const res = await fetch('/api/ai/chat', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + idToken },
+                        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + (localStorage.getItem('idToken') || sessionStorage.getItem('idToken')) },
                         body: JSON.stringify({ message: msg || null, image: imgToSend || null, sessionId: aiCurrentId }),
                     });
                     aiHideTyping();
@@ -5677,9 +5917,153 @@
                     }, 250);
                 });
             })();
+        // ==================== 2FA Functions ====================
+        window.twoFactorState = {};
+
+        function twoFactorToggleClick() {
+            const btn = document.getElementById("twoFactorToggleBtn");
+            if (btn && btn.textContent === "Disable 2FA") {
+                showDisable2faModal();
+            } else if (btn) {
+                showSetup2faModal();
+            }
+        }
+
+        async function check2faStatus() {
+            try {
+                const data = await api("/api/auth/2fa/status");
+                update2faUI(data.enabled);
+            } catch (e) {}
+        }
+
+        function update2faUI(enabled) {
+            const statusEl = document.getElementById("twoFactorStatus");
+            const toggleBtn = document.getElementById("twoFactorToggleBtn");
+            if (enabled) {
+                statusEl.textContent = "Enabled";
+                statusEl.style.color = "#16a34a";
+                toggleBtn.textContent = "Disable 2FA";
+            } else {
+                statusEl.textContent = "Disabled";
+                statusEl.style.color = "var(--gray)";
+                toggleBtn.textContent = "Enable 2FA";
+            }
+        }
+
+        function showSetup2faModal() {
+            const overlay = document.createElement("div");
+            overlay.className = "modal-overlay";
+            overlay.id = "setup2faModal";
+            overlay.style.cssText = "display:flex;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:10000;align-items:center;justify-content:center";
+            overlay.innerHTML = '<div class="modal-content" style="background:#fff;border-radius:16px;padding:28px;width:90%;max-width:440px;box-shadow:0 20px 60px rgba(0,0,0,0.2);position:relative;max-height:90vh;overflow-y:auto;text-align:center">' +
+                '<div class="modal-header" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><h2 style="margin:0;font-size:1.2rem">Setup Two-Factor Auth</h2><button class="modal-close" onclick="this.closest(\'.modal-overlay\').remove()" style="background:none;border:none;font-size:24px;cursor:pointer;color:#999;padding:0;line-height:1">&times;</button></div>' +
+                '<div id="setup2faLoading" style="padding:40px 0;color:var(--gray)">Generating secret key...</div>' +
+                '<div id="setup2faContent" style="display:none">' +
+                '<p style="font-size:0.85rem;color:var(--gray);margin-bottom:16px">Scan this QR code with your Google Authenticator app, then enter the 6-digit code below.</p>' +
+                '<div id="setup2faQr" style="margin:0 auto 16px;max-width:200px"></div>' +
+                '<div style="font-size:0.75rem;color:var(--gray);margin-bottom:12px;word-break:break-all;background:var(--light);padding:8px;border-radius:6px">Secret: <span id="setup2faSecret" style="font-family:monospace"></span></div>' +
+                '<input type="text" id="setup2faCode" placeholder="Enter 6-digit code" maxlength="6" inputmode="numeric" pattern="[0-9]*" style="width:100%;padding:12px 14px;border:1.5px solid var(--gray-light);border-radius:10px;font-size:16px;font-family:inherit;outline:none;box-sizing:border-box;text-align:center;letter-spacing:4px;font-weight:700;margin-bottom:12px">' +
+                '<button id="verify2faBtn" class="btn btn-primary" style="width:100%;padding:12px;background:linear-gradient(135deg,var(--primary),var(--secondary));color:var(--white);border:none;border-radius:10px;font-size:1rem;font-weight:600;cursor:pointer;font-family:inherit">Verify & Enable</button>' +
+                '<div id="setup2faError" style="color:#dc2626;font-size:0.85rem;margin-top:8px;display:none"></div>' +
+                '</div></div>';
+            document.body.appendChild(overlay);
+            setup2faInit();
+        }
+
+        async function setup2faInit() {
+            try {
+                const data = await api("/api/auth/2fa/setup", { method: "POST" });
+                document.getElementById("setup2faLoading").style.display = "none";
+                document.getElementById("setup2faContent").style.display = "block";
+                document.getElementById("setup2faQr").innerHTML = '<img src="' + data.qrCode + '" alt="QR Code" style="width:100%;max-width:200px;border-radius:8px">';
+                document.getElementById("setup2faSecret").textContent = data.secret;
+                window.twoFactorState.setupSecret = data.secret;
+                document.getElementById("setup2faCode").focus();
+            } catch (e) {
+                document.getElementById("setup2faLoading").textContent = "Failed to setup 2FA. Try again.";
+            }
+        }
+
+        document.addEventListener("click", function(e) {
+            if (e.target.id === "verify2faBtn") enable2fa();
+        });
+
+        async function enable2fa() {
+            const code = document.getElementById("setup2faCode").value.trim();
+            if (!code || code.length < 6) {
+                document.getElementById("setup2faError").textContent = "Please enter a valid 6-digit code";
+                document.getElementById("setup2faError").style.display = "block";
+                return;
+            }
+            const btn = document.getElementById("verify2faBtn");
+            btn.disabled = true;
+            btn.textContent = "Verifying...";
+            try {
+                await api("/api/auth/2fa/verify", {
+                    method: "POST",
+                    body: JSON.stringify({ code }),
+                });
+                showToast("2FA enabled successfully!", "success");
+                document.getElementById("setup2faModal").remove();
+                update2faUI(true);
+            } catch (e) {
+                document.getElementById("setup2faError").textContent = e.message || "Invalid code. Try again.";
+                document.getElementById("setup2faError").style.display = "block";
+                btn.disabled = false;
+                btn.textContent = "Verify & Enable";
+            }
+        }
+
+        function showDisable2faModal() {
+            const overlay = document.createElement("div");
+            overlay.className = "modal-overlay";
+            overlay.id = "disable2faModal";
+            overlay.style.cssText = "display:flex;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:10000;align-items:center;justify-content:center";
+            overlay.innerHTML = '<div class="modal-content" style="background:#fff;border-radius:16px;padding:28px;width:90%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,0.2);position:relative">' +
+                '<div class="modal-header" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><h2 style="margin:0;font-size:1.2rem">Disable Two-Factor Auth</h2><button class="modal-close" onclick="this.closest(\'.modal-overlay\').remove()" style="background:none;border:none;font-size:24px;cursor:pointer;color:#999;padding:0;line-height:1">&times;</button></div>' +
+                '<p style="font-size:0.85rem;color:var(--gray);margin-bottom:16px">Enter your password to disable 2FA.</p>' +
+                '<input type="password" id="disable2faPassword" placeholder="Your password" style="width:100%;padding:12px 14px;border:1.5px solid var(--gray-light);border-radius:10px;font-size:16px;font-family:inherit;outline:none;box-sizing:border-box;margin-bottom:12px">' +
+                '<button id="confirmDisable2faBtn" class="btn btn-primary" style="width:100%;padding:12px;background:linear-gradient(135deg,#dc2626,#ef4444);color:var(--white);border:none;border-radius:10px;font-size:1rem;font-weight:600;cursor:pointer;font-family:inherit">Disable 2FA</button>' +
+                '<div id="disable2faError" style="color:#dc2626;font-size:0.85rem;margin-top:8px;display:none"></div>' +
+                '</div>';
+            document.body.appendChild(overlay);
+        }
+
+        document.addEventListener("click", function(e) {
+            if (e.target.id === "confirmDisable2faBtn") disable2fa();
+        });
+
+        async function disable2fa() {
+            const password = document.getElementById("disable2faPassword").value;
+            if (!password) {
+                document.getElementById("disable2faError").textContent = "Please enter your password";
+                document.getElementById("disable2faError").style.display = "block";
+                return;
+            }
+            const btn = document.getElementById("confirmDisable2faBtn");
+            btn.disabled = true;
+            btn.textContent = "Disabling...";
+            try {
+                await api("/api/auth/2fa/disable", {
+                    method: "POST",
+                    body: JSON.stringify({ password }),
+                });
+                showToast("2FA disabled", "success");
+                document.getElementById("disable2faModal").remove();
+                update2faUI(false);
+            } catch (e) {
+                document.getElementById("disable2faError").textContent = e.message || "Incorrect password";
+                document.getElementById("disable2faError").style.display = "block";
+                btn.disabled = false;
+                btn.textContent = "Disable 2FA";
+            }
+        }
+
+        check2faStatus();
+
         </script>
 
-
-
+    <script src="/js/forum.js"></script>
     </body>
 </html>
+

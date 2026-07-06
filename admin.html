@@ -1242,6 +1242,14 @@
                     <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12c0-2.2 1.8-4 4-4s4 1.8 4 4-1.8 4-4 4"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/></svg>
                     Finance
                 </a>
+                <a href="javascript:void(0)" data-section="reconciliation">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                    Reconciliation
+                </a>
+                <a href="javascript:void(0)" data-section="transactions">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+                    Transactions
+                </a>
                 <a href="javascript:void(0)" data-section="wallets">
                     <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
                     Wallets
@@ -1474,6 +1482,7 @@
                                         <th>Name</th>
                                         <th>Email</th>
                                         <th>Role</th>
+                                        <th>Verified</th>
                                         <th>Joined</th>
                                         <th>Status</th>
                                         <th>Actions</th>
@@ -1809,21 +1818,194 @@
                     </div>
                 </div>
 
+                <!-- Reconciliation -->
+                <div class="section" id="section-reconciliation">
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;flex-wrap:wrap;gap:10px;">
+                        <div>
+                            <h2 style="margin:0;font-size:1.25rem;">🔍 Reconciliation Audit</h2>
+                            <p style="margin:4px 0 0;font-size:0.85rem;color:var(--gray);">Cross-reference M-Pesa records against the internal ledger to identify exact discrepancies</p>
+                            <div style="margin-top:6px;display:flex;align-items:center;gap:6px;">
+                                <span style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:20px;font-size:0.72rem;font-weight:600;color:#16a34a;">
+                                    <svg viewBox="0 0 24 24" width="10" height="10" fill="#16a34a"><circle cx="12" cy="12" r="12"/></svg>
+                                    Auto-runs every 30 min
+                                </span>
+                                <span id="lastAutoReconTime" style="font-size:0.72rem;color:var(--gray);"></span>
+                            </div>
+                        </div>
+                        <button id="runReconBtn" onclick="runReconciliationAnalysis()" style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;background:var(--primary);color:#fff;border:none;border-radius:10px;font-weight:600;font-size:0.875rem;cursor:pointer;font-family:inherit;transition:opacity .2s;" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                            Run Analysis
+                        </button>
+                    </div>
+
+                    <!-- Summary cards -->
+                    <div id="reconSummaryCards" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin-bottom:1.5rem;"></div>
+
+                    <!-- Culprit table -->
+                    <div class="withdraw-box" style="padding:0;overflow:hidden;">
+                        <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid #f3f4f6;">
+                            <h3 style="margin:0;font-size:0.95rem;font-weight:700;">Suspicious Transactions</h3>
+                            <div style="display:flex;gap:8px;align-items:center;">
+                                <select id="reconCategoryFilter" onchange="renderCulprits()" style="padding:6px 10px;border:1px solid #e5e7eb;border-radius:6px;font-size:0.8rem;font-family:inherit;color:var(--dark);">
+                                    <option value="">All Categories</option>
+                                    <option value="unmatched_deposit">Unmatched Deposits</option>
+                                    <option value="unmatched_payout">Unmatched Payouts</option>
+                                    <option value="orphaned_ledger">Orphaned Ledger Entries</option>
+                                    <option value="wallet_drift">Wallet Drift</option>
+                                    <option value="stuck_escrow">Stuck Escrow</option>
+                                    <option value="duplicate_reference">Duplicate References</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div id="reconCulpritsTable" style="min-height:100px;">
+                            <div style="padding:2rem;text-align:center;color:var(--gray);font-size:0.875rem;">Click "Run Analysis" to identify discrepancies</div>
+                        </div>
+                    </div>
+
+                    <!-- Wallet Risk Scores panel -->
+                    <div style="margin-top:1.5rem;">
+                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;">
+                            <h3 style="font-size:0.95rem;font-weight:700;margin:0;">🔐 Wallet Risk Scores</h3>
+                            <button onclick="loadWalletRisks()" style="padding:6px 14px;background:#f3f4f6;border:none;border-radius:7px;cursor:pointer;font-size:0.8rem;font-weight:600;font-family:inherit;color:var(--dark);">
+                                Refresh
+                            </button>
+                        </div>
+                        <div id="walletRisksPanel" style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;">
+                            <div style="padding:1.5rem;text-align:center;color:var(--gray);font-size:0.875rem;">Run analysis to populate risk scores.</div>
+                        </div>
+                    </div>
+
+                    <!-- History log -->
+                    <div style="margin-top:1.5rem;">
+                        <h3 style="font-size:0.95rem;font-weight:700;margin:0 0 0.75rem;">Reconciliation Log</h3>
+                        <div id="reconHistoryList" style="background:#fff;border-radius:12px;border:1px solid #e5e7eb;overflow:hidden;">
+                            <div style="padding:1.5rem;text-align:center;color:var(--gray);font-size:0.875rem;">Loading…</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Transactions -->
+                <div class="section" id="section-transactions">
+                    <!-- Header -->
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;flex-wrap:wrap;gap:10px;">
+                        <div>
+                            <h2 style="margin:0;font-size:1.25rem;">💳 All Transactions</h2>
+                            <p style="margin:4px 0 0;font-size:0.85rem;color:var(--gray);">Every transaction across all sources — deposits, payouts, escrow, ledger entries, failed &amp; pending</p>
+                        </div>
+                        <button onclick="loadAllTransactions(true)" style="display:inline-flex;align-items:center;gap:7px;padding:9px 18px;background:var(--primary);color:#fff;border:none;border-radius:9px;font-weight:600;font-size:0.85rem;cursor:pointer;font-family:inherit;transition:opacity .2s;" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
+                            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                            Refresh
+                        </button>
+                    </div>
+
+                    <!-- Summary counts -->
+                    <div id="txnSummaryCards" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1rem;margin-bottom:1.25rem;"></div>
+
+                    <!-- Filters toolbar -->
+                    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:1rem;background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:12px 16px;">
+                        <div style="position:relative;flex:1;min-width:180px;">
+                            <svg style="position:absolute;left:10px;top:50%;transform:translateY(-50%);pointer-events:none;" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#9ca3af" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                            <input id="txnSearch" type="text" placeholder="Search by ref, user, description…" oninput="filterAndRenderTxns()" style="width:100%;padding:8px 10px 8px 30px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:0.82rem;font-family:inherit;outline:none;box-sizing:border-box;" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='#e5e7eb'">
+                        </div>
+                        <select id="txnSourceFilter" onchange="filterAndRenderTxns()" style="padding:8px 12px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:0.82rem;font-family:inherit;color:var(--dark);outline:none;">
+                            <option value="">All Sources</option>
+                            <option value="ledger">Ledger</option>
+                            <option value="mpesa_stk">M-Pesa STK</option>
+                            <option value="payout">Payouts</option>
+                            <option value="escrow">Escrow Orders</option>
+                        </select>
+                        <select id="txnTypeFilter" onchange="filterAndRenderTxns()" style="padding:8px 12px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:0.82rem;font-family:inherit;color:var(--dark);outline:none;">
+                            <option value="">All Types</option>
+                            <option value="deposit">Deposit</option>
+                            <option value="withdrawal">Withdrawal</option>
+                            <option value="transfer">Transfer</option>
+                            <option value="fee">Fee</option>
+                            <option value="escrow_hold">Escrow Hold</option>
+                            <option value="escrow_release">Escrow Release</option>
+                            <option value="escrow_refund">Escrow Refund</option>
+                        </select>
+                        <select id="txnStatusFilter" onchange="filterAndRenderTxns()" style="padding:8px 12px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:0.82rem;font-family:inherit;color:var(--dark);outline:none;">
+                            <option value="">All Statuses</option>
+                            <option value="completed">Completed</option>
+                            <option value="success">Success</option>
+                            <option value="pending">Pending</option>
+                            <option value="failed">Failed</option>
+                            <option value="approved">Approved</option>
+                            <option value="rejected">Rejected</option>
+                            <option value="in_escrow">In Escrow</option>
+                            <option value="cancelled">Cancelled</option>
+                        </select>
+                        <span id="txnCount" style="font-size:0.8rem;color:var(--gray);white-space:nowrap;"></span>
+                    </div>
+
+                    <!-- Table -->
+                    <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;">
+                        <div style="overflow-x:auto;">
+                            <table style="width:100%;border-collapse:collapse;font-size:0.82rem;min-width:800px;">
+                                <thead>
+                                    <tr style="background:#f9fafb;border-bottom:1px solid #e5e7eb;">
+                                        <th style="padding:11px 14px;text-align:left;font-weight:700;color:var(--gray);font-size:0.72rem;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;">Date</th>
+                                        <th style="padding:11px 14px;text-align:left;font-weight:700;color:var(--gray);font-size:0.72rem;text-transform:uppercase;letter-spacing:.04em;">Source</th>
+                                        <th style="padding:11px 14px;text-align:left;font-weight:700;color:var(--gray);font-size:0.72rem;text-transform:uppercase;letter-spacing:.04em;">Type</th>
+                                        <th style="padding:11px 14px;text-align:left;font-weight:700;color:var(--gray);font-size:0.72rem;text-transform:uppercase;letter-spacing:.04em;">Status</th>
+                                        <th style="padding:11px 14px;text-align:left;font-weight:700;color:var(--gray);font-size:0.72rem;text-transform:uppercase;letter-spacing:.04em;">User</th>
+                                        <th style="padding:11px 14px;text-align:left;font-weight:700;color:var(--gray);font-size:0.72rem;text-transform:uppercase;letter-spacing:.04em;">Description</th>
+                                        <th style="padding:11px 14px;text-align:left;font-weight:700;color:var(--gray);font-size:0.72rem;text-transform:uppercase;letter-spacing:.04em;">Reference</th>
+                                        <th style="padding:11px 14px;text-align:right;font-weight:700;color:var(--gray);font-size:0.72rem;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;">Amount</th>
+                                        <th style="padding:11px 14px;text-align:right;font-weight:700;color:var(--gray);font-size:0.72rem;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;">Fee</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="txnTableBody">
+                                    <tr><td colspan="9" style="padding:3rem;text-align:center;color:var(--gray);">Loading transactions…</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div id="txnLoadMore" style="display:none;padding:12px;text-align:center;border-top:1px solid #f3f4f6;">
+                            <button onclick="loadMoreTxns()" style="padding:8px 20px;background:#f3f4f6;border:none;border-radius:8px;cursor:pointer;font-size:0.82rem;font-weight:600;font-family:inherit;color:var(--dark);">Load More</button>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Wallets (Company + Commission + Frozen) -->
                 <div class="section" id="section-wallets">
                     <h2 style="margin:0 0 1.25rem 0;font-size:1.25rem;">💰 Wallets</h2>
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.5rem;">
-                        <div class="stat-card" style="border-left:4px solid var(--primary);">
-                            <div style="font-size:0.8rem;color:var(--gray);margin-bottom:4px;">Company Main Wallet</div>
-                            <div style="font-size:1.6rem;font-weight:800;color:var(--primary);" id="companyWalletBalance">KES 0.00</div>
-                            <div style="font-size:0.8rem;color:var(--gray);">Total Deposited: <span id="companyTotalDeposited">KES 0.00</span></div>
+
+                    <!-- Company Wallet — breakdown cards -->
+                    <div style="margin-bottom:1rem;">
+                        <div style="font-size:0.75rem;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.05em;margin-bottom:0.6rem">Company Main Wallet</div>
+                        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin-bottom:1rem;">
+                            <div class="stat-card" style="border-left:4px solid var(--primary);padding:14px 16px;">
+                                <div style="font-size:0.75rem;color:var(--gray);margin-bottom:3px;">Net Balance</div>
+                                <div style="font-size:1.4rem;font-weight:800;color:var(--primary);" id="companyWalletBalance">KES 0.00</div>
+                                <div style="font-size:0.72rem;color:var(--gray);margin-top:2px;">Deposits − Payouts</div>
+                            </div>
+                            <div class="stat-card" style="border-left:4px solid #16a34a;padding:14px 16px;">
+                                <div style="font-size:0.75rem;color:var(--gray);margin-bottom:3px;">Total Deposited</div>
+                                <div style="font-size:1.2rem;font-weight:800;color:#16a34a;" id="companyTotalDeposited">KES 0.00</div>
+                                <div style="font-size:0.72rem;color:var(--gray);margin-top:2px;">M-Pesa + all channels</div>
+                            </div>
+                            <div class="stat-card" style="border-left:4px solid var(--danger);padding:14px 16px;">
+                                <div style="font-size:0.75rem;color:var(--gray);margin-bottom:3px;">Total Paid Out</div>
+                                <div style="font-size:1.2rem;font-weight:800;color:var(--danger);" id="companyTotalPaidOut">KES 0.00</div>
+                                <div style="font-size:0.72rem;color:var(--gray);margin-top:2px;">Approved withdrawals</div>
+                            </div>
+                            <div class="stat-card" style="border-left:4px solid #6b7280;padding:14px 16px;">
+                                <div style="font-size:0.75rem;color:var(--gray);margin-bottom:3px;">User Wallet Sum</div>
+                                <div style="font-size:1.2rem;font-weight:800;color:#374151;" id="companyUserWallets">KES 0.00</div>
+                                <div style="font-size:0.72rem;color:var(--gray);margin-top:2px;">All user balances combined</div>
+                            </div>
                         </div>
+                    </div>
+
+                    <!-- Commission + breakdown -->
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.5rem;">
                         <div class="stat-card" style="border-left:4px solid var(--accent-dark);">
                             <div style="font-size:0.8rem;color:var(--gray);margin-bottom:4px;">Admin Commission Wallet</div>
                             <div style="font-size:1.6rem;font-weight:800;color:var(--accent-dark);" id="commissionWalletBalance">KES 0.00</div>
                             <div style="font-size:0.8rem;color:var(--gray);">Available for withdrawal</div>
                         </div>
                     </div>
+
                     <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;">
                         <div class="withdraw-box" style="overflow:hidden;">
                             <h3>Company Wallet Transactions</h3>
@@ -1892,89 +2074,113 @@
 
                 <!-- Notifications -->
                 <div class="section" id="section-announce">
-                    <div class="notif-admin-layout">
-                        <div class="notif-admin-compose">
-                            <div class="notif-admin-card">
-                                <div class="notif-admin-card-header">
-                                    <div class="notif-admin-card-icon">
-                                        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-                                    </div>
-                                    <div>
-                                        <h3>Compose Broadcast</h3>
-                                        <p>Send a push notification to platform users</p>
-                                    </div>
-                                </div>
-                                <form id="notifyForm">
-                                    <div class="notif-admin-field">
-                                        <label>Notification Title</label>
-                                        <input type="text" id="notifyTitle" placeholder="e.g. New Feature Available — Market Insights" required />
-                                    </div>
-                                    <div class="notif-admin-row">
-                                        <div class="notif-admin-field">
-                                            <label>Target Audience</label>
-                                            <div class="notif-admin-select-wrap">
-                                                <select id="notifyRole">
-                                                    <option value="">All Users</option>
-                                                    <option value="farmer">Farmers Only</option>
-                                                    <option value="organization">Organisations Only</option>
-                                                    <option value="consumer">Consumers Only</option>
-                                                </select>
-                                                <svg class="notif-admin-select-arrow" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-                                            </div>
-                                        </div>
-                                        <div class="notif-admin-field">
-                                            <label>Notification Type</label>
-                                            <div class="notif-admin-select-wrap">
-                                                <select id="notifyType">
-                                                    <option value="info">Info</option>
-                                                    <option value="success">Success</option>
-                                                    <option value="warning">Warning</option>
-                                                    <option value="error">Error</option>
-                                                </select>
-                                                <svg class="notif-admin-select-arrow" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="notif-admin-field">
-                                        <label>Message</label>
-                                        <textarea id="notifyBody" rows="4" placeholder="Type your notification message here..." required></textarea>
-                                    </div>
-                                    <div class="notif-admin-preview" id="notifPreview" style="display:none;">
-                                        <div class="notif-admin-preview-label">Preview</div>
-                                        <div class="notif-admin-preview-card">
-                                            <div class="notif-admin-preview-icon info" id="previewIcon">
-                                                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-                                            </div>
-                                            <div>
-                                                <strong id="previewTitle">Title</strong>
-                                                <p id="previewBody">Message preview appears here</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <button type="submit" class="notif-admin-send-btn" id="notifyBtn">
-                                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-                                        Send Notification
-                                    </button>
-                                </form>
-                            </div>
+                    <!-- Header bar with compose button -->
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
+                        <div>
+                            <h2 style="margin:0;font-size:1.25rem;">🔔 Broadcast Notifications</h2>
+                            <p style="margin:4px 0 0;font-size:0.85rem;color:var(--gray);">History of notifications sent to platform users</p>
                         </div>
-                        <div class="notif-admin-history">
-                            <div class="notif-admin-card">
-                                <div class="notif-admin-card-header">
-                                    <div class="notif-admin-card-icon" style="background:rgba(139,92,246,0.1);color:#8b5cf6;">
-                                        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                                    </div>
-                                    <div>
-                                        <h3>Broadcast History</h3>
-                                        <p>Recent notifications sent to users</p>
-                                    </div>
-                                </div>
-                                <div id="broadcastHistory" class="notif-admin-history-list">
-                                    <div class="notif-admin-empty">No broadcasts sent yet.</div>
-                                </div>
-                            </div>
+                        <button onclick="openComposeModal()" style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;background:var(--primary);color:#fff;border:none;border-radius:10px;font-weight:600;font-size:0.875rem;cursor:pointer;font-family:inherit;transition:opacity .2s;" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                            Compose Notification
+                        </button>
+                    </div>
+
+                    <!-- Full-width broadcast history -->
+                    <div class="notif-admin-card" style="padding:0;overflow:hidden;">
+                        <div id="broadcastHistory" style="min-height:120px;">
+                            <div class="notif-admin-empty" style="padding:2rem;text-align:center;color:var(--gray);">Loading broadcasts…</div>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Compose Notification Modal ──────────────────────────────────── -->
+        <div id="composeNotifModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:10000;align-items:center;justify-content:center;padding:16px;" onclick="if(event.target===this)closeComposeModal()">
+            <div style="background:#fff;border-radius:16px;width:90%;max-width:540px;max-height:90vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,.18);position:relative;">
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:22px 24px 0;margin-bottom:18px;">
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <div style="width:36px;height:36px;border-radius:10px;background:rgba(27,94,32,.1);display:flex;align-items:center;justify-content:center;">
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="var(--primary)" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                        </div>
+                        <div>
+                            <h3 style="margin:0;font-size:1rem;font-weight:700;color:var(--dark);">Compose Broadcast</h3>
+                            <p style="margin:0;font-size:0.78rem;color:var(--gray);">Send a push notification to platform users</p>
+                        </div>
+                    </div>
+                    <button onclick="closeComposeModal()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#999;line-height:1;padding:4px;">&times;</button>
+                </div>
+                <div style="padding:0 24px 24px;">
+                    <form id="notifyForm">
+                        <div class="notif-admin-field">
+                            <label>Notification Title</label>
+                            <input type="text" id="notifyTitle" placeholder="e.g. New Feature Available — Market Insights" required />
+                        </div>
+                        <div class="notif-admin-row">
+                            <div class="notif-admin-field">
+                                <label>Target Audience</label>
+                                <div class="notif-admin-select-wrap">
+                                    <select id="notifyRole">
+                                        <option value="">All Users</option>
+                                        <option value="farmer">Farmers Only</option>
+                                        <option value="organization">Organisations Only</option>
+                                        <option value="consumer">Consumers Only</option>
+                                    </select>
+                                    <svg class="notif-admin-select-arrow" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                </div>
+                            </div>
+                            <div class="notif-admin-field">
+                                <label>Notification Type</label>
+                                <div class="notif-admin-select-wrap">
+                                    <select id="notifyType">
+                                        <option value="info">Info</option>
+                                        <option value="success">Success</option>
+                                        <option value="warning">Warning</option>
+                                        <option value="error">Error</option>
+                                    </select>
+                                    <svg class="notif-admin-select-arrow" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="notif-admin-field">
+                            <label>Message</label>
+                            <textarea id="notifyBody" rows="4" placeholder="Type your notification message here..." required></textarea>
+                        </div>
+                        <div class="notif-admin-preview" id="notifPreview" style="display:none;">
+                            <div class="notif-admin-preview-label">Preview</div>
+                            <div class="notif-admin-preview-card">
+                                <div class="notif-admin-preview-icon info" id="previewIcon">
+                                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                                </div>
+                                <div>
+                                    <strong id="previewTitle">Title</strong>
+                                    <p id="previewBody">Message preview appears here</p>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="notif-admin-send-btn" id="notifyBtn" style="margin-top:8px;">
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                            Send Notification
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Broadcast Detail Modal ───────────────────────────────────────── -->
+        <div id="broadcastDetailModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:10000;align-items:center;justify-content:center;padding:16px;" onclick="if(event.target===this)closeBroadcastDetail()">
+            <div style="background:#fff;border-radius:16px;width:90%;max-width:460px;box-shadow:0 24px 64px rgba(0,0,0,.18);overflow:hidden;">
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 22px;border-bottom:1px solid #f0f0f0;">
+                    <h3 style="margin:0;font-size:1rem;font-weight:700;color:var(--dark);">Broadcast Details</h3>
+                    <button onclick="closeBroadcastDetail()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#999;line-height:1;padding:4px;">&times;</button>
+                </div>
+                <div id="broadcastDetailContent" style="padding:20px 22px;"></div>
+                <div style="padding:0 22px 20px;display:flex;justify-content:flex-end;">
+                    <button id="deleteBroadcastBtn" onclick="deleteBroadcast()" style="display:inline-flex;align-items:center;gap:7px;padding:9px 18px;background:#fef2f2;color:#dc2626;border:1.5px solid #fecaca;border-radius:9px;font-weight:600;font-size:0.85rem;cursor:pointer;font-family:inherit;transition:background .2s;" onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='#fef2f2'">
+                        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                        Delete Broadcast
+                    </button>
                 </div>
             </div>
         </div>
@@ -2007,21 +2213,37 @@
         <div class="toast-container" id="toastContainer"></div>
 
         <script>
-            // ---------- Auth Check ----------
-            const userData = JSON.parse(
-                sessionStorage.getItem("user") || "null",
-            );
-            const idToken = sessionStorage.getItem("idToken");
-            if (!userData || userData.role !== "admin") {
-                window.location.href = "login";
+            // ---------- Auth Check — localStorage (reload-safe) with sessionStorage fallback ----------
+            const _storedUser  = localStorage.getItem("user")    || sessionStorage.getItem("user");
+            const _storedToken = localStorage.getItem("idToken") || sessionStorage.getItem("idToken");
+
+            if (!_storedUser || !_storedToken) {
+                window.location.replace("/login");
             }
-            document.cookie =
-                "idToken=" + idToken + ";path=/;max-age=3600;SameSite=Strict";
+
+            // Sync both storages and set 7-day cookie
+            if (_storedToken) {
+                localStorage.setItem("idToken", _storedToken);
+                sessionStorage.setItem("idToken", _storedToken);
+                document.cookie = "idToken=" + _storedToken + ";path=/;max-age=604800;SameSite=Strict";
+            }
+            if (_storedUser) {
+                localStorage.setItem("user", _storedUser);
+                sessionStorage.setItem("user", _storedUser);
+            }
+
+            let userData = {};
+            try { userData = JSON.parse(_storedUser); } catch(e) {}
+            const idToken = _storedToken; // keep idToken var for inline fetch calls below
+
+            if (!userData || userData.role !== "admin") {
+                window.location.replace("/login");
+            }
 
             document.getElementById("adminName").textContent =
-                userData.displayName || "Admin";
+                userData.display_name || userData.displayName || "Admin";
             document.getElementById("adminAvatar").textContent =
-                (userData.displayName || "A")[0].toUpperCase();
+                (userData.display_name || userData.displayName || "A")[0].toUpperCase();
 
             // ---------- Toast ----------
             function showToast(message, type) {
@@ -2102,15 +2324,19 @@
             // ---------- API helper ----------
             async function api(url, opts) {
                 opts = opts || {};
+                const token = localStorage.getItem("idToken") || sessionStorage.getItem("idToken");
                 const headers = {
                     "Content-Type": "application/json",
                     ...(opts.headers || {}),
                 };
-                if (idToken) headers["Authorization"] = "Bearer " + idToken;
+                if (token) headers["Authorization"] = "Bearer " + token;
                 const res = await fetch(url, { cache: "no-store", ...opts, headers });
                 if (res.status === 401) {
+                    localStorage.removeItem("user");
+                    localStorage.removeItem("idToken");
+                    localStorage.removeItem("role");
                     sessionStorage.clear();
-                    window.location.href = "login";
+                    window.location.replace("/login");
                     return;
                 }
                 const data = await res.json();
@@ -2178,11 +2404,12 @@
                 if (id === "finance") { loadFinance(); }
                 if (id === "wallets") { loadWallets(); }
                 if (id === "payouts") { loadPayouts(); }
+                if (id === "reconciliation") { loadReconciliationHistory(); loadWalletRisks(); }
+                if (id === "transactions") { loadAllTransactions(true); }
                 if (id === "support") loadSupport();
                 if (id === "announce") loadBroadcastHistory();
             }
-            window.switchSection = switchSection;
-
+        
             async function refreshData() {
                 const btn = document.getElementById("refreshBtn");
                 btn.classList.add("spinning");
@@ -2196,6 +2423,8 @@
                 if (id === "wallets") loadWallets();
                 if (id === "finance") loadFinance();
                 if (id === "payouts") loadPayouts();
+                if (id === "reconciliation") { loadReconciliationHistory(); loadWalletRisks(); }
+                if (id === "transactions") { loadAllTransactions(true); }
                 if (id === "support") loadSupport();
                 if (id === "announce") loadBroadcastHistory();
                 if (id === "organisations") renderOrgs();
@@ -2224,9 +2453,13 @@
 
             // ---------- Logout ----------
             function logout() {
+                localStorage.removeItem("user");
+                localStorage.removeItem("idToken");
+                localStorage.removeItem("role");
                 sessionStorage.clear();
                 document.cookie = "idToken=;path=/;max-age=0";
-                window.location.href = "login";
+                document.cookie = "authToken=;path=/;max-age=0";
+                window.location.replace("/login");
             }
 
             // ---------- Dashboard ----------
@@ -2472,7 +2705,7 @@
                 const body = document.getElementById("usersBody");
                 if (!filtered.length) {
                     body.innerHTML =
-                        '<tr><td colspan="6" class="entity-empty">No users found</td></tr>';
+                        '<tr><td colspan="7" class="entity-empty">No users found</td></tr>';
                     return;
                 }
                 body.innerHTML = filtered
@@ -2482,11 +2715,13 @@
                     <td style="font-weight:600">${u.displayName || u.display_name || "—"}</td>
                     <td>${u.email || "—"}</td>
                     <td><span class="badge-status ${u.role}">${u.role || "user"}</span></td>
+                    <td>${u.isVerified ? '<span style="color:#16a34a;font-weight:600">✓ Verified</span>' : '<span style="color:#9ca3af">—</span>'}</td>
                     <td style="color:var(--gray);font-size:0.8rem">${new Date(Number(u.createdAt || u.created_at)).toLocaleDateString() || "—"}</td>
                     <td><span class="badge-status ${u.active !== false ? 'active' : 'inactive'}" style="font-size:0.72rem;">${u.active !== false ? 'Active' : 'Deactivated'}</span></td>
-                    <td style="display:flex;gap:4px;">
+                    <td style="display:flex;gap:4px;flex-wrap:wrap;">
                         <button class="btn-xs ${u.role === "admin" ? "red" : "blue"}" data-action="toggle-admin" data-uid="${u.uid}" data-current-role="${u.role}">${u.role === "admin" ? "Remove Admin" : "Make Admin"}</button>
                         <button class="btn-xs ${u.active !== false ? 'red' : 'green'}" data-action="toggle-active" data-uid="${u.uid}" data-currently-active="${u.active !== false}">${u.active !== false ? 'Deactivate' : 'Reactivate'}</button>
+                        <button class="btn-xs ${u.isVerified ? 'amber' : 'green'}" data-action="toggle-verify" data-uid="${u.uid}" data-currently-verified="${!!u.isVerified}">${u.isVerified ? 'Unverify' : 'Verify'}</button>
                     </td>
                 </tr>
             `,
@@ -2528,6 +2763,21 @@
                             showToast('User ' + action + 'd successfully', 'success');
                             loadUsers();
                         } catch (e) { showToast('Failed to ' + action + ' user', 'error'); }
+                    } else if (btn.dataset.action === 'toggle-verify') {
+                        var currentlyVerified = btn.dataset.currentlyVerified === 'true';
+                        var newVerified = !currentlyVerified;
+                        var confirmed = await showConfirmModal({
+                            title: newVerified ? 'Verify User' : 'Remove Verification',
+                            message: newVerified ? 'Are you sure you want to verify this user? A verification badge will appear next to their name.' : 'Remove the verification badge from this user?',
+                            confirmText: newVerified ? 'Verify' : 'Remove',
+                            type: newVerified ? 'success' : 'warning'
+                        });
+                        if (!confirmed) return;
+                        try {
+                            await api("/api/admin/users/" + uid, { method: "PATCH", body: JSON.stringify({ verified: newVerified }) });
+                            showToast(newVerified ? 'User verified' : 'Verification removed', 'success');
+                            loadUsers();
+                        } catch (e) { showToast('Failed to update verification', 'error'); }
                     }
                     return;
                 }
@@ -2914,6 +3164,8 @@
                     if (companyData) {
                         document.getElementById('companyWalletBalance').textContent = 'KES ' + (parseFloat(companyData.balance) || 0).toFixed(2);
                         document.getElementById('companyTotalDeposited').textContent = 'KES ' + (parseFloat(companyData.totalDeposited) || 0).toFixed(2);
+                        document.getElementById('companyTotalPaidOut') && (document.getElementById('companyTotalPaidOut').textContent = 'KES ' + (parseFloat(companyData.totalPaidOut) || 0).toFixed(2));
+                        document.getElementById('companyUserWallets') && (document.getElementById('companyUserWallets').textContent = 'KES ' + (parseFloat(companyData.currentUserWallets) || 0).toFixed(2));
                         const txsEl = document.getElementById('companyWalletTxs');
                         const txs = companyData.transactions || [];
                         txsEl.innerHTML = txs.length ? txs.map(t => `
@@ -2948,14 +3200,17 @@
                     const frozenEl = document.getElementById('frozenWalletsList');
                     if (frozenData && frozenData.length) {
                         frozenEl.innerHTML = frozenData.map(f => `
-                            <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;margin-bottom:8px;">
-                                <div>
+                            <div style="display:flex;justify-content:space-between;align-items:flex-start;padding:12px 14px;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;margin-bottom:8px;gap:12px;">
+                                <div style="flex:1;min-width:0;">
                                     <div style="font-weight:600;font-size:0.9rem;">${f.displayName || f.email || f.uid}</div>
                                     <div style="font-size:0.78rem;color:var(--gray);">UID: ${f.uid}</div>
                                     <div style="font-size:0.78rem;color:var(--gray);">Balance: KES ${(f.balance || 0).toFixed(2)}</div>
                                     <div style="font-size:0.78rem;color:var(--gray);">Frozen: ${f.frozenAt ? new Date(f.frozenAt).toLocaleDateString() : 'Unknown'}</div>
+                                    ${f.freezeReason ? `<div style="margin-top:6px;padding:6px 10px;background:#fff;border:1px solid #fca5a5;border-radius:6px;font-size:0.75rem;color:#991b1b;line-height:1.4;">
+                                        <span style="font-weight:700;">🔒 Reason:</span> ${f.freezeReason}
+                                    </div>` : '<div style="margin-top:4px;font-size:0.72rem;color:#9ca3af;font-style:italic;">No reason recorded</div>'}
                                 </div>
-                                <button class="btn-xs green" data-action="unfreeze" data-uid="${f.uid}">Unfreeze</button>
+                                <button class="btn-xs green" data-action="unfreeze" data-uid="${f.uid}" style="flex-shrink:0;margin-top:2px;">Unfreeze</button>
                             </div>
                         `).join('');
                     } else {
@@ -3135,86 +3390,641 @@
                     });
             });
             // ---------- Notifications ----------
-            // Live preview for notification
-            document.getElementById('notifyTitle').addEventListener('input', updatePreview);
-            document.getElementById('notifyBody').addEventListener('input', updatePreview);
-            document.getElementById('notifyType').addEventListener('change', updatePreview);
+            // Wire up form inputs for live preview (inputs exist inside the modal)
+            document.addEventListener('input', function(e) {
+                if (['notifyTitle','notifyBody'].includes(e.target.id)) updatePreview();
+            });
+            document.addEventListener('change', function(e) {
+                if (e.target.id === 'notifyType') updatePreview();
+            });
             document.getElementById('notifyForm').addEventListener('submit', sendBroadcast);
+
+            // ── Compose modal ────────────────────────────────────────────────
+            function openComposeModal() {
+                document.getElementById('composeNotifModal').style.display = 'flex';
+            }
+            function closeComposeModal() {
+                document.getElementById('composeNotifModal').style.display = 'none';
+            }
+            window.openComposeModal  = openComposeModal;
+            window.closeComposeModal = closeComposeModal;
+
             function updatePreview() {
-                const title = document.getElementById('notifyTitle').value.trim();
-                const body = document.getElementById('notifyBody').value.trim();
-                const type = document.getElementById('notifyType').value;
+                const title   = document.getElementById('notifyTitle').value.trim();
+                const body    = document.getElementById('notifyBody').value.trim();
+                const type    = document.getElementById('notifyType').value;
                 const preview = document.getElementById('notifPreview');
                 if (!title && !body) { preview.style.display = 'none'; return; }
                 preview.style.display = 'block';
                 document.getElementById('previewTitle').textContent = title || 'Notification Title';
-                document.getElementById('previewBody').textContent = body || 'Your message will appear here';
+                document.getElementById('previewBody').textContent  = body  || 'Your message will appear here';
                 const icon = document.getElementById('previewIcon');
                 icon.className = 'notif-admin-preview-icon ' + type;
                 const svgs = {
-                    info: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>',
+                    info:    '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>',
                     success: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
                     warning: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
-                    error: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>',
+                    error:   '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>',
                 };
                 icon.innerHTML = svgs[type] || svgs.info;
             }
 
             async function sendBroadcast(e) {
                 e.preventDefault();
-                const title = document.getElementById("notifyTitle").value.trim();
-                const body = document.getElementById("notifyBody").value.trim();
-                const role = document.getElementById("notifyRole").value;
-                const type = document.getElementById("notifyType").value;
+                const title = document.getElementById('notifyTitle').value.trim();
+                const body  = document.getElementById('notifyBody').value.trim();
+                const role  = document.getElementById('notifyRole').value;
+                const type  = document.getElementById('notifyType').value;
                 if (!title || !body) return;
-                const btn = document.getElementById("notifyBtn");
+                const btn = document.getElementById('notifyBtn');
                 btn.disabled = true;
-                btn.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" style="animation:spin 1s linear infinite"><circle cx="12" cy="12" r="10" stroke-dasharray="31.4 31.4" stroke-linecap="round"/></svg> Sending...';
+                btn.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" style="animation:spin 1s linear infinite"><circle cx="12" cy="12" r="10" stroke-dasharray="31.4 31.4" stroke-linecap="round"/></svg> Sending…';
                 try {
-                    const result = await api("/api/admin/notifications", {
-                        method: "POST",
+                    const result = await api('/api/admin/notifications', {
+                        method: 'POST',
                         body: JSON.stringify({ title, body, type, targetRole: role || undefined }),
                     });
-                    showToast(result.message || "Notification sent", "success");
-                    document.getElementById("notifyForm").reset();
-                    document.getElementById("notifPreview").style.display = 'none';
+                    showToast(result.message || 'Notification sent', 'success');
+                    document.getElementById('notifyForm').reset();
+                    document.getElementById('notifPreview').style.display = 'none';
+                    closeComposeModal();
                     loadBroadcastHistory();
-                } catch (e) {
-                    showToast("Failed to send notification", "error");
+                } catch (err) {
+                    showToast('Failed to send notification', 'error');
                 }
                 btn.disabled = false;
                 btn.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Send Notification';
             }
 
+            // ── Broadcast history ────────────────────────────────────────────
             async function loadBroadcastHistory() {
-                const el = document.getElementById("broadcastHistory");
+                const el = document.getElementById('broadcastHistory');
                 try {
-                    const notifs = await api("/api/notifications");
-                    const adminNotifs = (notifs || []).filter(n => n.title && n.body);
-                    if (!adminNotifs.length) {
-                        el.innerHTML = '<div class="notif-admin-empty">No broadcasts sent yet.</div>';
+                    const broadcasts = await api('/api/admin/broadcasts');
+                    if (!broadcasts || !broadcasts.length) {
+                        el.innerHTML = '<div style="padding:2rem;text-align:center;color:var(--gray);">No broadcasts sent yet.</div>';
                         return;
                     }
-                    el.innerHTML = adminNotifs.slice(0, 20).map(n => {
-                        const date = (n.createdAt || n.created_at) ? new Date(Number(n.createdAt || n.created_at)).toLocaleString() : '—';
-                        const type = n.type || 'info';
-                        const colors = { info: '#2563eb', success: '#16a34a', warning: '#d97706', error: '#dc2626' };
-                        const dot = '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:' + (colors[type] || colors.info) + ';margin-right:8px;flex-shrink:0;"></span>';
-                        return '<div class="history-item">' +
-                            '<div style="flex:1;min-width:0;">' +
-                            '<div style="display:flex;align-items:center;gap:0.5rem;">' +
-                            dot +
-                            '<h4 style="font-size:0.85rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin:0;">' + escHtml(n.title) + '</h4>' +
-                            '</div>' +
-                            '<p style="font-size:0.78rem;color:var(--gray);margin:0.15rem 0 0 1rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + escHtml(n.body) + '</p>' +
-                            '<p style="font-size:0.7rem;color:#9ca3af;margin:0.1rem 0 0 1rem;">' + date + '</p>' +
-                            '</div>' +
-                        '</div>';
-                    }).join("");
-                } catch (e) {
-                    el.innerHTML = '<div class="notif-admin-empty">Could not load history.</div>';
+                    const colors = { info: '#2563eb', success: '#16a34a', warning: '#d97706', error: '#dc2626' };
+                    const typeLabels = { info: 'Info', success: 'Success', warning: 'Warning', error: 'Error' };
+                    el.innerHTML = broadcasts.map(n => {
+                        const type  = n.type || 'info';
+                        const color = colors[type] || colors.info;
+                        const date  = n.sentAt ? new Date(Number(n.sentAt)).toLocaleString() : '—';
+                        const badge = `<span style="font-size:0.68rem;font-weight:700;padding:2px 8px;border-radius:20px;background:${color}18;color:${color};text-transform:uppercase;letter-spacing:.04em;">${typeLabels[type] || type}</span>`;
+                        const recipients = `<span style="font-size:0.72rem;color:var(--gray);"><svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:2px"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>${n.recipientCount} recipient${n.recipientCount !== 1 ? 's' : ''}</span>`;
+                        return `<div onclick="openBroadcastDetail(${JSON.stringify(n).replace(/"/g,'&quot;')})" style="display:flex;align-items:flex-start;gap:12px;padding:14px 18px;border-bottom:1px solid #f3f4f6;cursor:pointer;transition:background .15s;" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background=''">
+                            <div style="width:10px;height:10px;border-radius:50%;background:${color};flex-shrink:0;margin-top:5px;"></div>
+                            <div style="flex:1;min-width:0;">
+                                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:3px;">
+                                    <span style="font-weight:700;font-size:0.875rem;color:var(--dark);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:260px;">${escHtml(n.title)}</span>
+                                    ${badge}
+                                </div>
+                                <p style="margin:0;font-size:0.8rem;color:var(--gray);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(n.body)}</p>
+                                <div style="display:flex;align-items:center;gap:12px;margin-top:4px;">${recipients}<span style="font-size:0.72rem;color:#9ca3af;">${date}</span></div>
+                            </div>
+                            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#9ca3af" stroke-width="2" style="flex-shrink:0;margin-top:4px;"><polyline points="9 18 15 12 9 6"/></svg>
+                        </div>`;
+                    }).join('');
+                } catch (err) {
+                    el.innerHTML = '<div style="padding:2rem;text-align:center;color:var(--danger);">Could not load broadcast history.</div>';
                 }
             }
+
+            // ── Broadcast detail modal ───────────────────────────────────────
+            let _activeBroadcast = null;
+
+            function openBroadcastDetail(n) {
+                _activeBroadcast = n;
+                const colors     = { info: '#2563eb', success: '#16a34a', warning: '#d97706', error: '#dc2626' };
+                const typeLabels = { info: 'Info', success: 'Success', warning: 'Warning', error: 'Error' };
+                const type  = n.type || 'info';
+                const color = colors[type] || colors.info;
+                const date  = n.sentAt ? new Date(Number(n.sentAt)).toLocaleString() : '—';
+                document.getElementById('broadcastDetailContent').innerHTML = `
+                    <div style="margin-bottom:14px;">
+                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+                            <span style="font-size:0.72rem;font-weight:700;padding:3px 10px;border-radius:20px;background:${color}18;color:${color};text-transform:uppercase;">${typeLabels[type]}</span>
+                            <span style="font-size:0.75rem;color:var(--gray);">${date}</span>
+                        </div>
+                        <div style="font-weight:700;font-size:1.05rem;color:var(--dark);margin-bottom:8px;">${escHtml(n.title)}</div>
+                        <div style="font-size:0.9rem;color:#374151;line-height:1.6;background:#f9fafb;border-radius:8px;padding:12px 14px;">${escHtml(n.body)}</div>
+                    </div>
+                    <div style="display:flex;gap:16px;font-size:0.8rem;color:var(--gray);">
+                        <span><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:3px"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>${n.recipientCount} recipient${n.recipientCount !== 1 ? 's' : ''}</span>
+                    </div>`;
+                document.getElementById('broadcastDetailModal').style.display = 'flex';
+            }
+            function closeBroadcastDetail() {
+                document.getElementById('broadcastDetailModal').style.display = 'none';
+                _activeBroadcast = null;
+            }
+            async function deleteBroadcast() {
+                if (!_activeBroadcast) return;
+                const confirmed = await showConfirmModal({ title: 'Delete Broadcast', message: 'Delete this broadcast? It will be removed from all user notification feeds.', confirmText: 'Delete', type: 'danger' });
+                if (!confirmed) return;
+                const btn = document.getElementById('deleteBroadcastBtn');
+                btn.disabled = true;
+                btn.textContent = 'Deleting…';
+                try {
+                    await api('/api/admin/broadcasts/' + _activeBroadcast.id, { method: 'DELETE' });
+                    showToast('Broadcast deleted', 'success');
+                    closeBroadcastDetail();
+                    loadBroadcastHistory();
+                } catch (err) {
+                    showToast('Failed to delete broadcast', 'error');
+                    btn.disabled = false;
+                    btn.innerHTML = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:5px"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>Delete Broadcast';
+                }
+            }
+            window.openBroadcastDetail  = openBroadcastDetail;
+            window.closeBroadcastDetail = closeBroadcastDetail;
+            window.deleteBroadcast      = deleteBroadcast;
+
+            // ---------- Reconciliation ----------
+            let _reconCulprits = [];
+
+            async function loadReconciliationHistory() {
+                const el = document.getElementById('reconHistoryList');
+                try {
+                    const rows = await api('/api/admin/reconciliation');
+                    if (!rows || !rows.length) {
+                        el.innerHTML = '<div style="padding:1.5rem;text-align:center;color:var(--gray);font-size:0.875rem;">No reconciliation runs yet. Click "Run Analysis" to start.</div>';
+                        return;
+                    }
+                    // Update the last-run time badge
+                    const lastRunEl = document.getElementById('lastAutoReconTime');
+                    if (lastRunEl && rows[0]?.timestamp) {
+                        lastRunEl.textContent = 'Last run: ' + new Date(Number(rows[0].timestamp)).toLocaleString('en-KE', { dateStyle: 'short', timeStyle: 'short' });
+                    }
+                    el.innerHTML = rows.map(r => {
+                        const date   = r.timestamp ? new Date(Number(r.timestamp)).toLocaleString() : '—';
+                        const disc   = parseFloat(r.discrepancy || 0);
+                        const anom   = r.anomaly;
+                        const color  = anom ? '#dc2626' : '#16a34a';
+                        const badge  = anom
+                            ? '<span style="font-size:0.7rem;font-weight:700;padding:2px 8px;background:#fef2f2;color:#dc2626;border-radius:20px;">ANOMALY</span>'
+                            : '<span style="font-size:0.7rem;font-weight:700;padding:2px 8px;background:#f0fdf4;color:#16a34a;border-radius:20px;">OK</span>';
+                        return `<div style="display:flex;align-items:center;gap:12px;padding:12px 18px;border-bottom:1px solid #f3f4f6;font-size:0.85rem;">
+                            <div style="width:8px;height:8px;border-radius:50%;background:${color};flex-shrink:0;"></div>
+                            <div style="flex:1;min-width:0;">
+                                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                                    <span style="font-weight:600;color:var(--dark);">${date}</span>
+                                    ${badge}
+                                </div>
+                                <div style="color:var(--gray);margin-top:2px;font-size:0.78rem;">
+                                    System: <b>KES ${parseFloat(r.total_in_system||0).toFixed(2)}</b>
+                                    &nbsp;·&nbsp; External: <b>KES ${parseFloat(r.available_mpesa_balance||0).toFixed(2)}</b>
+                                    &nbsp;·&nbsp; Gap: <b style="color:${color}">KES ${Math.abs(disc).toFixed(2)}</b>
+                                </div>
+                            </div>
+                        </div>`;
+                    }).join('');
+                } catch(e) {
+                    el.innerHTML = '<div style="padding:1.5rem;text-align:center;color:var(--danger);">Failed to load reconciliation history.</div>';
+                }
+            }
+
+            async function runReconciliationAnalysis() {
+                const btn = document.getElementById('runReconBtn');
+                btn.disabled = true;
+                btn.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="animation:spin 1s linear infinite"><circle cx="12" cy="12" r="10" stroke-dasharray="31.4 31.4" stroke-linecap="round"/></svg> Analysing…';
+                const cardsEl = document.getElementById('reconSummaryCards');
+                const tableEl = document.getElementById('reconCulpritsTable');
+                cardsEl.innerHTML = '';
+                tableEl.innerHTML = '<div style="padding:2rem;text-align:center;color:var(--gray);">Running analysis…</div>';
+                try {
+                    const data = await api('/api/admin/reconciliation/discrepancies');
+                    _reconCulprits = data.culprits || [];
+                    const s = data.summary;
+
+                    // Summary cards
+                    const discColor = Math.abs(s.discrepancy) > 1 ? '#dc2626' : '#16a34a';
+                    cardsEl.innerHTML = `
+                        <div class="stat-card" style="border-left:4px solid #16a34a;padding:14px 16px;">
+                            <div style="font-size:0.72rem;color:var(--gray);margin-bottom:3px;">M-Pesa Deposits</div>
+                            <div style="font-size:1.2rem;font-weight:800;color:#16a34a;">KES ${parseFloat(s.totalMpesaDeposits||0).toFixed(2)}</div>
+                            <div style="font-size:0.7rem;color:var(--gray);">Total received via M-Pesa</div>
+                        </div>
+                        <div class="stat-card" style="border-left:4px solid var(--danger);padding:14px 16px;">
+                            <div style="font-size:0.72rem;color:var(--gray);margin-bottom:3px;">Payouts Sent</div>
+                            <div style="font-size:1.2rem;font-weight:800;color:var(--danger);">KES ${parseFloat(s.totalPayoutsOut||0).toFixed(2)}</div>
+                            <div style="font-size:0.7rem;color:var(--gray);">Total withdrawn by users</div>
+                        </div>
+                        <div class="stat-card" style="border-left:4px solid #6366f1;padding:14px 16px;">
+                            <div style="font-size:0.72rem;color:var(--gray);margin-bottom:3px;">Expected Balance</div>
+                            <div style="font-size:1.2rem;font-weight:800;color:#6366f1;">KES ${parseFloat(s.expectedBalance||0).toFixed(2)}</div>
+                            <div style="font-size:0.7rem;color:var(--gray);">Deposits − Payouts</div>
+                        </div>
+                        <div class="stat-card" style="border-left:4px solid var(--primary);padding:14px 16px;">
+                            <div style="font-size:0.72rem;color:var(--gray);margin-bottom:3px;">Actual Wallet Sum</div>
+                            <div style="font-size:1.2rem;font-weight:800;color:var(--primary);">KES ${parseFloat(s.actualWalletSum||0).toFixed(2)}</div>
+                            <div style="font-size:0.7rem;color:var(--gray);">Sum of all user wallets</div>
+                        </div>
+                        <div class="stat-card" style="border-left:4px solid ${discColor};padding:14px 16px;">
+                            <div style="font-size:0.72rem;color:var(--gray);margin-bottom:3px;">Discrepancy</div>
+                            <div style="font-size:1.4rem;font-weight:900;color:${discColor};">KES ${Math.abs(s.discrepancy||0).toFixed(2)}</div>
+                            <div style="font-size:0.7rem;color:${discColor};">${s.anomaly ? '⚠ ANOMALY — '+s.culpritCount+' culprit(s) found' : '✓ Within tolerance'}</div>
+                        </div>`;
+
+                    renderCulprits();
+                    loadReconciliationHistory();
+                    showToast('Analysis complete — ' + _reconCulprits.length + ' issue(s) found', _reconCulprits.length ? 'warning' : 'success');
+                } catch(e) {
+                    tableEl.innerHTML = '<div style="padding:2rem;text-align:center;color:var(--danger);">Analysis failed: ' + escHtml(e.message || 'Unknown error') + '</div>';
+                    showToast('Reconciliation analysis failed', 'error');
+                }
+                btn.disabled = false;
+                btn.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> Run Analysis';
+            }
+            window.runReconciliationAnalysis = runReconciliationAnalysis;
+
+            function renderCulprits() {
+                const el       = document.getElementById('reconCulpritsTable');
+                const filter   = document.getElementById('reconCategoryFilter')?.value || '';
+                const list     = filter ? _reconCulprits.filter(c => c.category === filter) : _reconCulprits;
+
+                const catMeta = {
+                    unmatched_deposit:   { label: 'Unmatched Deposit',      color: '#dc2626', bg: '#fef2f2', sev: 'HIGH' },
+                    unmatched_payout:    { label: 'Unmatched Payout',       color: '#d97706', bg: '#fffbeb', sev: 'HIGH' },
+                    orphaned_ledger:     { label: 'Orphaned Ledger Entry',  color: '#7c3aed', bg: '#f5f3ff', sev: 'HIGH' },
+                    wallet_drift:        { label: 'Wallet Balance Drift',   color: '#0369a1', bg: '#eff6ff', sev: 'MED-HIGH' },
+                    stuck_escrow:        { label: 'Stuck Escrow Order',     color: '#b45309', bg: '#fef3c7', sev: 'MEDIUM' },
+                    duplicate_reference: { label: 'Duplicate Reference',    color: '#7c3aed', bg: '#fdf4ff', sev: 'CRITICAL' },
+                };
+                const restrictColors = {
+                    freeze:               '#dc2626',
+                    restrict_withdrawals: '#d97706',
+                    monitor:              '#2563eb',
+                    none:                 '#16a34a',
+                };
+
+                if (!list.length) {
+                    el.innerHTML = `<div style="padding:2rem;text-align:center;color:var(--gray);font-size:0.875rem;">${_reconCulprits.length ? 'No items in this category.' : '✅ No suspicious transactions found — system is balanced.'}</div>`;
+                    return;
+                }
+
+                el.innerHTML = `
+                    <div style="overflow-x:auto;">
+                    <table style="width:100%;border-collapse:collapse;font-size:0.8rem;min-width:900px;">
+                        <thead>
+                            <tr style="background:#f9fafb;">
+                                <th style="padding:10px 14px;text-align:left;font-weight:700;color:var(--gray);font-size:0.7rem;text-transform:uppercase;border-bottom:1px solid #e5e7eb;">Severity</th>
+                                <th style="padding:10px 14px;text-align:left;font-weight:700;color:var(--gray);font-size:0.7rem;text-transform:uppercase;border-bottom:1px solid #e5e7eb;">Category</th>
+                                <th style="padding:10px 14px;text-align:left;font-weight:700;color:var(--gray);font-size:0.7rem;text-transform:uppercase;border-bottom:1px solid #e5e7eb;">Issue &amp; Recommended Action</th>
+                                <th style="padding:10px 14px;text-align:left;font-weight:700;color:var(--gray);font-size:0.7rem;text-transform:uppercase;border-bottom:1px solid #e5e7eb;">Reference</th>
+                                <th style="padding:10px 14px;text-align:right;font-weight:700;color:var(--gray);font-size:0.7rem;text-transform:uppercase;border-bottom:1px solid #e5e7eb;">Amount</th>
+                                <th style="padding:10px 14px;text-align:center;font-weight:700;color:var(--gray);font-size:0.7rem;text-transform:uppercase;border-bottom:1px solid #e5e7eb;">Risk Score</th>
+                                <th style="padding:10px 14px;text-align:left;font-weight:700;color:var(--gray);font-size:0.7rem;text-transform:uppercase;border-bottom:1px solid #e5e7eb;">Wallet Action</th>
+                                <th style="padding:10px 14px;text-align:left;font-weight:700;color:var(--gray);font-size:0.7rem;text-transform:uppercase;border-bottom:1px solid #e5e7eb;">Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${list.map((c, i) => {
+                                const meta     = catMeta[c.category] || { label: c.category, color: '#6b7280', bg: '#f3f4f6', sev: '—' };
+                                const amt      = parseFloat(c.amount || 0);
+                                const amtStr   = (amt >= 0 ? '+' : '−') + 'KES ' + Math.abs(amt).toFixed(2);
+                                const amtColor = amt >= 0 ? '#16a34a' : '#dc2626';
+                                const date     = c.date ? new Date(Number(c.date)).toLocaleString('en-KE', {dateStyle:'short', timeStyle:'short'}) : '—';
+                                const ref      = (c.reference || c.id || '').substring(0, 24);
+                                const rowBg    = i % 2 === 0 ? '#fff' : '#fafafa';
+                                const rScore   = c.walletRiskScore || c.riskPoints || 0;
+                                const rRestrict= c.walletRestriction || 'none';
+                                const rColor   = restrictColors[rRestrict] || '#6b7280';
+                                const rAction  = c.walletAction || c.recommendedAction || '—';
+                                const sevBg    = meta.sev === 'CRITICAL' ? '#7c3aed' : meta.sev === 'HIGH' ? '#dc2626' : meta.sev === 'MED-HIGH' ? '#d97706' : '#6b7280';
+                                return `<tr style="background:${rowBg};border-bottom:1px solid #f3f4f6;" onmouseover="this.style.background='#f0f9ff'" onmouseout="this.style.background='${rowBg}'">
+                                    <td style="padding:10px 14px;">
+                                        <span style="display:inline-block;padding:2px 7px;border-radius:4px;font-size:0.66rem;font-weight:800;background:${sevBg};color:#fff;letter-spacing:.04em;">${meta.sev}</span>
+                                    </td>
+                                    <td style="padding:10px 14px;">
+                                        <span style="display:inline-block;padding:2px 8px;border-radius:20px;font-size:0.68rem;font-weight:700;background:${meta.bg};color:${meta.color};white-space:nowrap;">${meta.label}</span>
+                                    </td>
+                                    <td style="padding:10px 14px;max-width:300px;">
+                                        <div style="font-size:0.8rem;color:var(--dark);line-height:1.4;">${escHtml(c.description)}</div>
+                                        ${c.recommendedAction ? `<div style="font-size:0.72rem;color:#6b7280;margin-top:3px;font-style:italic;">${escHtml(c.recommendedAction)}</div>` : ''}
+                                        ${c.uid ? `<div style="font-size:0.68rem;color:#9ca3af;margin-top:2px;font-family:monospace;">uid: ${escHtml(c.uid.substring(0,16))}</div>` : ''}
+                                    </td>
+                                    <td style="padding:10px 14px;font-family:monospace;color:#6b7280;font-size:0.72rem;" title="${escHtml(c.reference||'')}">
+                                        ${escHtml(ref)}<br>
+                                        ${c.phone ? `<span style="font-size:0.68rem;color:#9ca3af;">${escHtml(c.phone)}</span>` : ''}
+                                    </td>
+                                    <td style="padding:10px 14px;text-align:right;font-weight:700;color:${amtColor};white-space:nowrap;">${amtStr}</td>
+                                    <td style="padding:10px 14px;text-align:center;">
+                                        <div style="display:inline-flex;flex-direction:column;align-items:center;gap:2px;">
+                                            <span style="font-size:1rem;font-weight:900;color:${rColor};">${rScore}</span>
+                                            <span style="font-size:0.62rem;padding:1px 6px;border-radius:20px;background:${rColor}18;color:${rColor};font-weight:700;white-space:nowrap;text-transform:uppercase;">${rRestrict.replace('_',' ')}</span>
+                                        </div>
+                                    </td>
+                                    <td style="padding:10px 14px;font-size:0.75rem;color:${rColor};line-height:1.4;max-width:180px;">${escHtml(rAction)}</td>
+                                    <td style="padding:10px 14px;color:#9ca3af;white-space:nowrap;font-size:0.75rem;">${date}</td>
+                                </tr>`;
+                            }).join('')}
+                        </tbody>
+                        <tfoot>
+                            <tr style="background:#f9fafb;border-top:2px solid #e5e7eb;">
+                                <td colspan="4" style="padding:10px 14px;font-weight:700;font-size:0.82rem;color:var(--dark);">
+                                    ${list.length} issue${list.length!==1?'s':''}
+                                    &nbsp;·&nbsp;
+                                    ${list.filter(c=>c.walletRestriction==='freeze').length} freeze(s)
+                                    &nbsp;·&nbsp;
+                                    ${list.filter(c=>c.walletRestriction==='restrict_withdrawals').length} restriction(s)
+                                </td>
+                                <td style="padding:10px 14px;text-align:right;font-weight:900;color:var(--dark);">
+                                    KES ${list.reduce((s,c) => s + Math.abs(parseFloat(c.amount||0)), 0).toFixed(2)}
+                                </td>
+                                <td colspan="3"></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                    </div>`;
+            }
+            window.renderCulprits = renderCulprits;
+
+            // ── Wallet risk scores panel ─────────────────────────────────────────
+            async function loadWalletRisks() {
+                const el = document.getElementById('walletRisksPanel');
+                el.innerHTML = '<div style="padding:1.5rem;text-align:center;color:var(--gray);">Loading…</div>';
+                try {
+                    const risks = await api('/api/admin/wallet-risks');
+                    if (!risks || !risks.length) {
+                        el.innerHTML = '<div style="padding:1.5rem;text-align:center;color:var(--gray);font-size:0.875rem;">No wallet risks found. All wallets are clean.</div>';
+                        return;
+                    }
+                    const rColors = { freeze:'#dc2626', restrict_withdrawals:'#d97706', monitor:'#2563eb', none:'#16a34a' };
+                    el.innerHTML = `<table style="width:100%;border-collapse:collapse;font-size:0.8rem;">
+                        <thead><tr style="background:#f9fafb;">
+                            <th style="padding:10px 14px;text-align:left;font-weight:700;color:var(--gray);font-size:0.7rem;text-transform:uppercase;border-bottom:1px solid #e5e7eb;">User</th>
+                            <th style="padding:10px 14px;text-align:left;font-weight:700;color:var(--gray);font-size:0.7rem;text-transform:uppercase;border-bottom:1px solid #e5e7eb;">Wallet</th>
+                            <th style="padding:10px 14px;text-align:center;font-weight:700;color:var(--gray);font-size:0.7rem;text-transform:uppercase;border-bottom:1px solid #e5e7eb;">Risk Score</th>
+                            <th style="padding:10px 14px;text-align:left;font-weight:700;color:var(--gray);font-size:0.7rem;text-transform:uppercase;border-bottom:1px solid #e5e7eb;">Restriction</th>
+                            <th style="padding:10px 14px;text-align:left;font-weight:700;color:var(--gray);font-size:0.7rem;text-transform:uppercase;border-bottom:1px solid #e5e7eb;">Flags</th>
+                            <th style="padding:10px 14px;text-align:right;font-weight:700;color:var(--gray);font-size:0.7rem;text-transform:uppercase;border-bottom:1px solid #e5e7eb;">Balance</th>
+                            <th style="padding:10px 14px;text-align:center;font-weight:700;color:var(--gray);font-size:0.7rem;text-transform:uppercase;border-bottom:1px solid #e5e7eb;">Action</th>
+                        </tr></thead>
+                        <tbody>
+                            ${risks.map((r, i) => {
+                                const rc      = rColors[r.restriction] || '#6b7280';
+                                const flags   = Array.isArray(r.anomaly_flags) ? r.anomaly_flags : JSON.parse(r.anomaly_flags || '[]');
+                                const flagStr = flags.slice(0,2).map(f => `<li style="margin:1px 0;">${escHtml(f)}</li>`).join('');
+                                const updated = r.last_updated ? new Date(Number(r.last_updated)).toLocaleString('en-KE',{dateStyle:'short',timeStyle:'short'}) : '—';
+                                const rowBg   = i%2===0?'#fff':'#fafafa';
+                                return `<tr style="background:${rowBg};border-bottom:1px solid #f3f4f6;">
+                                    <td style="padding:10px 14px;">
+                                        <div style="font-weight:600;font-size:0.82rem;color:var(--dark);">${escHtml(r.display_name||'—')}</div>
+                                        <div style="font-size:0.72rem;color:var(--gray);">${escHtml(r.email||'')} · ${escHtml(r.role||'')}</div>
+                                    </td>
+                                    <td style="padding:10px 14px;font-size:0.8rem;font-weight:600;color:var(--dark);">${escHtml(r.wallet_type)}</td>
+                                    <td style="padding:10px 14px;text-align:center;">
+                                        <span style="font-size:1.1rem;font-weight:900;color:${rc};">${r.risk_score}</span>
+                                    </td>
+                                    <td style="padding:10px 14px;">
+                                        <span style="display:inline-block;padding:3px 10px;border-radius:20px;font-size:0.7rem;font-weight:700;background:${rc}18;color:${rc};text-transform:uppercase;">${(r.restriction||'none').replace('_',' ')}</span>
+                                        <div style="font-size:0.68rem;color:#9ca3af;margin-top:2px;">${updated}</div>
+                                    </td>
+                                    <td style="padding:10px 14px;font-size:0.72rem;color:#6b7280;max-width:220px;">
+                                        <ul style="margin:0;padding-left:14px;">${flagStr}${flags.length>2?`<li style="color:#9ca3af">+${flags.length-2} more…</li>`:''}</ul>
+                                    </td>
+                                    <td style="padding:10px 14px;text-align:right;font-weight:700;color:var(--dark);font-size:0.82rem;">
+                                        KES ${parseFloat(r.balance||0).toFixed(2)}
+                                        ${r.wallet_status==='frozen'?'<span style="display:block;font-size:0.68rem;color:#dc2626;font-weight:700;">🔒 FROZEN</span>':''}
+                                    </td>
+                                    <td style="padding:10px 14px;text-align:center;">
+                                        <button onclick="resolveWalletRisk('${r.uid}','${r.wallet_type}')" style="padding:5px 12px;background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;border-radius:7px;cursor:pointer;font-size:0.75rem;font-weight:600;font-family:inherit;transition:background .15s;" onmouseover="this.style.background='#dcfce7'" onmouseout="this.style.background='#f0fdf4'">
+                                            ✓ Resolve
+                                        </button>
+                                    </td>
+                                </tr>`;
+                            }).join('')}
+                        </tbody>
+                    </table>`;
+                } catch(e) {
+                    el.innerHTML = '<div style="padding:1.5rem;text-align:center;color:var(--danger);">Failed to load wallet risks.</div>';
+                }
+            }
+            window.loadWalletRisks = loadWalletRisks;
+
+            async function resolveWalletRisk(uid, walletType) {
+                // Styled input modal — no native prompt()
+                const resolved = await new Promise(function(resolve) {
+                    var overlay = document.getElementById('_resolveModal');
+                    if (!overlay) {
+                        overlay = document.createElement('div');
+                        overlay.id = '_resolveModal';
+                        overlay.style.cssText = 'display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center;backdrop-filter:blur(2px)';
+                        overlay.innerHTML = `
+                            <div style="background:#fff;border-radius:16px;width:90%;max-width:460px;box-shadow:0 20px 60px rgba(0,0,0,0.18);overflow:hidden;animation:_cmIn .2s ease">
+                                <div style="padding:24px 24px 0;text-align:center">
+                                    <div style="width:52px;height:52px;border-radius:50%;background:#f0fdf4;display:flex;align-items:center;justify-content:center;margin:0 auto 12px">
+                                        <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                                    </div>
+                                    <h3 id="_resolveTitle" style="font-size:1.1rem;font-weight:700;margin:0 0 4px;color:#1f2937">Resolve Wallet Risk</h3>
+                                    <p id="_resolveDesc" style="font-size:0.85rem;color:#6b7280;margin:0 0 16px;line-height:1.4"></p>
+                                </div>
+                                <div style="padding:0 24px 8px">
+                                    <label style="display:block;font-size:0.8rem;font-weight:600;color:#374151;margin-bottom:6px">Reason for audit log</label>
+                                    <textarea id="_resolveReason" rows="3" style="width:100%;padding:10px 12px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:0.875rem;font-family:inherit;resize:vertical;outline:none;box-sizing:border-box;transition:border-color .2s" onfocus="this.style.borderColor='#16a34a'" onblur="this.style.borderColor='#e5e7eb'"></textarea>
+                                </div>
+                                <div style="padding:12px 24px 24px;display:flex;gap:10px">
+                                    <button id="_resolveCancel" style="flex:1;padding:12px;border:1.5px solid #e5e7eb;border-radius:10px;background:#fff;color:#374151;font-weight:600;font-size:0.875rem;font-family:inherit;cursor:pointer">Cancel</button>
+                                    <button id="_resolveOk" style="flex:1;padding:12px;border:none;border-radius:10px;background:#16a34a;color:#fff;font-weight:700;font-size:0.875rem;font-family:inherit;cursor:pointer">✓ Resolve</button>
+                                </div>
+                            </div>`;
+                        document.body.appendChild(overlay);
+                    }
+                    document.getElementById('_resolveTitle').textContent = `Resolve ${walletType} wallet`;
+                    document.getElementById('_resolveDesc').textContent = `UID: ${uid} · This will clear the risk score and unfreeze the wallet.`;
+                    document.getElementById('_resolveReason').value = 'Manually reviewed and cleared by admin';
+                    overlay.style.display = 'flex';
+                    setTimeout(() => document.getElementById('_resolveReason').focus(), 100);
+                    function cleanup() {
+                        overlay.style.display = 'none';
+                        document.getElementById('_resolveOk').onclick = null;
+                        document.getElementById('_resolveCancel').onclick = null;
+                        overlay.onclick = null;
+                        document.onkeydown = null;
+                    }
+                    document.getElementById('_resolveOk').onclick = function() {
+                        const r = document.getElementById('_resolveReason').value.trim();
+                        cleanup();
+                        resolve(r || 'Manually reviewed and cleared by admin');
+                    };
+                    document.getElementById('_resolveCancel').onclick = function() { cleanup(); resolve(null); };
+                    overlay.onclick = function(e) { if (e.target === overlay) { cleanup(); resolve(null); } };
+                    document.onkeydown = function(e) { if (e.key === 'Escape') { cleanup(); resolve(null); } };
+                });
+
+                if (resolved === null) return; // cancelled
+                try {
+                    await api(`/api/admin/wallet-risks/${uid}/resolve`, {
+                        method: 'POST',
+                        body: JSON.stringify({ walletType, reason: resolved }),
+                    });
+                    showToast(`Wallet ${walletType} for user resolved`, 'success');
+                    loadWalletRisks();
+                } catch(e) {
+                    showToast('Failed to resolve wallet risk: ' + (e.message || ''), 'error');
+                }
+            }
+            window.resolveWalletRisk = resolveWalletRisk;
+
+            // ---------- All Transactions ----------
+            let _allTxns      = [];
+            let _txnOffset    = 0;
+            const _txnPageSize = 200;
+
+            const _sourceConfig = {
+                ledger:    { label: 'Ledger',      color: '#2563eb', bg: '#eff6ff' },
+                mpesa_stk: { label: 'M-Pesa STK',  color: '#16a34a', bg: '#f0fdf4' },
+                payout:    { label: 'Payout',       color: '#d97706', bg: '#fffbeb' },
+                escrow:    { label: 'Escrow',        color: '#7c3aed', bg: '#f5f3ff' },
+            };
+            const _statusConfig = {
+                completed:  { color: '#16a34a', bg: '#f0fdf4' },
+                success:    { color: '#16a34a', bg: '#f0fdf4' },
+                approved:   { color: '#16a34a', bg: '#f0fdf4' },
+                pending:    { color: '#d97706', bg: '#fffbeb' },
+                failed:     { color: '#dc2626', bg: '#fef2f2' },
+                rejected:   { color: '#dc2626', bg: '#fef2f2' },
+                cancelled:  { color: '#6b7280', bg: '#f3f4f6' },
+                in_escrow:  { color: '#7c3aed', bg: '#f5f3ff' },
+                dispatched: { color: '#0369a1', bg: '#eff6ff' },
+                refunded:   { color: '#0891b2', bg: '#ecfeff' },
+            };
+            const _typeConfig = {
+                deposit:        { color: '#16a34a' },
+                withdrawal:     { color: '#dc2626' },
+                transfer:       { color: '#2563eb' },
+                fee:            { color: '#d97706' },
+                escrow_hold:    { color: '#7c3aed' },
+                escrow_release: { color: '#16a34a' },
+                escrow_refund:  { color: '#0891b2' },
+            };
+
+            async function loadAllTransactions(reset) {
+                if (reset) { _allTxns = []; _txnOffset = 0; }
+                const tbody = document.getElementById('txnTableBody');
+                if (!_allTxns.length) {
+                    tbody.innerHTML = '<tr><td colspan="9" style="padding:3rem;text-align:center;color:var(--gray);">Loading transactions…</td></tr>';
+                }
+                try {
+                    const data = await api('/api/admin/all-transactions?limit=' + _txnPageSize + '&offset=' + _txnOffset);
+                    const txns = data.transactions || [];
+                    _allTxns = reset ? txns : [..._allTxns, ...txns];
+                    _txnOffset += txns.length;
+
+                    // Summary cards
+                    const src = data.sources || {};
+                    const totalAmt = _allTxns.reduce((s, t) => s + Math.abs(parseFloat(t.amount||0)), 0);
+                    document.getElementById('txnSummaryCards').innerHTML = `
+                        <div class="stat-card" style="padding:14px 16px;border-left:4px solid #2563eb;">
+                            <div style="font-size:0.72rem;color:var(--gray);margin-bottom:3px;">Total Records</div>
+                            <div style="font-size:1.4rem;font-weight:800;color:#2563eb;">${_allTxns.length.toLocaleString()}</div>
+                            <div style="font-size:0.7rem;color:var(--gray);">Across all sources</div>
+                        </div>
+                        <div class="stat-card" style="padding:14px 16px;border-left:4px solid #16a34a;">
+                            <div style="font-size:0.72rem;color:var(--gray);margin-bottom:3px;">Ledger Entries</div>
+                            <div style="font-size:1.2rem;font-weight:800;color:#16a34a;">${(src.ledger||0).toLocaleString()}</div>
+                        </div>
+                        <div class="stat-card" style="padding:14px 16px;border-left:4px solid #d97706;">
+                            <div style="font-size:0.72rem;color:var(--gray);margin-bottom:3px;">M-Pesa STK</div>
+                            <div style="font-size:1.2rem;font-weight:800;color:#d97706;">${(src.mpesa_stk||0).toLocaleString()}</div>
+                            <div style="font-size:0.7rem;color:var(--gray);">All states incl. failed</div>
+                        </div>
+                        <div class="stat-card" style="padding:14px 16px;border-left:4px solid #7c3aed;">
+                            <div style="font-size:0.72rem;color:var(--gray);margin-bottom:3px;">Payouts</div>
+                            <div style="font-size:1.2rem;font-weight:800;color:#7c3aed;">${(src.payout||0).toLocaleString()}</div>
+                        </div>
+                        <div class="stat-card" style="padding:14px 16px;border-left:4px solid #0369a1;">
+                            <div style="font-size:0.72rem;color:var(--gray);margin-bottom:3px;">Escrow Orders</div>
+                            <div style="font-size:1.2rem;font-weight:800;color:#0369a1;">${(src.escrow||0).toLocaleString()}</div>
+                        </div>
+                        <div class="stat-card" style="padding:14px 16px;border-left:4px solid var(--primary);">
+                            <div style="font-size:0.72rem;color:var(--gray);margin-bottom:3px;">Total Volume</div>
+                            <div style="font-size:1.1rem;font-weight:800;color:var(--primary);">KES ${totalAmt.toLocaleString('en-KE',{minimumFractionDigits:2,maximumFractionDigits:2})}</div>
+                        </div>`;
+
+                    document.getElementById('txnLoadMore').style.display = txns.length >= _txnPageSize ? 'block' : 'none';
+                    filterAndRenderTxns();
+                } catch(e) {
+                    document.getElementById('txnTableBody').innerHTML =
+                        '<tr><td colspan="9" style="padding:2rem;text-align:center;color:var(--danger);">Failed to load transactions: ' + escHtml(e.message||'') + '</td></tr>';
+                }
+            }
+            window.loadAllTransactions = loadAllTransactions;
+
+            function loadMoreTxns() { loadAllTransactions(false); }
+            window.loadMoreTxns = loadMoreTxns;
+
+            function filterAndRenderTxns() {
+                const search = (document.getElementById('txnSearch')?.value || '').toLowerCase();
+                const srcF   = document.getElementById('txnSourceFilter')?.value || '';
+                const typeF  = document.getElementById('txnTypeFilter')?.value  || '';
+                const statF  = document.getElementById('txnStatusFilter')?.value || '';
+
+                let list = _allTxns;
+                if (srcF)  list = list.filter(t => t.source  === srcF);
+                if (typeF) list = list.filter(t => (t.type   || '').toLowerCase() === typeF);
+                if (statF) list = list.filter(t => (t.status || '').toLowerCase() === statF);
+                if (search) list = list.filter(t =>
+                    (t.reference   || '').toLowerCase().includes(search) ||
+                    (t.description || '').toLowerCase().includes(search) ||
+                    (t.user_name   || '').toLowerCase().includes(search) ||
+                    (t.user_email  || '').toLowerCase().includes(search) ||
+                    (t.from_uid    || '').toLowerCase().includes(search) ||
+                    (t.to_uid      || '').toLowerCase().includes(search)
+                );
+
+                const countEl = document.getElementById('txnCount');
+                if (countEl) countEl.textContent = list.length.toLocaleString() + ' record' + (list.length !== 1 ? 's' : '');
+
+                const tbody = document.getElementById('txnTableBody');
+                if (!list.length) {
+                    tbody.innerHTML = '<tr><td colspan="9" style="padding:2rem;text-align:center;color:var(--gray);">No transactions match your filters.</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = list.map((t, i) => {
+                    const srcMeta  = _sourceConfig[t.source]  || { label: t.source, color: '#6b7280', bg: '#f3f4f6' };
+                    const statMeta = _statusConfig[(t.status||'').toLowerCase()] || { color: '#6b7280', bg: '#f3f4f6' };
+                    const typeMeta = _typeConfig[(t.type||'').toLowerCase()] || { color: '#374151' };
+
+                    const date    = t.created_at ? new Date(Number(t.created_at)).toLocaleString('en-KE', { dateStyle:'short', timeStyle:'short' }) : '—';
+                    const amt     = parseFloat(t.amount || 0);
+                    const fee     = parseFloat(t.fee    || 0);
+                    const isDebit = ['withdrawal','fee','escrow_hold'].includes((t.type||'').toLowerCase());
+                    const amtColor= isDebit ? '#dc2626' : '#16a34a';
+                    const amtStr  = (isDebit ? '−' : '+') + 'KES ' + Math.abs(amt).toFixed(2);
+                    const feeStr  = fee > 0 ? 'KES ' + fee.toFixed(2) : '—';
+                    const ref     = (t.reference || '').substring(0, 28) || '—';
+                    const desc    = (t.description || '').substring(0, 60);
+                    const userName = t.user_name || t.user_email || (t.from_uid || '').substring(0, 10) || '—';
+                    const userRole = t.user_role ? ` <span style="font-size:0.68rem;color:var(--gray);background:#f3f4f6;padding:1px 5px;border-radius:4px;">${escHtml(t.user_role)}</span>` : '';
+                    const rowBg   = i % 2 === 0 ? '#fff' : '#fafafa';
+
+                    return `<tr style="background:${rowBg};border-bottom:1px solid #f3f4f6;transition:background .12s;" onmouseover="this.style.background='#f0f9ff'" onmouseout="this.style.background='${rowBg}'">
+                        <td style="padding:9px 14px;color:#6b7280;white-space:nowrap;font-size:0.78rem;">${date}</td>
+                        <td style="padding:9px 14px;">
+                            <span style="display:inline-block;padding:2px 8px;border-radius:20px;font-size:0.68rem;font-weight:700;background:${srcMeta.bg};color:${srcMeta.color};white-space:nowrap;">${srcMeta.label}</span>
+                        </td>
+                        <td style="padding:9px 14px;">
+                            <span style="font-size:0.78rem;font-weight:600;color:${typeMeta.color};">${escHtml(t.type || '—')}</span>
+                        </td>
+                        <td style="padding:9px 14px;">
+                            <span style="display:inline-block;padding:2px 8px;border-radius:20px;font-size:0.68rem;font-weight:700;background:${statMeta.bg};color:${statMeta.color};white-space:nowrap;">${escHtml(t.status || 'completed')}</span>
+                        </td>
+                        <td style="padding:9px 14px;max-width:150px;">
+                            <div style="font-size:0.8rem;font-weight:600;color:var(--dark);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(userName)}${userRole}</div>
+                            ${t.user_email && t.user_email !== userName ? '<div style="font-size:0.7rem;color:var(--gray);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escHtml(t.user_email) + '</div>' : ''}
+                        </td>
+                        <td style="padding:9px 14px;max-width:220px;color:var(--dark);font-size:0.78rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${escHtml(t.description||'')}">${escHtml(desc) || '—'}</td>
+                        <td style="padding:9px 14px;font-family:monospace;color:#6b7280;font-size:0.72rem;white-space:nowrap;" title="${escHtml(t.reference||'')}">${escHtml(ref)}</td>
+                        <td style="padding:9px 14px;text-align:right;font-weight:700;color:${amtColor};white-space:nowrap;">${amtStr}</td>
+                        <td style="padding:9px 14px;text-align:right;color:#6b7280;font-size:0.78rem;white-space:nowrap;">${feeStr}</td>
+                    </tr>`;
+                }).join('');
+            }
+            window.filterAndRenderTxns = filterAndRenderTxns;
 
             // ---------- Payouts ----------
             let payoutData = [];
